@@ -1,0 +1,4 @@
+﻿  Renderer.cpp
+C:\Users\andy1\source\repos\VulkanApp\VulkanApp\Renderer.cpp(614,48): warning C4267: "Argument": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
+C:\Users\andy1\source\repos\VulkanApp\VulkanApp\Renderer.cpp(616,33): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+  VulkanApp.vcxproj -> C:\Users\andy1\source\repos\VulkanApp\x64\Debug\VulkanApp.exe
