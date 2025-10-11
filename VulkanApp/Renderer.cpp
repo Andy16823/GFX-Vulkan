@@ -700,7 +700,7 @@ void Renderer::updateUniformBuffer(uint32_t currentImage)
 
 	// Copy the model data to the dynamic uniform buffer
 	for (size_t i = 0; i < m_meshes.size(); i++) {
-		UboModel* thisModel = (UboModel*)((uint64_t)m_modelTransferSpace + (i * sizeof(m_modelUniformAlignment)));
+		UboModel* thisModel = (UboModel*)((uint64_t)m_modelTransferSpace + (i * m_modelUniformAlignment));
 		*thisModel = m_meshes[i]->getModel();
 	}
 	vkMapMemory(m_renderDevice.logicalDevice, m_dynamicUniformBuffers[currentImage]->getUniformBufferMemory(), 0, m_modelUniformAlignment * m_meshes.size(), 0, &data);
@@ -1059,10 +1059,11 @@ VkShaderModule Renderer::createShaderModule(const std::vector<char>& code)
 
 void Renderer::allocateDynamicBufferTransferSpace()
 {
-	// Get the minimum device offset alignment
-	m_modelUniformAlignment = (sizeof(UboModel) + m_minUniformBufferOffset - 1) & ~(m_minUniformBufferOffset - 1);
+	// Calculate alignment of model data
+	m_modelUniformAlignment = (sizeof(UboModel) + m_minUniformBufferOffset - 1)
+		& ~(m_minUniformBufferOffset - 1);
 
-	// Allocate space for the maximum number of objects
+	// Create space in memory to hold dynamic buffer that is aligned to our required alignment and holds MAX_OBJECTS
 	m_modelTransferSpace = (UboModel*)_aligned_malloc(m_modelUniformAlignment * MAX_OBJECTS, m_modelUniformAlignment);
 }
 

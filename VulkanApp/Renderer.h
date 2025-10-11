@@ -28,8 +28,8 @@ private:
 	std::vector<Mesh*> m_meshes; // TODO: Remove and replace with an funtion
 
 	struct UboViewProjection {
-		glm::mat4 view;
 		glm::mat4 projection;
+		glm::mat4 view;
 	} m_uboViewProjection;
 
 	VkInstance m_instance;
