@@ -130,10 +130,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="UniformBuffer.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="IndexBuffer.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="UniformBuffer.h" />
+    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>

@@ -7,6 +7,10 @@
 #include "Utils.h"
 #include <set>
 #include <array>
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "UniformBuffer.h"
+#include "Mesh.h"
 
 
 struct RenderDevice {
@@ -19,6 +23,15 @@ class Renderer
 {
 private:
 	GLFWwindow* m_window;
+	int m_currentFrame = 0;
+
+	std::vector<Mesh*> m_meshes; // TODO: Remove and replace with an funtion
+
+	struct UboViewProjection {
+		glm::mat4 view;
+		glm::mat4 projection;
+	} m_uboViewProjection;
+
 	VkInstance m_instance;
 	RenderDevice m_renderDevice;
 	VkQueue m_graphicsQueue;
@@ -28,6 +41,7 @@ private:
 	bool m_enableValidationLayers = false;
 	std::vector<const char*> m_validationLayers;
 	std::vector<SwapChainImage> m_swapChainImages;
+	std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
 	VkPipeline m_graphicsPipeline;
 	VkPipelineLayout m_pipelineLayout;
@@ -35,6 +49,28 @@ private:
 
 	VkFormat m_swapChainImageFormat;
 	VkExtent2D m_swapChainExtent;
+	std::vector<VkCommandBuffer> m_commandBuffers;
+
+	VkDescriptorSetLayout m_descriptorSetLayout;
+
+	VkDescriptorPool m_descriptorPool;
+	std::vector<VkDescriptorSet> m_descriptorSets;
+
+	std::vector<UniformBuffer*> m_uniformBuffers;
+	std::vector<UniformBuffer*> m_dynamicUniformBuffers;
+
+	VkDeviceSize m_minUniformBufferOffset;
+	size_t m_modelUniformAlignment;
+	UboModel* m_modelTransferSpace;
+
+	VkCommandPool m_commandPool;
+
+	int m_numFramesInFlight = 0;
+	std::vector<VkSemaphore> m_imageAvailableSemaphores;
+	std::vector<VkSemaphore> m_renderFinishedSemaphores;
+	std::vector<VkFence> m_inFlightFences;
+	std::vector<VkFence> m_imagesInFlight;
+
 
 	// Core
 	void createValidationLayers();
@@ -44,7 +80,20 @@ private:
 	void createSurface();
 	void createSwapChain();
 	void createRenderPass();
+	void createDescriptorSetLayout();
 	void createGraphicsPipeline(ShaderSourceCollection shaders);
+	void createFramebuffers();
+	void createCommandPool();
+	void createCommandBuffers();
+	void createSyncObjects();
+	void createUniformBuffers();
+	void createDescriptorPool();
+	void createDescriptorSets();
+
+	void updateUniformBuffer(uint32_t currentImage);
+
+	// Record
+	void recordCommands();
 
 	// Support
 	bool checkValidationLayerSupport();
@@ -64,8 +113,15 @@ private:
 	// Create functions
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D);
 	VkShaderModule createShaderModule(const std::vector<char>& code);
+
+	// Allocate Functions
+	void allocateDynamicBufferTransferSpace();
+
 public:
 	int init(GLFWwindow* window);
+	void setProjectionMatrix(glm::mat4 proj) { m_uboViewProjection.projection = proj; }
+	void setViewMatrix(glm::mat4 view) { m_uboViewProjection.view = view; }
+	void draw();
 	void dispose();
 	~Renderer();
 };

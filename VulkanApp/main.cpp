@@ -1,6 +1,9 @@
 #include <iostream>
 #include "Renderer.h"
 #include <string>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 GLFWwindow* window;
 Renderer renderer;
@@ -24,6 +27,7 @@ int main() {
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
+		renderer.draw();
 	}
 
 	renderer.dispose();
