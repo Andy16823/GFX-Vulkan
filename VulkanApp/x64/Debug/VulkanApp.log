@@ -1,6 +1,7 @@
-﻿  Renderer.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(570,46): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(744,27): warning C4267: "Initialisierung": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(911,48): warning C4267: "Argument": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(913,33): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+﻿  Mesh.cpp
+  Renderer.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(583,46): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(922,48): warning C4267: "Argument": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(924,33): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+  Code wird generiert...
   VulkanApp.vcxproj -> C:\Users\andy1\Documents\GitHub\GFX-Vulkan\x64\Debug\VulkanApp.exe

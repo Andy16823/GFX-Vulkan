@@ -52,6 +52,7 @@ private:
 	std::vector<VkCommandBuffer> m_commandBuffers;
 
 	VkDescriptorSetLayout m_descriptorSetLayout;
+	//VkPushConstantRange m_pushConstantRange;
 
 	VkDescriptorPool m_descriptorPool;
 	std::vector<VkDescriptorSet> m_descriptorSets;
@@ -59,9 +60,10 @@ private:
 	std::vector<UniformBuffer*> m_uniformBuffers;
 	std::vector<UniformBuffer*> m_dynamicUniformBuffers;
 
-	VkDeviceSize m_minUniformBufferOffset;
-	size_t m_modelUniformAlignment;
-	UboModel* m_modelTransferSpace;
+
+	//VkDeviceSize m_minUniformBufferOffset;
+	//size_t m_modelUniformAlignment;
+	//Model* m_modelTransferSpace;
 
 	VkCommandPool m_commandPool;
 
@@ -81,6 +83,7 @@ private:
 	void createSwapChain();
 	void createRenderPass();
 	void createDescriptorSetLayout();
+	//void createPushConstantRange();
 	void createGraphicsPipeline(ShaderSourceCollection shaders);
 	void createFramebuffers();
 	void createCommandPool();
@@ -93,7 +96,7 @@ private:
 	void updateUniformBuffer(uint32_t currentImage);
 
 	// Record
-	void recordCommands();
+	void recordCommands(uint32_t currentImage);
 
 	// Support
 	bool checkValidationLayerSupport();
@@ -115,7 +118,7 @@ private:
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 
 	// Allocate Functions
-	void allocateDynamicBufferTransferSpace();
+	//void allocateDynamicBufferTransferSpace();
 
 public:
 	int init(GLFWwindow* window);

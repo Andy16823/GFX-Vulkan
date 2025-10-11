@@ -5,21 +5,21 @@
 #include "IndexBuffer.h"
 #include <vector>
 
-struct UboModel {
+struct Model {
 	glm::mat4 model;
 };
 
 class Mesh
 {
 private:
-	UboModel m_uboModel;
+	Model m_uboModel;
 
 public:
 	VertexBuffer* vertexBuffer;
 	IndexBuffer* indexBuffer;
 
 	void setModelMatrix(glm::mat4 model);
-	UboModel getModel();
+	const Model& getModel() const;
 
 	Mesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices, std::vector<uint32_t>* indices);
 	~Mesh();

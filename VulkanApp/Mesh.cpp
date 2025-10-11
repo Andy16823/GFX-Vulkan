@@ -7,7 +7,7 @@ void Mesh::setModelMatrix(glm::mat4 model)
 	m_uboModel.model = model;
 }
 
-UboModel Mesh::getModel()
+const Model& Mesh::getModel() const
 {
 	return m_uboModel;
 }
