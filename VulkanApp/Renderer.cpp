@@ -1067,6 +1067,7 @@ void Renderer::allocateDynamicBufferTransferSpace()
 	m_modelTransferSpace = (UboModel*)_aligned_malloc(m_modelUniformAlignment * MAX_OBJECTS, m_modelUniformAlignment);
 }
 
+
 /// <summary>
 /// Initialize the renderer
 /// </summary>
