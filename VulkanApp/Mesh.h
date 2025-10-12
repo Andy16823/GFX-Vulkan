@@ -13,17 +13,16 @@ class Mesh
 {
 private:
 	Model m_uboModel;
-
 public:
-	VertexBuffer* vertexBuffer;
-	IndexBuffer* indexBuffer;
+	int vertexBufferIndex = -1;
+	int indexBufferIndex = -1;
 	int textureIndex = -1;
 
 	void setModelMatrix(glm::mat4 model);
 	const Model& getModel() const;
-
-	Mesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices, std::vector<uint32_t>* indices);
+	Mesh();
 	~Mesh();
+
 	void dispose();
 };
 

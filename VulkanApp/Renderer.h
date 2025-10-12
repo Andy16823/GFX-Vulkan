@@ -11,8 +11,7 @@
 #include "IndexBuffer.h"
 #include "UniformBuffer.h"
 #include "Mesh.h"
-#include "stb_image.h"
-
+#include "ImageTexture.h"
 
 struct RenderDevice {
 	VkPhysicalDevice physicalDevice;
@@ -75,11 +74,13 @@ private:
 	//size_t m_modelUniformAlignment;
 	//Model* m_modelTransferSpace;
 
-	// Assets TODO: Remove it out here
+	// Image Textures
 	VkSampler m_textureSampler;
-	std::vector<VkImage> m_textureImages;
-	std::vector<VkDeviceMemory> m_textureImageMemories;
-	std::vector<VkImageView> m_textureImageViews;
+	std::vector<ImageTexture* > m_imageTextures;
+
+	// Buffer
+	std::vector<VertexBuffer*> m_vertexBuffers;
+	std::vector<IndexBuffer*> m_indexBuffers;
 
 	VkCommandPool m_commandPool;
 
@@ -133,15 +134,8 @@ private:
 	VkFormat chooseSupportedFormat(const std::vector<VkFormat>& formats, VkImageTiling tiling, VkFormatFeatureFlags features);
 
 	// Create functions
-	VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory* imageMemory); // TODO CHANGE LATER
-	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D);
 	VkShaderModule createShaderModule(const std::vector<char>& code);
-	int createTextureImage(std::string fileName);
-	int createTexture(std::string fileName);
 	int createTextureDescriptor(VkImageView textureImageView);
-
-	// Loader functions
-	stbi_uc* loadTextureFile(std::string fileName, int* width, int* height, VkDeviceSize* imageSize);
 
 	// Allocate Functions
 	//void allocateDynamicBufferTransferSpace();
@@ -150,6 +144,10 @@ public:
 	int init(GLFWwindow* window);
 	void setProjectionMatrix(glm::mat4 proj) { m_uboViewProjection.projection = proj; }
 	void setViewMatrix(glm::mat4 view) { m_uboViewProjection.view = view; }
+	void addImageTexture(ImageTexture* imageTexture);
+	int createVertexBuffer(std::vector<Vertex>* vertices);
+	int createIndexBuffer(std::vector<uint32_t>* indices);
+	void addMesh(Mesh* mesh);
 	void draw();
 	void dispose();
 	~Renderer();

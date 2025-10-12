@@ -237,7 +237,7 @@ void Renderer::createSwapChain()
 	for (VkImage image : images) {
 		SwapChainImage swapChainImage = {};
 		swapChainImage.image = image;
-		swapChainImage.imageView = createImageView(image, m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+		swapChainImage.imageView = createImageView(m_renderDevice.logicalDevice, image, m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 		m_swapChainImages.push_back(swapChainImage);
 	}
 
@@ -537,7 +537,7 @@ void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
 		std::cout << "Pipeline layout created successfully!" << std::endl;
 	}
 
-	// TODO: Add depth and stencil state
+	// Depth and stencil testing
 	VkPipelineDepthStencilStateCreateInfo depthStencil = {};
 	depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	depthStencil.depthTestEnable = VK_TRUE;
@@ -590,6 +590,8 @@ void Renderer::createDepthBufferImage()
 
 	// Create the depth image
 	m_depthBufferImage = createImage(
+		m_renderDevice.physicalDevice,
+		m_renderDevice.logicalDevice,
 		m_swapChainExtent.width,
 		m_swapChainExtent.height,
 		m_depthBufferFormat,
@@ -599,7 +601,7 @@ void Renderer::createDepthBufferImage()
 		&m_depthBufferImageMemory);
 
 	// Create the depth image view
-	m_depthBufferImageView = createImageView(m_depthBufferImage, m_depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+	m_depthBufferImageView = createImageView(m_renderDevice.logicalDevice, m_depthBufferImage, m_depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
 void Renderer::createFramebuffers()
@@ -872,9 +874,12 @@ void Renderer::recordCommands(uint32_t currentImage)
 	// Draw the meshes
 	for (size_t j = 0; j < m_meshes.size(); j++) {
 		auto mesh = m_meshes[j];
-		VkBuffer vertexBuffers[] = { mesh->vertexBuffer->getVertexBuffer() };
+		auto vertexBuffer = m_vertexBuffers[mesh->vertexBufferIndex];
+		auto indexBuffer = m_indexBuffers[mesh->indexBufferIndex];
+
+		VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer()};
 		VkDeviceSize offsets[] = { 0 };
-		uint32_t indexCount = static_cast<uint32_t>(mesh->indexBuffer->getIndexCount());
+		uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
 
 		std::array<VkDescriptorSet, 2> descriptorSets = { 
 			m_descriptorSets[currentImage], 
@@ -887,7 +892,7 @@ void Renderer::recordCommands(uint32_t currentImage)
 
 		vkCmdPushConstants(m_commandBuffers[currentImage], m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(Model), &m_meshes[j]->getModel());
 		vkCmdBindVertexBuffers(m_commandBuffers[currentImage], 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(m_commandBuffers[currentImage], mesh->indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(m_commandBuffers[currentImage], indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 		vkCmdDrawIndexed(m_commandBuffers[currentImage], indexCount, 1, 0, 0, 0);
 	}
 	//vkCmdDraw(m_commandBuffers[i], static_cast<uint32_t>(m_vertexBuffer->getVertexCount()), 1, 0, 0); // Draw a triangle with 3 vertices, 1 instance, first vertex 0, first instance 0
@@ -1169,76 +1174,6 @@ VkFormat Renderer::chooseSupportedFormat(const std::vector<VkFormat>& formats, V
 	std::runtime_error("failed to find supported format!");	
 }
 
-// TODO: Change return type to an ImageTexture struct
-VkImage Renderer::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory* imageMemory)
-{
-	// CREATE IMAGE
-	VkImageCreateInfo imageInfo = {};
-	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-	imageInfo.imageType = VK_IMAGE_TYPE_2D;
-	imageInfo.extent.width = width;
-	imageInfo.extent.height = height;
-	imageInfo.extent.depth = 1;
-	imageInfo.mipLevels = 1;
-	imageInfo.arrayLayers = 1;
-	imageInfo.format = format;
-	imageInfo.tiling = tiling;
-	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	imageInfo.usage = useFlags;
-	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-	VkImage image;
-	if (vkCreateImage(m_renderDevice.logicalDevice, &imageInfo, nullptr, &image)  != VK_SUCCESS) {
-		throw std::runtime_error("failed to create image!");
-	}
-
-	// ALLOCATE MEMORY
-	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(m_renderDevice.logicalDevice, image, &memRequirements);
-
-	VkMemoryAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = findMemoryType(m_renderDevice.physicalDevice, memRequirements.memoryTypeBits, propFlags);
-
-	if (vkAllocateMemory(m_renderDevice.logicalDevice, &allocInfo, nullptr, imageMemory) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate image memory!");
-	}
-
-	// BIND MEMORY TO IMAGE
-	vkBindImageMemory(m_renderDevice.logicalDevice, image, *imageMemory, 0);
-
-	return image;
-}
-
-VkImageView Renderer::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType)
-{
-	VkImageViewCreateInfo createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	createInfo.image = image;
-	createInfo.viewType = viewType;
-	createInfo.format = format;
-	createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-	createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-	createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-	createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-	createInfo.subresourceRange.aspectMask = aspectFlags;
-	createInfo.subresourceRange.baseMipLevel = 0;
-	createInfo.subresourceRange.levelCount = 1;
-	createInfo.subresourceRange.baseArrayLayer = 0;
-	createInfo.subresourceRange.layerCount = 1;
-
-	VkImageView imageView;
-	if (vkCreateImageView(m_renderDevice.logicalDevice, &createInfo, nullptr, &imageView) == VK_SUCCESS) {
-		return imageView;
-	}
-	else {
-		throw std::runtime_error("failed to create texture image view!");
-	}
-}
-
 /// <summary>
 /// Create a shader module from SPIR-V code
 /// </summary>
@@ -1258,104 +1193,6 @@ VkShaderModule Renderer::createShaderModule(const std::vector<char>& code)
 	else {
 		throw std::runtime_error("failed to create shader module!");
 	}
-}
-
-int Renderer::createTextureImage(std::string fileName)
-{
-	// LOAD PIXELS FROM FILE
-	int width, height;
-	VkDeviceSize imageSize;
-	stbi_uc* imageData = loadTextureFile(fileName, &width, &height, &imageSize);
-
-	// CREATE STAGING BUFFER
-	VkBuffer imageStagingBuffer;
-	VkDeviceMemory imageStagingBufferMemory;
-
-	createBuffer(
-		m_renderDevice.physicalDevice,
-		m_renderDevice.logicalDevice, 
-		imageSize,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		&imageStagingBuffer,
-		&imageStagingBufferMemory);
-
-	// COPY IMAGE DATA TO STAGING BUFFER
-	void* data;
-	vkMapMemory(m_renderDevice.logicalDevice, imageStagingBufferMemory, 0, imageSize, 0, &data);
-	memcpy(data, imageData, static_cast<size_t>(imageSize));
-	vkUnmapMemory(m_renderDevice.logicalDevice, imageStagingBufferMemory);
-
-	// FREE IMAGE DATA
-	stbi_image_free(imageData);
-
-	// CREATE IMAGE
-	VkImage textureImage;
-	VkDeviceMemory textureImageMemory;
-	textureImage = createImage(
-		width,
-		height,
-		VK_FORMAT_R8G8B8A8_UNORM,
-		VK_IMAGE_TILING_OPTIMAL,
-		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-		&textureImageMemory);
-
-	// Transition image to be transfer destination
-	transitionImageLayout(
-		m_renderDevice.logicalDevice, 
-		m_graphicsQueue, 
-		m_commandPool, 
-		textureImage, 
-		VK_IMAGE_LAYOUT_UNDEFINED, 
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-	);
-
-	// COPY DATA TO IMAGE
-	copyImageBuffer(
-		m_renderDevice.logicalDevice,
-		m_graphicsQueue,
-		m_commandPool,
-		imageStagingBuffer,
-		textureImage,
-		static_cast<uint32_t>(width),
-		static_cast<uint32_t>(height));
-
-	// Transition image to shader readable
-	transitionImageLayout(
-		m_renderDevice.logicalDevice,
-		m_graphicsQueue,
-		m_commandPool,
-		textureImage,
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-	);
-
-	m_textureImages.push_back(textureImage);
-	m_textureImageMemories.push_back(textureImageMemory);
-
-	// CLEAN UP STAGING BUFFER
-	vkDestroyBuffer(m_renderDevice.logicalDevice, imageStagingBuffer, nullptr);
-	vkFreeMemory(m_renderDevice.logicalDevice, imageStagingBufferMemory, nullptr);
-
-	// RETURN THE INDEX OF THE TEXTURE
-	return m_textureImages.size() - 1;
-}
-
-int Renderer::createTexture(std::string fileName)
-{
-	// Create the texture image and return its index
-	int textureImageLoc = createTextureImage(fileName);
-
-	// Create image view for the texture
-	VkImageView textureImageView = createImageView(m_textureImages[textureImageLoc], VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
-	m_textureImageViews.push_back(textureImageView);
-
-	// Create texture descriptor and return its index
-	int descriptorLocation = createTextureDescriptor(textureImageView);
-
-	// Return the index of the texture descriptor
-	return descriptorLocation;
 }
 
 int Renderer::createTextureDescriptor(VkImageView textureImageView)
@@ -1396,19 +1233,6 @@ int Renderer::createTextureDescriptor(VkImageView textureImageView)
 
 	// Return the index of the descriptor set
 	return m_samplerDescriptorSets.size() - 1;
-}
-
-// TODO: Change return type to an ImageTextureData struct and remove it from the renderer class
-stbi_uc* Renderer::loadTextureFile(std::string fileName, int* width, int* height, VkDeviceSize* imageSize)
-{
-	int channels;
-	stbi_uc* image = stbi_load(fileName.c_str(), width, height, &channels, STBI_rgb_alpha);
-	if (!image) {
-		throw std::runtime_error("failed to load texture image!");
-	}
-
-	*imageSize = (*width) * (*height) * 4;
-	return image;
 }
 
 //void Renderer::allocateDynamicBufferTransferSpace()
@@ -1463,44 +1287,6 @@ int Renderer::init(GLFWwindow* window)
 		m_uboViewProjection.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		m_uboViewProjection.projection[1][1] *= -1;
 
-		// Create Mesh TODO: Replace with function
-		std::vector<Vertex> vertices = {
-			// First Square
-			{{-0.1f, -0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
-			{{-0.1f, 0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-			{{-0.9f, 0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-			{{-0.9f, -0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-
-			// Second Square
-			{{ 0.9f, -0.4f, 0.0f }, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-			{{0.9f, 0.4f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-			{{0.1f, 0.4f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-			{{0.1f, -0.4f, 0.0f}, {0.0f, 0.0f, 1.0f}, { 0.0f, 1.0f }}
-		};
-
-		std::vector<uint32_t> indices = {
-			0, 1, 2, 2, 3, 0
-		};
-
-		std::vector<uint32_t> indices2 = {
-			4, 5, 6, 6, 7, 4
-		};
-
-		int texIndex = createTexture("C:/Users/andy1/Downloads/giraffe.jpg");
-		Mesh* mesh = new Mesh(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, &vertices, &indices);
-		mesh->textureIndex = texIndex;
-		m_meshes.push_back(mesh);
-
-		int texIndex2 = createTexture("C:/Users/andy1/Downloads/giraffe.jpg");
-		Mesh* mesh2 = new Mesh(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, &vertices, &indices2);
-		mesh2->textureIndex = texIndex2;
-		m_meshes.push_back(mesh2);
-
-		glm::mat4 meshModelMatrix = m_meshes[0]->getModel().model;
-		meshModelMatrix = glm::rotate(meshModelMatrix, glm::radians(-10.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		meshModelMatrix = glm::translate(meshModelMatrix, glm::vec3(0.5f, 0.0f, 0.2f));
-		m_meshes[0]->setModelMatrix(meshModelMatrix);
-
 	}
 	catch (const std::runtime_error& e) {
 		printf("Failed to create instance: %s\n", e.what());
@@ -1508,6 +1294,32 @@ int Renderer::init(GLFWwindow* window)
 	}
 
     return 0;
+}
+
+void Renderer::addImageTexture(ImageTexture* imageTexture)
+{
+	imageTexture->init(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool);
+	imageTexture->descriptorIndex = createTextureDescriptor(imageTexture->imageView);
+	m_imageTextures.push_back(imageTexture);
+}
+
+int Renderer::createVertexBuffer(std::vector<Vertex>* vertices)
+{
+	VertexBuffer* vertexBuffer = new VertexBuffer(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, vertices);
+	m_vertexBuffers.push_back(vertexBuffer);
+	return m_vertexBuffers.size() - 1;
+}
+
+int Renderer::createIndexBuffer(std::vector<uint32_t>* indices)
+{
+	IndexBuffer* indexBuffer = new IndexBuffer(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, indices);
+	m_indexBuffers.push_back(indexBuffer);
+	return m_indexBuffers.size() - 1;
+}
+
+void Renderer::addMesh(Mesh* mesh)
+{
+	m_meshes.push_back(mesh);
 }
 
 void Renderer::draw()
@@ -1577,12 +1389,13 @@ void Renderer::dispose()
 
 	// DESTROY SAMPLER
 	vkDestroySampler(m_renderDevice.logicalDevice, m_textureSampler, nullptr);
+
 	// FREE TEXTURES
-	for (size_t i = 0; i < m_textureImages.size(); i++) {
-		vkDestroyImageView(m_renderDevice.logicalDevice, m_textureImageViews[i], nullptr);
-		vkDestroyImage(m_renderDevice.logicalDevice, m_textureImages[i], nullptr);
-		vkFreeMemory(m_renderDevice.logicalDevice, m_textureImageMemories[i], nullptr);
+	for (ImageTexture* imageTexture : m_imageTextures) {
+		imageTexture->dispose(m_renderDevice.logicalDevice);
+		delete imageTexture;
 	}
+	m_imageTextures.clear();
 
 	//_aligned_free(m_modelTransferSpace);
 	vkDestroyImageView(m_renderDevice.logicalDevice, m_depthBufferImageView, nullptr);
@@ -1606,10 +1419,25 @@ void Renderer::dispose()
 
 	// Free meshes
 	for (auto mesh : m_meshes) {
+
 		mesh->dispose();
 		delete mesh;
 	}
 	m_meshes.clear();
+
+	// Free vertex buffers
+	for (auto vertexBuffer : m_vertexBuffers) {
+		vertexBuffer->dispose();
+		delete vertexBuffer;
+	}
+	m_vertexBuffers.clear();
+
+	// Free index buffers
+	for (auto indexBuffer : m_indexBuffers) {
+		indexBuffer->dispose();
+		delete indexBuffer;
+	}
+	m_indexBuffers.clear();
 
 	for (size_t i = 0; i < m_numFramesInFlight; i++) {
 		vkDestroySemaphore(m_renderDevice.logicalDevice, m_renderFinishedSemaphores[i], nullptr);
