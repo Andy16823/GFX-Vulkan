@@ -1179,6 +1179,101 @@ VkShaderModule Renderer::createShaderModule(const std::vector<char>& code)
 	}
 }
 
+int Renderer::createTexture(std::string fileName)
+{
+	// LOAD PIXELS FROM FILE
+	int width, height;
+	VkDeviceSize imageSize;
+	stbi_uc* imageData = loadTextureFile(fileName, &width, &height, &imageSize);
+
+	// CREATE STAGING BUFFER
+	VkBuffer imageStagingBuffer;
+	VkDeviceMemory imageStagingBufferMemory;
+
+	createBuffer(
+		m_renderDevice.physicalDevice,
+		m_renderDevice.logicalDevice, 
+		imageSize,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		&imageStagingBuffer,
+		&imageStagingBufferMemory);
+
+	// COPY IMAGE DATA TO STAGING BUFFER
+	void* data;
+	vkMapMemory(m_renderDevice.logicalDevice, imageStagingBufferMemory, 0, imageSize, 0, &data);
+	memcpy(data, imageData, static_cast<size_t>(imageSize));
+	vkUnmapMemory(m_renderDevice.logicalDevice, imageStagingBufferMemory);
+
+	// FREE IMAGE DATA
+	stbi_image_free(imageData);
+
+	// CREATE IMAGE
+	VkImage textureImage;
+	VkDeviceMemory textureImageMemory;
+	textureImage = createImage(
+		width,
+		height,
+		VK_FORMAT_R8G8B8A8_UNORM,
+		VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		&textureImageMemory);
+
+	// Transition image to be transfer destination
+	transitionImageLayout(
+		m_renderDevice.logicalDevice, 
+		m_graphicsQueue, 
+		m_commandPool, 
+		textureImage, 
+		VK_IMAGE_LAYOUT_UNDEFINED, 
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+	);
+
+	// COPY DATA TO IMAGE Error maybe hier
+	copyImageBuffer(
+		m_renderDevice.logicalDevice,
+		m_graphicsQueue,
+		m_commandPool,
+		imageStagingBuffer,
+		textureImage,
+		static_cast<uint32_t>(width),
+		static_cast<uint32_t>(height));
+
+	// Transition image to shader readable
+	transitionImageLayout(
+		m_renderDevice.logicalDevice,
+		m_graphicsQueue,
+		m_commandPool,
+		textureImage,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+	);
+
+	m_textureImages.push_back(textureImage);
+	m_textureImageMemories.push_back(textureImageMemory);
+
+	// CLEAN UP STAGING BUFFER
+	vkDestroyBuffer(m_renderDevice.logicalDevice, imageStagingBuffer, nullptr);
+	vkFreeMemory(m_renderDevice.logicalDevice, imageStagingBufferMemory, nullptr);
+
+	// RETURN THE INDEX OF THE TEXTURE
+	return m_textureImages.size() - 1;
+}
+
+// TODO: Change return type to an ImageTextureData struct and remove it from the renderer class
+stbi_uc* Renderer::loadTextureFile(std::string fileName, int* width, int* height, VkDeviceSize* imageSize)
+{
+	int channels;
+	stbi_uc* image = stbi_load(fileName.c_str(), width, height, &channels, STBI_rgb_alpha);
+	if (!image) {
+		throw std::runtime_error("failed to load texture image!");
+	}
+
+	*imageSize = (*width) * (*height) * 4;
+	return image;
+}
+
 //void Renderer::allocateDynamicBufferTransferSpace()
 //{
 //	// Calculate alignment of model data
@@ -1218,6 +1313,11 @@ int Renderer::init(GLFWwindow* window)
 		createGraphicsPipeline(shaders);
 		createFramebuffers();
 		createCommandPool();
+
+		// Load test textures
+		int texIndex = createTexture("C:/Users/andy1/Downloads/giraffe.jpg");
+		int texIndex2 = createTexture("C:/Users/andy1/Downloads/giraffe.jpg");
+
 
 		m_uboViewProjection.projection = glm::perspective(glm::radians(45.0f), m_swapChainExtent.width / (float)m_swapChainExtent.height, 0.1f, 10.0f);
 		m_uboViewProjection.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1332,6 +1432,12 @@ void Renderer::draw()
 void Renderer::dispose()
 {
 	vkDeviceWaitIdle(m_renderDevice.logicalDevice);
+
+	// FREE TEXTURES
+	for (size_t i = 0; i < m_textureImages.size(); i++) {
+		vkDestroyImage(m_renderDevice.logicalDevice, m_textureImages[i], nullptr);
+		vkFreeMemory(m_renderDevice.logicalDevice, m_textureImageMemories[i], nullptr);
+	}
 
 	//_aligned_free(m_modelTransferSpace);
 	vkDestroyImageView(m_renderDevice.logicalDevice, m_depthBufferImageView, nullptr);

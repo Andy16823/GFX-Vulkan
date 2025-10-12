@@ -11,6 +11,7 @@
 #include "IndexBuffer.h"
 #include "UniformBuffer.h"
 #include "Mesh.h"
+#include "stb_image.h"
 
 
 struct RenderDevice {
@@ -71,6 +72,10 @@ private:
 	//size_t m_modelUniformAlignment;
 	//Model* m_modelTransferSpace;
 
+	// Assets TODO: Remove it out here
+	std::vector<VkImage> m_textureImages;
+	std::vector<VkDeviceMemory> m_textureImageMemories;
+
 	VkCommandPool m_commandPool;
 
 	int m_numFramesInFlight = 0;
@@ -125,6 +130,10 @@ private:
 	VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory* imageMemory); // TODO CHANGE LATER
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D);
 	VkShaderModule createShaderModule(const std::vector<char>& code);
+	int createTexture(std::string fileName);
+
+	// Loader functions
+	stbi_uc* loadTextureFile(std::string fileName, int* width, int* height, VkDeviceSize* imageSize);
 
 	// Allocate Functions
 	//void allocateDynamicBufferTransferSpace();
