@@ -6,6 +6,7 @@
 #include <vector>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include "stb_image.h"
 
 
 const int MAX_OBJECTS = 1000;
@@ -86,6 +87,33 @@ static uint32_t findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFil
 	}
 }
 
+static VkImageView createImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D)
+{
+	VkImageViewCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	createInfo.image = image;
+	createInfo.viewType = viewType;
+	createInfo.format = format;
+	createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+	createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+	createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+	createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+	createInfo.subresourceRange.aspectMask = aspectFlags;
+	createInfo.subresourceRange.baseMipLevel = 0;
+	createInfo.subresourceRange.levelCount = 1;
+	createInfo.subresourceRange.baseArrayLayer = 0;
+	createInfo.subresourceRange.layerCount = 1;
+
+	VkImageView imageView;
+	if (vkCreateImageView(device, &createInfo, nullptr, &imageView) == VK_SUCCESS) {
+		return imageView;
+	}
+	else {
+		throw std::runtime_error("failed to create texture image view!");
+	}
+}
+
 static void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags bufferProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory) {
 	// Create buffer
 	VkBufferCreateInfo bufferInfo = {};
@@ -112,6 +140,48 @@ static void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDev
 
 	// Bind memory to buffer
 	vkBindBufferMemory(device, *buffer, *bufferMemory, 0);
+}
+
+static VkImage createImage(VkPhysicalDevice physicalDevice, VkDevice device,uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory* imageMemory)
+{
+	// CREATE IMAGE
+	VkImageCreateInfo imageInfo = {};
+	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	imageInfo.imageType = VK_IMAGE_TYPE_2D;
+	imageInfo.extent.width = width;
+	imageInfo.extent.height = height;
+	imageInfo.extent.depth = 1;
+	imageInfo.mipLevels = 1;
+	imageInfo.arrayLayers = 1;
+	imageInfo.format = format;
+	imageInfo.tiling = tiling;
+	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	imageInfo.usage = useFlags;
+	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	VkImage image;
+	if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create image!");
+	}
+
+	// ALLOCATE MEMORY
+	VkMemoryRequirements memRequirements;
+	vkGetImageMemoryRequirements(device, image, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, propFlags);
+
+	if (vkAllocateMemory(device, &allocInfo, nullptr, imageMemory) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate image memory!");
+	}
+
+	// BIND MEMORY TO IMAGE
+	vkBindImageMemory(device, image, *imageMemory, 0);
+
+	return image;
 }
 
 static VkCommandBuffer beginCommandBuffer(VkDevice device, VkCommandPool commandPool) {
@@ -240,4 +310,16 @@ static void transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool 
 	);
 
 	submitCommandBuffer(device, commandPool, queue, commandBuffer);
+}
+
+static stbi_uc* loadTextureFile(std::string fileName, int* width, int* height, VkDeviceSize* imageSize)
+{
+	int channels;
+	stbi_uc* image = stbi_load(fileName.c_str(), width, height, &channels, STBI_rgb_alpha);
+	if (!image) {
+		throw std::runtime_error("failed to load texture image!");
+	}
+
+	*imageSize = (*width) * (*height) * 4;
+	return image;
 }
