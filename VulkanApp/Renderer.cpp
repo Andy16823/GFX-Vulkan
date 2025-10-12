@@ -134,6 +134,7 @@ void Renderer::createLogicalDevice()
 
 	// Specify device features (none for now) TODO: Specify device features
 	VkPhysicalDeviceFeatures deviceFeatures = {};
+	deviceFeatures.samplerAnisotropy = VK_TRUE; // Enable anisotropic filtering TODO Add 
 
 	// Create the logical device
 	VkDeviceCreateInfo createInfo = {};
@@ -330,6 +331,7 @@ void Renderer::createRenderPass()
 
 void Renderer::createDescriptorSetLayout()
 {
+	// UNIFORM VALUES DESCRIPTOR SET LAYOUT
 	VkDescriptorSetLayoutBinding vpLayoutBinding = {};
 	vpLayoutBinding.binding = 0;
 	vpLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -352,10 +354,30 @@ void Renderer::createDescriptorSetLayout()
 	layoutInfo.pBindings = bindings.data();
 
 	if (vkCreateDescriptorSetLayout(m_renderDevice.logicalDevice, &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create descriptor set layout!");
+		throw std::runtime_error("failed to create uniform descriptor set layout!");
 	}
 	else {
 		std::cout << "Descriptor set layout created successfully!" << std::endl;
+	}
+
+	// SAMPLER DESCRIPTOR SET LAYOUT
+	VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
+	samplerLayoutBinding.binding = 0;
+	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerLayoutBinding.descriptorCount = 1;
+	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	samplerLayoutBinding.pImmutableSamplers = nullptr;
+
+	VkDescriptorSetLayoutCreateInfo samplerLayoutInfo = {};
+	samplerLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	samplerLayoutInfo.bindingCount = 1;
+	samplerLayoutInfo.pBindings = &samplerLayoutBinding;
+
+	if (vkCreateDescriptorSetLayout(m_renderDevice.logicalDevice, &samplerLayoutInfo, nullptr, &m_samplerSetLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create sampler descriptor set layout!");
+	}
+	else {
+		std::cout << "Sampler descriptor set layout created successfully!" << std::endl;
 	}
 }
 
@@ -397,7 +419,7 @@ void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
 	bindingDescription.stride = sizeof(Vertex);
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-	std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
+	std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions;
 	attributeDescriptions[0].binding = 0;
 	attributeDescriptions[0].location = 0;
 	attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
@@ -407,6 +429,11 @@ void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
 	attributeDescriptions[1].location = 1;
 	attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 	attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+	attributeDescriptions[2].binding = 0;
+	attributeDescriptions[2].location = 2;
+	attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+	attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -493,10 +520,12 @@ void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
 	pushConstantRange.offset = 0;
 	pushConstantRange.size = sizeof(Model);
 
+	std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = { m_descriptorSetLayout, m_samplerSetLayout };
+
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 1;
-	pipelineLayoutInfo.pSetLayouts = &m_descriptorSetLayout;
+	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 	pipelineLayoutInfo.pushConstantRangeCount = 1;
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
@@ -667,6 +696,7 @@ void Renderer::createUniformBuffers()
 
 void Renderer::createDescriptorPool()
 {
+	// CREATE UNIFORM DESCRIPTOR POOL
 	// Type of descriptors, not descriptor sets
 	VkDescriptorPoolSize vpPoolSize = {};
 	vpPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -688,10 +718,28 @@ void Renderer::createDescriptorPool()
 
 	// Create the descriptor pool
 	if (vkCreateDescriptorPool(m_renderDevice.logicalDevice, &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create descriptor pool!");
+		throw std::runtime_error("failed to create uniform descriptor pool!");
 	}
 	else {
 		std::cout << "Descriptor pool created successfully!" << std::endl;
+	}
+
+	// CREATE SAMPLER DESCRIPTOR POOL
+	VkDescriptorPoolSize samplerPoolSize = {};
+	samplerPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerPoolSize.descriptorCount = MAX_OBJECTS; // TODO: NEED TO CHANGE WITH SOMETHING REGISTER TEXTURE BEFORE LOADING
+
+	VkDescriptorPoolCreateInfo samplerPoolInfo = {};
+	samplerPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	samplerPoolInfo.maxSets = MAX_OBJECTS; // TODO: NEED TO CHANGE WITH SOMETHING REGISTER TEXTURE BEFORE LOADING
+	samplerPoolInfo.poolSizeCount = 1;
+	samplerPoolInfo.pPoolSizes = &samplerPoolSize;
+
+	if (vkCreateDescriptorPool(m_renderDevice.logicalDevice, &samplerPoolInfo, nullptr, &m_samplerDescriptorPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create sampler descriptor pool!");
+	}
+	else {
+		std::cout << "Sampler descriptor pool created successfully!" << std::endl;
 	}
 }
 
@@ -751,6 +799,31 @@ void Renderer::createDescriptorSets()
 	}
 }
 
+void Renderer::createTextureSampler()
+{
+	VkSamplerCreateInfo samplerInfo = {};
+	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.magFilter = VK_FILTER_LINEAR;
+	samplerInfo.minFilter = VK_FILTER_LINEAR;
+	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	samplerInfo.unnormalizedCoordinates = VK_FALSE;
+	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerInfo.mipLodBias = 0.0f;
+	samplerInfo.minLod = 0.0f;
+	samplerInfo.maxLod = 0.0f;
+	samplerInfo.anisotropyEnable = VK_TRUE;
+	samplerInfo.maxAnisotropy = 16;
+
+
+
+	if (vkCreateSampler(m_renderDevice.logicalDevice, &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create texture sampler!");
+	}
+}
+
 void Renderer::updateUniformBuffer(uint32_t currentImage)
 {
 	// Copy the view projection data to the uniform buffer
@@ -803,8 +876,15 @@ void Renderer::recordCommands(uint32_t currentImage)
 		VkDeviceSize offsets[] = { 0 };
 		uint32_t indexCount = static_cast<uint32_t>(mesh->indexBuffer->getIndexCount());
 
+		std::array<VkDescriptorSet, 2> descriptorSets = { 
+			m_descriptorSets[currentImage], 
+			m_samplerDescriptorSets[mesh->textureIndex]
+		};
+
 		//uint32_t dynamicOffset = static_cast<uint32_t>(m_modelUniformAlignment) * j;
-		vkCmdBindDescriptorSets(m_commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descriptorSets[currentImage], 0, nullptr);
+		vkCmdBindDescriptorSets(m_commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout,
+			0, static_cast<uint32_t>(descriptorSets.size()),	descriptorSets.data(), 0, nullptr);
+
 		vkCmdPushConstants(m_commandBuffers[currentImage], m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(Model), &m_meshes[j]->getModel());
 		vkCmdBindVertexBuffers(m_commandBuffers[currentImage], 0, 1, vertexBuffers, offsets);
 		vkCmdBindIndexBuffer(m_commandBuffers[currentImage], mesh->indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
@@ -926,9 +1006,10 @@ bool Renderer::checkDeviceSuitable(VkPhysicalDevice device)
 	//VkPhysicalDeviceProperties deviceProperties;
 	//vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
-	//// Device Features
-	//VkPhysicalDeviceFeatures deviceFeatures;
-	//vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+	// Device Features
+	VkPhysicalDeviceFeatures deviceFeatures;
+	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
 	QueueFamilyIndices indices = getQueueFamilies(device);
 
 	// Check for device extension support
@@ -938,7 +1019,7 @@ bool Renderer::checkDeviceSuitable(VkPhysicalDevice device)
 	SwapChainSupportDetails swapChainDetails = getSwapChainSupport(device);
 	bool swapchainValid = swapChainDetails.isValid();
 
- 	return indices.isValid() && extensionsSupported && swapchainValid;
+ 	return indices.isValid() && extensionsSupported && swapchainValid && deviceFeatures.samplerAnisotropy;
 }
 
 /// <summary>
@@ -1179,7 +1260,7 @@ VkShaderModule Renderer::createShaderModule(const std::vector<char>& code)
 	}
 }
 
-int Renderer::createTexture(std::string fileName)
+int Renderer::createTextureImage(std::string fileName)
 {
 	// LOAD PIXELS FROM FILE
 	int width, height;
@@ -1230,7 +1311,7 @@ int Renderer::createTexture(std::string fileName)
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
 	);
 
-	// COPY DATA TO IMAGE Error maybe hier
+	// COPY DATA TO IMAGE
 	copyImageBuffer(
 		m_renderDevice.logicalDevice,
 		m_graphicsQueue,
@@ -1259,6 +1340,62 @@ int Renderer::createTexture(std::string fileName)
 
 	// RETURN THE INDEX OF THE TEXTURE
 	return m_textureImages.size() - 1;
+}
+
+int Renderer::createTexture(std::string fileName)
+{
+	// Create the texture image and return its index
+	int textureImageLoc = createTextureImage(fileName);
+
+	// Create image view for the texture
+	VkImageView textureImageView = createImageView(m_textureImages[textureImageLoc], VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
+	m_textureImageViews.push_back(textureImageView);
+
+	// Create texture descriptor and return its index
+	int descriptorLocation = createTextureDescriptor(textureImageView);
+
+	// Return the index of the texture descriptor
+	return descriptorLocation;
+}
+
+int Renderer::createTextureDescriptor(VkImageView textureImageView)
+{
+	// Allocate descriptor set from the sampler descriptor pool
+	VkDescriptorSetAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = m_samplerDescriptorPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = &m_samplerSetLayout;
+
+	VkDescriptorSet descriptorSet;
+	if (vkAllocateDescriptorSets(m_renderDevice.logicalDevice, &allocInfo, &descriptorSet) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate texture descriptor set!");
+	}
+
+	// Texture image info
+	VkDescriptorImageInfo imageInfo = {};
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = textureImageView;
+	imageInfo.sampler = m_textureSampler;
+
+	// Descriptor Write info
+	VkWriteDescriptorSet descriptorWrite = {};
+	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrite.dstSet = descriptorSet;
+	descriptorWrite.dstBinding = 0;
+	descriptorWrite.dstArrayElement = 0;
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptorWrite.descriptorCount = 1;
+	descriptorWrite.pImageInfo = &imageInfo;
+
+	// Update the descriptor set with the image info
+	vkUpdateDescriptorSets(m_renderDevice.logicalDevice, 1, &descriptorWrite, 0, nullptr);
+
+	// Store the descriptor set
+	m_samplerDescriptorSets.push_back(descriptorSet);
+
+	// Return the index of the descriptor set
+	return m_samplerDescriptorSets.size() - 1;
 }
 
 // TODO: Change return type to an ImageTextureData struct and remove it from the renderer class
@@ -1313,12 +1450,15 @@ int Renderer::init(GLFWwindow* window)
 		createGraphicsPipeline(shaders);
 		createFramebuffers();
 		createCommandPool();
+		createCommandBuffers();
+		createTextureSampler();
+		//allocateDynamicBufferTransferSpace();
+		createUniformBuffers();
+		createDescriptorPool();
+		createDescriptorSets();
+		createSyncObjects();
 
 		// Load test textures
-		int texIndex = createTexture("C:/Users/andy1/Downloads/giraffe.jpg");
-		int texIndex2 = createTexture("C:/Users/andy1/Downloads/giraffe.jpg");
-
-
 		m_uboViewProjection.projection = glm::perspective(glm::radians(45.0f), m_swapChainExtent.width / (float)m_swapChainExtent.height, 0.1f, 10.0f);
 		m_uboViewProjection.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		m_uboViewProjection.projection[1][1] *= -1;
@@ -1326,16 +1466,16 @@ int Renderer::init(GLFWwindow* window)
 		// Create Mesh TODO: Replace with function
 		std::vector<Vertex> vertices = {
 			// First Square
-			{{-0.1f, -0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-			{{-0.1f, 0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-			{{-0.9f, 0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-			{{-0.9f, -0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{-0.1f, -0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
+			{{-0.1f, 0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+			{{-0.9f, 0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+			{{-0.9f, -0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
 
 			// Second Square
-			{{ 0.9f, -0.4f, 0.0f }, {0.0f, 0.0f, 1.0f}},
-			{{0.9f, 0.4f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-			{{0.1f, 0.4f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-			{{0.1f, -0.4f, 0.0f}, {0.0f, 0.0f, 1.0f}}
+			{{ 0.9f, -0.4f, 0.0f }, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+			{{0.9f, 0.4f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+			{{0.1f, 0.4f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+			{{0.1f, -0.4f, 0.0f}, {0.0f, 0.0f, 1.0f}, { 0.0f, 1.0f }}
 		};
 
 		std::vector<uint32_t> indices = {
@@ -1346,10 +1486,14 @@ int Renderer::init(GLFWwindow* window)
 			4, 5, 6, 6, 7, 4
 		};
 
+		int texIndex = createTexture("C:/Users/andy1/Downloads/giraffe.jpg");
 		Mesh* mesh = new Mesh(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, &vertices, &indices);
+		mesh->textureIndex = texIndex;
 		m_meshes.push_back(mesh);
 
+		int texIndex2 = createTexture("C:/Users/andy1/Downloads/giraffe.jpg");
 		Mesh* mesh2 = new Mesh(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, &vertices, &indices2);
+		mesh2->textureIndex = texIndex2;
 		m_meshes.push_back(mesh2);
 
 		glm::mat4 meshModelMatrix = m_meshes[0]->getModel().model;
@@ -1357,12 +1501,6 @@ int Renderer::init(GLFWwindow* window)
 		meshModelMatrix = glm::translate(meshModelMatrix, glm::vec3(0.5f, 0.0f, 0.2f));
 		m_meshes[0]->setModelMatrix(meshModelMatrix);
 
-		createCommandBuffers();
-		//allocateDynamicBufferTransferSpace();
-		createUniformBuffers();
-		createDescriptorPool();
-		createDescriptorSets();
-		createSyncObjects();
 	}
 	catch (const std::runtime_error& e) {
 		printf("Failed to create instance: %s\n", e.what());
@@ -1433,8 +1571,15 @@ void Renderer::dispose()
 {
 	vkDeviceWaitIdle(m_renderDevice.logicalDevice);
 
+	// DESTROY TEXTURE DESCRIPTORS
+	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_samplerDescriptorPool, nullptr);
+	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_samplerSetLayout, nullptr);
+
+	// DESTROY SAMPLER
+	vkDestroySampler(m_renderDevice.logicalDevice, m_textureSampler, nullptr);
 	// FREE TEXTURES
 	for (size_t i = 0; i < m_textureImages.size(); i++) {
+		vkDestroyImageView(m_renderDevice.logicalDevice, m_textureImageViews[i], nullptr);
 		vkDestroyImage(m_renderDevice.logicalDevice, m_textureImages[i], nullptr);
 		vkFreeMemory(m_renderDevice.logicalDevice, m_textureImageMemories[i], nullptr);
 	}

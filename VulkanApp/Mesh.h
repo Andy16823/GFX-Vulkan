@@ -17,6 +17,7 @@ private:
 public:
 	VertexBuffer* vertexBuffer;
 	IndexBuffer* indexBuffer;
+	int textureIndex = -1;
 
 	void setModelMatrix(glm::mat4 model);
 	const Model& getModel() const;

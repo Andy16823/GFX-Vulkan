@@ -59,10 +59,13 @@ private:
 	VkImageView m_depthBufferImageView;
 
 	VkDescriptorSetLayout m_descriptorSetLayout;
+	VkDescriptorSetLayout m_samplerSetLayout;
 	//VkPushConstantRange m_pushConstantRange;
 
 	VkDescriptorPool m_descriptorPool;
+	VkDescriptorPool m_samplerDescriptorPool;
 	std::vector<VkDescriptorSet> m_descriptorSets;
+	std::vector<VkDescriptorSet> m_samplerDescriptorSets;
 
 	std::vector<UniformBuffer*> m_uniformBuffers;
 	std::vector<UniformBuffer*> m_dynamicUniformBuffers;
@@ -73,8 +76,10 @@ private:
 	//Model* m_modelTransferSpace;
 
 	// Assets TODO: Remove it out here
+	VkSampler m_textureSampler;
 	std::vector<VkImage> m_textureImages;
 	std::vector<VkDeviceMemory> m_textureImageMemories;
+	std::vector<VkImageView> m_textureImageViews;
 
 	VkCommandPool m_commandPool;
 
@@ -104,6 +109,7 @@ private:
 	void createUniformBuffers();
 	void createDescriptorPool();
 	void createDescriptorSets();
+	void createTextureSampler();
 
 	void updateUniformBuffer(uint32_t currentImage);
 
@@ -130,7 +136,9 @@ private:
 	VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory* imageMemory); // TODO CHANGE LATER
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D);
 	VkShaderModule createShaderModule(const std::vector<char>& code);
+	int createTextureImage(std::string fileName);
 	int createTexture(std::string fileName);
+	int createTextureDescriptor(VkImageView textureImageView);
 
 	// Loader functions
 	stbi_uc* loadTextureFile(std::string fileName, int* width, int* height, VkDeviceSize* imageSize);
