@@ -1,3 +1,4 @@
+// TODO: Add dependancys to release builds
 #define STB_IMAGE_IMPLEMENTATION
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <iostream>

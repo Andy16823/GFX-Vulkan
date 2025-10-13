@@ -1,0 +1,40 @@
+﻿  Buffer.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Buffer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
+  (Quelldatei „Buffer.cpp“ wird kompiliert)
+  
+  Entity.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
+  (Quelldatei „Entity.cpp“ wird kompiliert)
+  
+  ImageTexture.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Buffer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
+  (Quelldatei „ImageTexture.cpp“ wird kompiliert)
+  
+  IndexBuffer.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Buffer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
+  (Quelldatei „IndexBuffer.cpp“ wird kompiliert)
+  
+  main.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
+  (Quelldatei „main.cpp“ wird kompiliert)
+  
+  Mesh.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Mesh.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
+  (Quelldatei „Mesh.cpp“ wird kompiliert)
+  
+  Sprite.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
+  (Quelldatei „Sprite.cpp“ wird kompiliert)
+  
+  UniformBuffer.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Buffer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
+  (Quelldatei „UniformBuffer.cpp“ wird kompiliert)
+  
+  VertexBuffer.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Buffer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
+  (Quelldatei „VertexBuffer.cpp“ wird kompiliert)
+  
+  Renderer.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
+  (Quelldatei „Renderer.cpp“ wird kompiliert)
+  
