@@ -26,10 +26,7 @@ private:
 	GLFWwindow* m_window;
 	int m_currentFrame = 0;
 
-	struct UboViewProjection {
-		glm::mat4 projection;
-		glm::mat4 view;
-	} m_uboViewProjection;
+	UboViewProjection m_uboViewProjection;
 
 	VkInstance m_instance;
 	RenderDevice m_renderDevice;
@@ -146,8 +143,7 @@ private:
 
 public:
 	int init(GLFWwindow* window);
-	void setProjectionMatrix(glm::mat4 proj) { m_uboViewProjection.projection = proj; }
-	void setViewMatrix(glm::mat4 view) { m_uboViewProjection.view = view; }
+	void setViewProjection(const UboViewProjection& vp);
 	void addImageTexture(ImageTexture* imageTexture);
 	void disposeImageTexture(ImageTexture* imageTexture);
 	int createVertexBuffer(std::vector<Vertex>* vertices);

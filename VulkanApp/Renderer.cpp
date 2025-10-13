@@ -1274,6 +1274,11 @@ int Renderer::init(GLFWwindow* window)
     return 0;
 }
 
+void Renderer::setViewProjection(const UboViewProjection& vp)
+{
+	m_uboViewProjection = vp;
+}
+
 void Renderer::addImageTexture(ImageTexture* imageTexture)
 {
 	imageTexture->init(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool);

@@ -64,6 +64,11 @@ struct Model {
 	glm::mat4 model;
 };
 
+struct UboViewProjection {
+	glm::mat4 projection;
+	glm::mat4 view;
+};
+
 static std::vector<char> readFile(const std::string& filename) 
 {
 	std::ifstream file;

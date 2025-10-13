@@ -1,9 +1,13 @@
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Buffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Buffer.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Camera.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Camera.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Camera3D.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Camera3D.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Component.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Component.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Entity.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Entity.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\ImageTexture.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\ImageTexture.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\IndexBuffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\IndexBuffer.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\main.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\main.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Mesh.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Mesh.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\RotationBehavior.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\RotationBehavior.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Sprite.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Sprite.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\UniformBuffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\UniformBuffer.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\VertexBuffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\VertexBuffer.obj

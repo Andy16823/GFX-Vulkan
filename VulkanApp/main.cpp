@@ -10,6 +10,9 @@
 #include "ImageTexture.h"
 #include "Mesh.h"
 #include "Sprite.h"
+#include "Camera3D.h"
+#include "Component.h"
+#include "RotationBehavior.h"
 
 GLFWwindow* window;
 Renderer renderer;
@@ -26,8 +29,14 @@ GLFWwindow& CreateWindow(std::string wName = "GFX C++", const int width = 800, c
 int main() {
 	window = &CreateWindow();
 
+	auto camera = new Camera3D(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec2(800.0f, 600.0f));
+
+
 	// Mesh
 	auto sprite = new Sprite("C:/Users/andy1/Downloads/giraffe.jpg");
+	sprite->addComponent(new RotationBehavior());
+
+	auto rotBehavior = sprite->findComponent<RotationBehavior>();
 
 	renderer.addOnInitCallback([sprite](Renderer* renderer) {
 		sprite->init(renderer);
@@ -49,6 +58,10 @@ int main() {
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
+
+		sprite->update(0.016f);
+		renderer.setViewProjection(camera->getViewProjection());
+
 		renderer.draw();
 	}
 

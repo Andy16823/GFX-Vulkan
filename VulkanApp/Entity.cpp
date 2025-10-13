@@ -1,5 +1,13 @@
 #include "Entity.h"
 
+Entity::~Entity()
+{
+	for (auto component : m_components) {
+		delete component;
+	}
+	m_components.clear();
+}
+
 void Entity::setPosition(glm::vec3 position)
 {
 	m_position = position;
@@ -46,4 +54,17 @@ Model Entity::getModelMatrix()
 
 
 	return { modelMatrix };
+}
+
+void Entity::update(float dt)
+{
+	for (auto component : m_components) {
+		component->update(dt);
+	}
+}
+
+void Entity::addComponent(Component* component)
+{
+	component->parent = this;
+	m_components.push_back(component);
 }

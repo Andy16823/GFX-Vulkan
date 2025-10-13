@@ -15,6 +15,7 @@ Sprite::~Sprite()
 
 void Sprite::update(float dt)
 {
+	Entity::update(dt);
 }
 
 void Sprite::init(Renderer* renderer)
@@ -50,7 +51,7 @@ void Sprite::render(Renderer* renderer, int32_t currentFrame)
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
 		0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 
-	auto thisModel = Model{ glm::mat4(1.0f) };
+	auto thisModel = this->getModelMatrix();
 	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(Model), &thisModel);
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
@@ -66,10 +67,10 @@ void Sprite::destroy(Renderer* renderer)
 std::vector<Vertex> Sprite::getSpriteVertices()
 {
 	return std::vector<Vertex> {
-		{{-0.1f, -0.4f, 0.0f}, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }},
-		{{-0.1f, 0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f} },
-		{ {-0.9f, 0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f} },
-		{ {-0.9f, -0.4f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f} },
+		{{0.5f, -0.5f, 0.0f}, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }}, // Bottom Right
+		{{0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f} }, // Top Right
+		{ {-0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f} }, // Top Left
+		{ {-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f} }, // Bottom Left
 	};
 }
 
