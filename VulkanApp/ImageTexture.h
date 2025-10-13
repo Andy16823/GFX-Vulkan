@@ -1,12 +1,11 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
+#include "Buffer.h"
 #include <GLFW/glfw3.h>
 #include <string>
 #include "Utils.h"
 
-class Renderer;
-
-class ImageTexture
+class ImageTexture : public Buffer
 {
 private:
 	void loadImageData(std::string filename);
@@ -24,10 +23,6 @@ public:
 
 	ImageTexture(std::string filename);
 	void init(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool pool);
-	void dispose(VkDevice device) {
-		vkDestroyImageView(device, imageView, nullptr);
-		vkDestroyImage(device, image, nullptr);
-		vkFreeMemory(device, imageMemory, nullptr);
-	};
+	void dispose(VkDevice device);
 };
 

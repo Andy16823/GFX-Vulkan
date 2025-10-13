@@ -19,12 +19,10 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
-	//delete vertexBuffer;
-	//delete indexBuffer;
+
 }
 
 void Mesh::dispose()
 {
-	//vertexBuffer->dispose();
-	//indexBuffer->dispose();
+
 }

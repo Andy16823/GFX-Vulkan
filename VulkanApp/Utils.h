@@ -8,8 +8,11 @@
 #include <GLFW/glfw3.h>
 #include "stb_image.h"
 
-
+/// <summary>
+/// Maximum number of objects
+/// </summary>
 const int MAX_OBJECTS = 1000;
+
 /// <summary>
 /// Required device extensions
 /// </summary>
@@ -55,6 +58,10 @@ struct ShaderSourceCollection {
 	std::string vert;
 	std::string frag;
 	std::string entryPoint = "main";
+};
+
+struct Model {
+	glm::mat4 model;
 };
 
 static std::vector<char> readFile(const std::string& filename) 

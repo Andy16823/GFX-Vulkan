@@ -1,15 +1,21 @@
 #include "VertexBuffer.h"
 
-VkBuffer VertexBuffer::createVertexBuffer(std::vector<Vertex>* vertices, VkQueue transferQueue, VkCommandPool transferCommandPool)
+VkBuffer VertexBuffer::createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, std::vector<Vertex>* vertices, VkQueue transferQueue, VkCommandPool transferCommandPool)
 {
+	// Check if the buffer is already created or disposed
+	if (this->state != GFX_BUFFER_STATE_NONE)
+	{
+		throw std::runtime_error("Vertex buffer already created or disposed.");
+	}
+
 	// Variable to hold the buffer
 	VkDeviceSize bufferSize = sizeof(Vertex) * vertices->size();
 
 	// 1. Create a staging buffer
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	createBuffer(m_physicalDevice,
-		m_device,
+	createBuffer(physicalDevice,
+		device,
 		bufferSize,
 		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -19,14 +25,14 @@ VkBuffer VertexBuffer::createVertexBuffer(std::vector<Vertex>* vertices, VkQueue
 
 	// 2. Copy vertex data to the staging buffer
 	void* data;
-	vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, vertices->data(), (size_t)bufferSize);
-	vkUnmapMemory(m_device, stagingBufferMemory);
+	vkUnmapMemory(device, stagingBufferMemory);
 
 	// 3. Create the vertex buffer with device local memory
 	VkBuffer buffer;
-	createBuffer(m_physicalDevice,
-		m_device,
+	createBuffer(physicalDevice,
+		device,
 		bufferSize,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -34,21 +40,22 @@ VkBuffer VertexBuffer::createVertexBuffer(std::vector<Vertex>* vertices, VkQueue
 		&m_vertexBufferMemory);
 
 	// 4. Copy the data from the staging buffer to the vertex buffer using command buffer
-	copyBuffer(m_device, transferQueue, transferCommandPool, stagingBuffer, buffer, bufferSize);
+	copyBuffer(device, transferQueue, transferCommandPool, stagingBuffer, buffer, bufferSize);
 
 	// 5. Clean up the staging buffer
-	vkDestroyBuffer(m_device, stagingBuffer, nullptr);
-	vkFreeMemory(m_device, stagingBufferMemory, nullptr);
+	vkDestroyBuffer(device, stagingBuffer, nullptr);
+	vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+	// 6. Set the state to initialized
+	this->state = GFX_BUFFER_STATE_INITIALIZED;
 
 	return buffer;
 }
 
-VertexBuffer::VertexBuffer(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices)
+VertexBuffer::VertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices)
 {
 	m_vertexCount = vertices->size();
-	m_physicalDevice = newPhysicalDevice;
-	m_device = newDevice;
-	m_vertexBuffer = createVertexBuffer(vertices, transferQueue, transferCommandPool);
+	m_vertexBuffer = createVertexBuffer(physicalDevice, device,vertices, transferQueue, transferCommandPool);
 }
 
 VertexBuffer::~VertexBuffer()
@@ -65,8 +72,9 @@ VkBuffer VertexBuffer::getVertexBuffer()
 	return m_vertexBuffer;
 }
 
-void VertexBuffer::dispose()
+void VertexBuffer::dispose(VkDevice device)
 {
-	vkDestroyBuffer(m_device, m_vertexBuffer, nullptr);
-	vkFreeMemory(m_device, m_vertexBufferMemory, nullptr);
+	vkDestroyBuffer(device, m_vertexBuffer, nullptr);
+	vkFreeMemory(device, m_vertexBufferMemory, nullptr);
+	this->state = GFX_BUFFER_STATE_DISPOSED;
 }

@@ -871,31 +871,10 @@ void Renderer::recordCommands(uint32_t currentImage)
 	vkCmdBeginRenderPass(m_commandBuffers[currentImage], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	vkCmdBindPipeline(m_commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 
-	// Draw the meshes
-	for (size_t j = 0; j < m_meshes.size(); j++) {
-		auto mesh = m_meshes[j];
-		auto vertexBuffer = m_vertexBuffers[mesh->vertexBufferIndex];
-		auto indexBuffer = m_indexBuffers[mesh->indexBufferIndex];
-
-		VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer()};
-		VkDeviceSize offsets[] = { 0 };
-		uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
-
-		std::array<VkDescriptorSet, 2> descriptorSets = { 
-			m_descriptorSets[currentImage], 
-			m_samplerDescriptorSets[mesh->textureIndex]
-		};
-
-		//uint32_t dynamicOffset = static_cast<uint32_t>(m_modelUniformAlignment) * j;
-		vkCmdBindDescriptorSets(m_commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout,
-			0, static_cast<uint32_t>(descriptorSets.size()),	descriptorSets.data(), 0, nullptr);
-
-		vkCmdPushConstants(m_commandBuffers[currentImage], m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(Model), &m_meshes[j]->getModel());
-		vkCmdBindVertexBuffers(m_commandBuffers[currentImage], 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(m_commandBuffers[currentImage], indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
-		vkCmdDrawIndexed(m_commandBuffers[currentImage], indexCount, 1, 0, 0, 0);
+	for (auto& renderCallback : m_drawCallbacks) {
+		renderCallback(this, m_commandBuffers[currentImage], currentImage);
 	}
-	//vkCmdDraw(m_commandBuffers[i], static_cast<uint32_t>(m_vertexBuffer->getVertexCount()), 1, 0, 0); // Draw a triangle with 3 vertices, 1 instance, first vertex 0, first instance 0
+
 	vkCmdEndRenderPass(m_commandBuffers[currentImage]);
 
 	result = vkEndCommandBuffer(m_commandBuffers[currentImage]);
@@ -1257,8 +1236,6 @@ int Renderer::init(GLFWwindow* window)
 	try {
 		// Create validation layers for the instance
 		createValidationLayers();
-
-		// Create the Vulkan instance
 		createInstance();
 		createSurface();
 		getPhysicalDevice();
@@ -1267,7 +1244,6 @@ int Renderer::init(GLFWwindow* window)
 		createDepthBufferImage();
 		createRenderPass();
 		createDescriptorSetLayout();
-		// TODO: make createGraphicsPipeline return the pipeline and store it then in m_graphicsPipeline
 		ShaderSourceCollection shaders = {};
 		shaders.vert = "Shaders/vert.spv";
 		shaders.frag = "Shaders/frag.spv";
@@ -1276,17 +1252,19 @@ int Renderer::init(GLFWwindow* window)
 		createCommandPool();
 		createCommandBuffers();
 		createTextureSampler();
-		//allocateDynamicBufferTransferSpace();
 		createUniformBuffers();
 		createDescriptorPool();
 		createDescriptorSets();
 		createSyncObjects();
 
-		// Load test textures
+
 		m_uboViewProjection.projection = glm::perspective(glm::radians(45.0f), m_swapChainExtent.width / (float)m_swapChainExtent.height, 0.1f, 10.0f);
 		m_uboViewProjection.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		m_uboViewProjection.projection[1][1] *= -1;
 
+		for (auto callback : m_initCallbacks) {
+			callback(this);
+		}
 	}
 	catch (const std::runtime_error& e) {
 		printf("Failed to create instance: %s\n", e.what());
@@ -1300,7 +1278,13 @@ void Renderer::addImageTexture(ImageTexture* imageTexture)
 {
 	imageTexture->init(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool);
 	imageTexture->descriptorIndex = createTextureDescriptor(imageTexture->imageView);
+	imageTexture->state = GFX_BUFFER_STATE_INITIALIZED;
 	m_imageTextures.push_back(imageTexture);
+}
+
+void Renderer::disposeImageTexture(ImageTexture* imageTexture)
+{
+	imageTexture->dispose(m_renderDevice.logicalDevice);
 }
 
 int Renderer::createVertexBuffer(std::vector<Vertex>* vertices)
@@ -1310,16 +1294,51 @@ int Renderer::createVertexBuffer(std::vector<Vertex>* vertices)
 	return m_vertexBuffers.size() - 1;
 }
 
+VertexBuffer* Renderer::getVertexBuffer(int index)
+{
+	if (index >= 0 && index < m_vertexBuffers.size()) {
+		return m_vertexBuffers[index];
+	}
+}
+
+IndexBuffer* Renderer::getIndexBuffer(int index)
+{
+	if (index >= 0 && index < m_indexBuffers.size()) {
+		return m_indexBuffers[index];
+	}
+}
+
+VkDescriptorSet Renderer::getDescriptorSet(int index)
+{
+	if (index >= 0 && index < m_descriptorSets.size()) {
+		return m_descriptorSets[index];
+	}
+}
+
+VkDescriptorSet Renderer::getSamplerDescriptorSet(int index)
+{
+	if (index >= 0 && index < m_samplerDescriptorSets.size()) {
+		return m_samplerDescriptorSets[index];
+	}
+}
+
+VkCommandBuffer Renderer::getCommandBuffer(int index)
+{
+	if (index >= 0 && index < m_commandBuffers.size()) {
+		return m_commandBuffers[index];
+	}
+}
+
+VkPipelineLayout Renderer::getPipelineLayout()
+{
+	return m_pipelineLayout;
+}
+
 int Renderer::createIndexBuffer(std::vector<uint32_t>* indices)
 {
 	IndexBuffer* indexBuffer = new IndexBuffer(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, indices);
 	m_indexBuffers.push_back(indexBuffer);
 	return m_indexBuffers.size() - 1;
-}
-
-void Renderer::addMesh(Mesh* mesh)
-{
-	m_meshes.push_back(mesh);
 }
 
 void Renderer::draw()
@@ -1376,12 +1395,32 @@ void Renderer::draw()
 	m_currentFrame = (m_currentFrame + 1) % m_numFramesInFlight;
 }
 
+void Renderer::addOnDrawCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback)
+{
+	m_drawCallbacks.push_back(callback);
+}
+
+void Renderer::addOnInitCallback(std::function<void(Renderer*)> callback)
+{
+	m_initCallbacks.push_back(callback);
+}
+
+void Renderer::addOnDisposeCallback(std::function<void(Renderer*)> callback)
+{
+	m_disposeCallbacks.push_back(callback);
+}
+
 /// <summary>
 /// Dispose the renderer and free resources
 /// </summary>
 void Renderer::dispose()
 {
 	vkDeviceWaitIdle(m_renderDevice.logicalDevice);
+
+	// Dispose Callbacks
+	for (auto callback : m_disposeCallbacks) {
+		callback(this);
+	}
 
 	// DESTROY TEXTURE DESCRIPTORS
 	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_samplerDescriptorPool, nullptr);
@@ -1390,13 +1429,6 @@ void Renderer::dispose()
 	// DESTROY SAMPLER
 	vkDestroySampler(m_renderDevice.logicalDevice, m_textureSampler, nullptr);
 
-	// FREE TEXTURES
-	for (ImageTexture* imageTexture : m_imageTextures) {
-		imageTexture->dispose(m_renderDevice.logicalDevice);
-		delete imageTexture;
-	}
-	m_imageTextures.clear();
-
 	//_aligned_free(m_modelTransferSpace);
 	vkDestroyImageView(m_renderDevice.logicalDevice, m_depthBufferImageView, nullptr);
 	vkDestroyImage(m_renderDevice.logicalDevice, m_depthBufferImage, nullptr);
@@ -1404,40 +1436,43 @@ void Renderer::dispose()
 
 	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_descriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_descriptorSetLayout, nullptr);
+
 	// Free uniform buffers
 	for (auto uniformBuffer : m_uniformBuffers) {
-		uniformBuffer->dispose();
+		uniformBuffer->dispose(m_renderDevice.logicalDevice);
 		delete uniformBuffer;
 	}
 	m_uniformBuffers.clear();
 
+	// Free dynamic uniform buffers
 	for (auto dynamicUniformBuffer : m_dynamicUniformBuffers) {
-		dynamicUniformBuffer->dispose();
+		dynamicUniformBuffer->dispose(m_renderDevice.logicalDevice);
 		delete dynamicUniformBuffer;
 	}
 	m_dynamicUniformBuffers.clear();
 
-	// Free meshes
-	for (auto mesh : m_meshes) {
-
-		mesh->dispose();
-		delete mesh;
-	}
-	m_meshes.clear();
-
 	// Free vertex buffers
 	for (auto vertexBuffer : m_vertexBuffers) {
-		vertexBuffer->dispose();
+		if (vertexBuffer->state == GFX_BUFFER_STATE_DISPOSED) continue;
+		vertexBuffer->dispose(m_renderDevice.logicalDevice);
 		delete vertexBuffer;
 	}
 	m_vertexBuffers.clear();
 
 	// Free index buffers
 	for (auto indexBuffer : m_indexBuffers) {
-		indexBuffer->dispose();
+		if (indexBuffer->state == GFX_BUFFER_STATE_DISPOSED) continue;
+		indexBuffer->dispose(m_renderDevice.logicalDevice);
 		delete indexBuffer;
 	}
 	m_indexBuffers.clear();
+
+	// Free image textures
+	for (auto imageTexture : m_imageTextures) {
+		if (imageTexture->state == GFX_BUFFER_STATE_DISPOSED) continue;
+		imageTexture->dispose(m_renderDevice.logicalDevice);
+	}
+	m_imageTextures.clear();
 
 	for (size_t i = 0; i < m_numFramesInFlight; i++) {
 		vkDestroySemaphore(m_renderDevice.logicalDevice, m_renderFinishedSemaphores[i], nullptr);

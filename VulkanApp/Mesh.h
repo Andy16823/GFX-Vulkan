@@ -5,10 +5,6 @@
 #include "IndexBuffer.h"
 #include <vector>
 
-struct Model {
-	glm::mat4 model;
-};
-
 class Mesh
 {
 private:
@@ -16,7 +12,6 @@ private:
 public:
 	int vertexBufferIndex = -1;
 	int indexBufferIndex = -1;
-	int textureIndex = -1;
 
 	void setModelMatrix(glm::mat4 model);
 	const Model& getModel() const;

@@ -1,5 +1,6 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
+#include "Buffer.h"
 #include <GLFW/glfw3.h>
 #include <vector>
 #include "Utils.h"
@@ -16,22 +17,20 @@ struct Vertex {
 /// <summary>
 /// Vertex buffer class
 /// </summary>
-class VertexBuffer
+class VertexBuffer : public Buffer
 {
 private:
 	int m_vertexCount;
 	VkBuffer m_vertexBuffer;
-	VkPhysicalDevice m_physicalDevice;
-	VkDevice m_device;
 	VkDeviceMemory m_vertexBufferMemory;
 
-	VkBuffer createVertexBuffer(std::vector<Vertex>* vertices, VkQueue transferQueue, VkCommandPool transferCommandPool);
+	VkBuffer createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, std::vector<Vertex>* vertices, VkQueue transferQueue, VkCommandPool transferCommandPool);
 public:
-	VertexBuffer(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices);
+	VertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices);
 	~VertexBuffer();
 
 	int getVertexCount();
 	VkBuffer getVertexBuffer();
-	void dispose();
+	void dispose(VkDevice device);
 };
 

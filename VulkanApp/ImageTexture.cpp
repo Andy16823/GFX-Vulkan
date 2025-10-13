@@ -9,16 +9,23 @@ void ImageTexture::loadImageData(std::string filename)
 	this->imageData = loadTextureFile(filename, &width, &height, &imageSize);
 }
 
-ImageTexture::ImageTexture(std::string filename)
+ImageTexture::ImageTexture(std::string filename) : Buffer()
 {
 	loadImageData(filename);
 }
 
 void ImageTexture::init(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool pool)
 {
+	// Ensure image data is loaded
 	if (imageData == nullptr)
 	{
 		throw std::runtime_error("Image data not loaded. Call loadImageData() first.");
+	}
+
+	// Ensure texture is not already created or disposed
+	if (this->state != GFX_BUFFER_STATE_NONE)
+	{
+		throw std::runtime_error("ImageTexture already created or disposed.");
 	}
 
 	// Create staging buffer
@@ -90,4 +97,13 @@ void ImageTexture::init(VkPhysicalDevice physicalDevice, VkDevice device, VkQueu
 
 	// Create image view
 	imageView = createImageView(device, image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
+}
+
+void ImageTexture::dispose(VkDevice device)
+{
+	vkDestroyImageView(device, imageView, nullptr);
+	vkDestroyImage(device, image, nullptr);
+	vkFreeMemory(device, imageMemory, nullptr);
+
+	this->state = GFX_BUFFER_STATE_DISPOSED;
 }

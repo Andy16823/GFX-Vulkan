@@ -1,24 +1,24 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
+#include "Buffer.h"
 #include <GLFW/glfw3.h>
 
 
 
-class UniformBuffer
+class UniformBuffer : public Buffer
 {
 private:
-	VkPhysicalDevice m_physicalDevice;
-	VkDevice m_device;
 	VkBuffer m_uniformBuffer;
 	VkDeviceMemory m_uniformBufferMemory;
 	VkDeviceSize m_bufferSize;
-	void createUniformBuffer(VkDeviceSize bufferSize);
+
+	void createUniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize);
 public:
-	UniformBuffer(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkDeviceSize bufferSize);
+	UniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize);
 	~UniformBuffer();
 	VkBuffer getUniformBuffer();
 	VkDeviceSize getBufferSize() { return m_bufferSize; };
 	VkDeviceMemory getUniformBufferMemory() { return m_uniformBufferMemory; };
-	void dispose();
+	void dispose(VkDevice device);
 };
 

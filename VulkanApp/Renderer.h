@@ -12,6 +12,7 @@
 #include "UniformBuffer.h"
 #include "Mesh.h"
 #include "ImageTexture.h"
+#include <functional>
 
 struct RenderDevice {
 	VkPhysicalDevice physicalDevice;
@@ -24,8 +25,6 @@ class Renderer
 private:
 	GLFWwindow* m_window;
 	int m_currentFrame = 0;
-
-	std::vector<Mesh*> m_meshes; // TODO: Remove and replace with an funtion
 
 	struct UboViewProjection {
 		glm::mat4 projection;
@@ -76,11 +75,11 @@ private:
 
 	// Image Textures
 	VkSampler m_textureSampler;
-	std::vector<ImageTexture* > m_imageTextures;
 
 	// Buffer
 	std::vector<VertexBuffer*> m_vertexBuffers;
 	std::vector<IndexBuffer*> m_indexBuffers;
+	std::vector<ImageTexture* > m_imageTextures;
 
 	VkCommandPool m_commandPool;
 
@@ -89,6 +88,11 @@ private:
 	std::vector<VkSemaphore> m_renderFinishedSemaphores;
 	std::vector<VkFence> m_inFlightFences;
 	std::vector<VkFence> m_imagesInFlight;
+
+	// Callbacks
+	std::vector<std::function<void(Renderer*, VkCommandBuffer, uint32_t)>> m_drawCallbacks;
+	std::vector<std::function<void(Renderer*)>> m_initCallbacks;
+	std::vector<std::function<void(Renderer*)>> m_disposeCallbacks;
 
 
 	// Core
@@ -145,10 +149,21 @@ public:
 	void setProjectionMatrix(glm::mat4 proj) { m_uboViewProjection.projection = proj; }
 	void setViewMatrix(glm::mat4 view) { m_uboViewProjection.view = view; }
 	void addImageTexture(ImageTexture* imageTexture);
+	void disposeImageTexture(ImageTexture* imageTexture);
 	int createVertexBuffer(std::vector<Vertex>* vertices);
+	VertexBuffer* getVertexBuffer(int index);
+	IndexBuffer* getIndexBuffer(int index);
+	VkDescriptorSet getDescriptorSet(int index);
+	VkDescriptorSet getSamplerDescriptorSet(int index);
+	VkCommandBuffer getCommandBuffer(int index);
+	VkPipelineLayout getPipelineLayout();
 	int createIndexBuffer(std::vector<uint32_t>* indices);
-	void addMesh(Mesh* mesh);
 	void draw();
+
+	void addOnDrawCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback);
+	void addOnInitCallback(std::function<void(Renderer*)> callback);
+	void addOnDisposeCallback(std::function<void(Renderer*)> callback);
+
 	void dispose();
 	~Renderer();
 };
