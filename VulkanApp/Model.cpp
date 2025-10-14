@@ -2,7 +2,12 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "UnlitMaterial.h"
 
+/// <summary>
+/// Load a model from a file using Assimp
+/// </summary>
+/// <param name="file"></param>
 Model::Model(std::string file) : Entity()
 {
 	Assimp::Importer importer;
@@ -15,6 +20,7 @@ Model::Model(std::string file) : Entity()
 	for (size_t i = 0; i < scene->mNumMeshes; i++) {
 		auto aiMesh = scene->mMeshes[i];
 		Mesh* mesh = new Mesh();
+		UnlitMaterial* material = new UnlitMaterial();
 
 		// Process vertices
 		std::vector<Vertex> vertices;
@@ -45,28 +51,58 @@ Model::Model(std::string file) : Entity()
 			}
 		}
 		mesh->setIndices(indices);
+
+		// Process material
+		if (aiMesh->mMaterialIndex >= 0) {
+			auto aiMaterial = scene->mMaterials[aiMesh->mMaterialIndex];
+			aiString texturePath;
+			if (aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS) {
+				std::string fullPath = std::string(texturePath.C_Str());
+				std::string directory = file.substr(0, file.find_last_of('/'));
+				fullPath = directory + "/" + fullPath;
+
+				auto texture = std::make_unique<ImageTexture>(fullPath);
+				material->setAlbedoTexture(std::move(texture));
+			}
+			else {
+				throw std::runtime_error("Model material does not have a diffuse texture!");
+			}
+		}
+		mesh->material = std::unique_ptr<Material>(material);
 		m_meshes.push_back(std::unique_ptr<Mesh>(mesh));
 	}
 }
 
+/// <summary>
+/// Initialize all meshes in the model
+/// </summary>
+/// <param name="renderer"></param>
 void Model::init(Renderer* renderer)
 {
 	for (auto& mesh : m_meshes) {
-		auto verticexs = mesh.get()->m_vertices;
-		auto indices = mesh.get()->m_indices;
-		mesh->vertexBufferIndex = renderer->createVertexBuffer(&verticexs);
-		mesh->indexBufferIndex = renderer->createIndexBuffer(&indices);
+		mesh.get()->init(renderer);
 	}
 }
 
+/// <summary>
+/// Render all meshes in the model
+/// </summary>
+/// <param name="renderer"></param>
+/// <param name="currentFrame"></param>
 void Model::render(Renderer* renderer, int32_t currentFrame)
 {
 	for (auto& mesh : m_meshes) {
-		renderer->drawMesh(mesh.get(), 0, this->getModelMatrix(), currentFrame);
+		renderer->drawMesh(mesh.get(), mesh->material.get(), this->getModelMatrix(), currentFrame);
 	}
 }
 
+/// <summary>
+/// Destroy all meshes in the model
+/// </summary>
+/// <param name="renderer"></param>
 void Model::destroy(Renderer* renderer)
 {
-
+	for (auto& mesh : m_meshes) {
+		mesh.get()->dispose(renderer);
+	}
 }

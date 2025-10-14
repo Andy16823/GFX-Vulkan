@@ -14,6 +14,7 @@
 #include "ImageBuffer.h"
 #include "ImageTexture.h"
 #include <functional>
+#include "Material.h"
 
 struct RenderDevice {
 	VkPhysicalDevice physicalDevice;
@@ -163,6 +164,7 @@ public:
 	void addOnInitCallback(std::function<void(Renderer*)> callback);
 	void addOnDisposeCallback(std::function<void(Renderer*)> callback);
 	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
+	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 
 	void dispose();
 	~Renderer();

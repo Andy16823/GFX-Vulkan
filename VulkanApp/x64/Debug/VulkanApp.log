@@ -1,2 +1,29 @@
-﻿  main.cpp
+﻿  Component.cpp
+  Entity.cpp
+  ImageBuffer.cpp
+  Material.cpp
+  Mesh.cpp
+  Model.cpp
+  Renderer.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(662,46): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1037,48): warning C4267: "Argument": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1039,33): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1214,40): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1293,32): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1310,31): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1364,31): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+  RotationBehavior.cpp
+  Sprite.cpp
+  UnlitMaterial.cpp
+  main.cpp
+  Code wird generiert...
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1154,1): warning C4715: "Renderer::chooseSupportedFormat": Nicht alle Codepfade geben einen Wert zurück.
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1318,1): warning C4715: "Renderer::getVertexBuffer": Nicht alle Codepfade geben einen Wert zurück.
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1346,1): warning C4715: "Renderer::getSamplerDescriptorSet": Nicht alle Codepfade geben einen Wert zurück.
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1325,1): warning C4715: "Renderer::getIndexBuffer": Nicht alle Codepfade geben einen Wert zurück.
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1332,1): warning C4715: "Renderer::getImageBuffer": Nicht alle Codepfade geben einen Wert zurück.
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1339,1): warning C4715: "Renderer::getDescriptorSet": Nicht alle Codepfade geben einen Wert zurück.
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.cpp(1353,1): warning C4715: "Renderer::getCommandBuffer": Nicht alle Codepfade geben einen Wert zurück.
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(100,1): warning C4715: "findMemoryType": Nicht alle Codepfade geben einen Wert zurück.
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(100,1): warning C4715: "findMemoryType": Nicht alle Codepfade geben einen Wert zurück.
   VulkanApp.vcxproj -> C:\Users\andy1\Documents\GitHub\GFX-Vulkan\x64\Debug\VulkanApp.exe

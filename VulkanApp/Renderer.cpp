@@ -1461,6 +1461,40 @@ void Renderer::drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame)
 	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 }
 
+void Renderer::drawMesh(Mesh* mesh, Material* material, UboModel model, int frame)
+{
+	// Get the required buffers and descriptors
+	std::vector<int> textureIndices = material->getTextureIndices();
+	auto vertexBuffer = this->getVertexBuffer(mesh->vertexBufferIndex);
+	auto indexBuffer = this->getIndexBuffer(mesh->indexBufferIndex);
+
+	// Bind the buffers and descriptors
+	VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer() };
+	VkDeviceSize offsets[] = { 0 };
+	uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
+
+	// Create a vector of descriptor sets to bind
+	std::vector<VkDescriptorSet> descriptorSets;
+	descriptorSets.push_back(this->getDescriptorSet(frame));
+	for (auto textureIndex : textureIndices) {
+		auto imageBuffer = this->getImageBuffer(textureIndex);
+		descriptorSets.push_back(this->getSamplerDescriptorSet(imageBuffer->descriptorIndex));
+	}
+
+	// Get the command buffer and pipeline layout
+	auto commandBuffer = this->getCommandBuffer(frame);
+	auto pipelineLayout = this->getPipelineLayout();
+
+	// Bind the descriptor sets, vertex buffer, index buffer and draw the mesh
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+		0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+
+	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &model);
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+}
+
 /// <summary>
 /// Dispose the renderer and free resources
 /// </summary>

@@ -256,11 +256,13 @@
     <ClCompile Include="ImageTexture.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="RotationBehavior.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="UniformBuffer.cpp" />
+    <ClCompile Include="UnlitMaterial.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
@@ -273,12 +275,14 @@
     <ClInclude Include="ImageBuffer.h" />
     <ClInclude Include="ImageTexture.h" />
     <ClInclude Include="IndexBuffer.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="RotationBehavior.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="UniformBuffer.h" />
+    <ClInclude Include="UnlitMaterial.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Utils.h" />

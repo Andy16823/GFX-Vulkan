@@ -63,6 +63,12 @@
     <ClCompile Include="Model.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="UnlitMaterial.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -114,6 +120,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="UnlitMaterial.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

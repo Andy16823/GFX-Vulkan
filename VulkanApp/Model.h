@@ -5,7 +5,6 @@
 #include "Utils.h"
 #include "Mesh.h"
 
-// TODO: Add materials and textures to the model
 class Model :
     public Entity
 {
@@ -20,6 +19,5 @@ public:
 	void init(Renderer* renderer);
 	void render(Renderer* renderer, int32_t currentFrame);
 	void destroy(Renderer* renderer);
-
 };
 
