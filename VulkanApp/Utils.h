@@ -60,7 +60,7 @@ struct ShaderSourceCollection {
 	std::string entryPoint = "main";
 };
 
-struct Model {
+struct UboModel {
 	glm::mat4 model;
 };
 

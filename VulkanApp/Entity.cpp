@@ -37,7 +37,7 @@ void Entity::rotate(float x, float y, float z)
 	m_rotation = glm::rotate(m_rotation, glm::radians(z), glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
-Model Entity::getModelMatrix()
+UboModel Entity::getModelMatrix()
 {
 	glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), m_position);
 	glm::mat4 rotationMatrix = glm::toMat4(m_rotation);

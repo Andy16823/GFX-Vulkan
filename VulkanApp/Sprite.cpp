@@ -26,33 +26,35 @@ void Sprite::init(Renderer* renderer)
 
 void Sprite::render(Renderer* renderer, int32_t currentFrame)
 {
-	auto vertexBuffer = renderer->getVertexBuffer(m_mesh->vertexBufferIndex);
-	auto indexBuffer = renderer->getIndexBuffer(m_mesh->indexBufferIndex);
-	auto imageBuffer = renderer->getImageBuffer(m_textureImage->bufferIndex);
+	//auto vertexBuffer = renderer->getVertexBuffer(m_mesh->vertexBufferIndex);
+	//auto indexBuffer = renderer->getIndexBuffer(m_mesh->indexBufferIndex);
+	//auto imageBuffer = renderer->getImageBuffer(m_textureImage->bufferIndex);
 
-	VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer() };
-	VkDeviceSize offsets[] = { 0 };
-	uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
+	//VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer() };
+	//VkDeviceSize offsets[] = { 0 };
+	//uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
 
-	auto uniformDescriptorSet = renderer->getDescriptorSet(currentFrame);
+	//auto uniformDescriptorSet = renderer->getDescriptorSet(currentFrame);
 
-	std::array<VkDescriptorSet, 2> descriptorSets = {
-		renderer->getDescriptorSet(currentFrame),
-		renderer->getSamplerDescriptorSet(imageBuffer->descriptorIndex)
-	};
+	//std::array<VkDescriptorSet, 2> descriptorSets = {
+	//	renderer->getDescriptorSet(currentFrame),
+	//	renderer->getSamplerDescriptorSet(imageBuffer->descriptorIndex)
+	//};
 
-	auto commandBuffer = renderer->getCommandBuffer(currentFrame);
-	auto pipelineLayout = renderer->getPipelineLayout();
+	//auto commandBuffer = renderer->getCommandBuffer(currentFrame);
+	//auto pipelineLayout = renderer->getPipelineLayout();
 
-	//uint32_t dynamicOffset = static_cast<uint32_t>(m_modelUniformAlignment) * j;
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-		0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+	////uint32_t dynamicOffset = static_cast<uint32_t>(m_modelUniformAlignment) * j;
+	//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+	//	0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 
-	auto thisModel = this->getModelMatrix();
-	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(Model), &thisModel);
-	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
-	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+	//auto thisModel = this->getModelMatrix();
+	//vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &thisModel);
+	//vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	//vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+	//vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+
+	renderer->drawMesh(m_mesh.get(), m_textureImage->bufferIndex, this->getModelMatrix(), currentFrame);
 }
 
 

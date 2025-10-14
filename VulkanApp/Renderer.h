@@ -162,6 +162,7 @@ public:
 	void addOnDrawCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback);
 	void addOnInitCallback(std::function<void(Renderer*)> callback);
 	void addOnDisposeCallback(std::function<void(Renderer*)> callback);
+	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
 
 	void dispose();
 	~Renderer();

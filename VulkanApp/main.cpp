@@ -13,6 +13,10 @@
 #include "Camera3D.h"
 #include "Component.h"
 #include "RotationBehavior.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include "Model.h"
 
 GLFWwindow* window;
 Renderer renderer;
@@ -29,8 +33,10 @@ GLFWwindow& CreateWindow(std::string wName = "GFX C++", const int width = 800, c
 int main() {
 	window = &CreateWindow();
 
-	auto camera = new Camera3D(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec2(800.0f, 600.0f));
+	auto model = new Model("D:/3D Modele/GFX/Lion2/Lion.gltf");
+	model->setPosition(glm::vec3(0.0f, -1.0f, 0.0f));
 
+	auto camera = new Camera3D(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec2(800.0f, 600.0f));
 
 	// Mesh
 	auto sprite = new Sprite("C:/Users/andy1/Downloads/giraffe.jpg");
@@ -38,16 +44,19 @@ int main() {
 
 	auto rotBehavior = sprite->findComponent<RotationBehavior>();
 
-	renderer.addOnInitCallback([sprite](Renderer* renderer) {
+	renderer.addOnInitCallback([sprite, model](Renderer* renderer) {
 		sprite->init(renderer);
+		model->init(renderer);
 		});
 
-	renderer.addOnDisposeCallback([sprite](Renderer* renderer) {
+	renderer.addOnDisposeCallback([sprite, model](Renderer* renderer) {
 		sprite->destroy(renderer);
+		model->destroy(renderer);
 		});
 
-	renderer.addOnDrawCallback([sprite](Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) {
+	renderer.addOnDrawCallback([sprite, model](Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) {
 		sprite->render(renderer, currentFrame);
+		model->render(renderer, currentFrame);
 		});
 
 
@@ -59,7 +68,10 @@ int main() {
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 
+		model->rotate(0.0f, 0.1f, 0.0f);
 		sprite->update(0.016f);
+		model->update(0.016f);
+
 		renderer.setViewProjection(camera->getViewProjection());
 
 		renderer.draw();

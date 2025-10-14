@@ -518,7 +518,7 @@ void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
 	VkPushConstantRange pushConstantRange = {};
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	pushConstantRange.offset = 0;
-	pushConstantRange.size = sizeof(Model);
+	pushConstantRange.size = sizeof(UboModel);
 
 	std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = { m_descriptorSetLayout, m_samplerSetLayout };
 
@@ -1431,6 +1431,34 @@ void Renderer::addOnInitCallback(std::function<void(Renderer*)> callback)
 void Renderer::addOnDisposeCallback(std::function<void(Renderer*)> callback)
 {
 	m_disposeCallbacks.push_back(callback);
+}
+
+// TODO change bufferInder for the imagebuffer with the material for the mesh.
+void Renderer::drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame)
+{
+	auto vertexBuffer = this->getVertexBuffer(mesh->vertexBufferIndex);
+	auto indexBuffer = this->getIndexBuffer(mesh->indexBufferIndex);
+	auto imageBuffer = this->getImageBuffer(bufferIndex);
+
+	VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer() };
+	VkDeviceSize offsets[] = { 0 };
+	uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
+
+	std::array<VkDescriptorSet, 2> descriptorSets = {
+		this->getDescriptorSet(frame),
+		this->getSamplerDescriptorSet(imageBuffer->descriptorIndex)
+	};
+
+	auto commandBuffer = this->getCommandBuffer(frame);
+	auto pipelineLayout = this->getPipelineLayout();
+
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+		0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+
+	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &model);
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 }
 
 /// <summary>

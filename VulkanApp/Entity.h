@@ -29,7 +29,7 @@ public:
 	void setRotation(glm::quat rotation);
 	glm::quat getRotation();
 	void rotate(float x, float y, float z);
-	Model getModelMatrix();
+	UboModel getModelMatrix();
 
 	// Virtual methods  
 	virtual void update(float dt);

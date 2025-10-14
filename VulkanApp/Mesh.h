@@ -8,14 +8,15 @@
 class Mesh
 {
 private:
-	Model m_uboModel;
+
 public:
+	std::vector<Vertex> m_vertices;
+	std::vector<uint32_t> m_indices;
 	int vertexBufferIndex = -1;
 	int indexBufferIndex = -1;
-
-	void setModelMatrix(glm::mat4 model);
-	const Model& getModel() const;
 	Mesh();
+	void setVertices(std::vector<Vertex> vertices) { m_vertices = vertices; }
+	void setIndices(std::vector<uint32_t> indices) { m_indices = indices; }
 	~Mesh();
 
 	void dispose();
