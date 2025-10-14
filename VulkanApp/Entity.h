@@ -16,10 +16,10 @@ private:
 	glm::vec3 m_scale = glm::vec3(1.0f);
 	glm::quat m_rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 
-	std::vector<Component*> m_components;
+	std::vector<std::unique_ptr<Component>> m_components;
 public:
 	Entity() = default;
-	virtual ~Entity();
+	virtual ~Entity() = default;
 
 	// Transforms  
 	void setPosition(glm::vec3 position);
@@ -40,12 +40,22 @@ public:
 	// Own components  
 	void addComponent(Component* component);
 	
+	template<typename T>
+	T* addComponent(std::unique_ptr<T> component)
+	{
+		static_assert(std::is_base_of<Component, T>::value, "T must be a subclass of Component");
+		component->parent = this;
+		T* raw = component.get();
+		m_components.push_back(std::move(component));
+		return raw;
+	}
+
 	// Template functions
 	template<typename T>
 	T* findComponent()
 	{
-		for (auto component : m_components) {
-			if (auto casted = dynamic_cast<T*>(component)) {
+		for (auto& component : m_components) {
+			if (auto casted = dynamic_cast<T*>(component.get())) {
 				return casted;
 			}
 		}

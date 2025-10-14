@@ -33,7 +33,7 @@
     <ClCompile Include="UniformBuffer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="ImageTexture.cpp">
+    <ClCompile Include="ImageBuffer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="Sprite.cpp">
@@ -55,6 +55,9 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="RotationBehavior.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageTexture.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,7 +83,7 @@
     <ClInclude Include="stb_image.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="ImageTexture.h">
+    <ClInclude Include="ImageBuffer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Sprite.h">
@@ -102,6 +105,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="RotationBehavior.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageTexture.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

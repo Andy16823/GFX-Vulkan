@@ -324,14 +324,12 @@ static void transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool 
 	submitCommandBuffer(device, commandPool, queue, commandBuffer);
 }
 
-static stbi_uc* loadTextureFile(std::string fileName, int* width, int* height, VkDeviceSize* imageSize)
+static stbi_uc* loadTextureFile(std::string fileName, int* width, int* height)
 {
 	int channels;
 	stbi_uc* image = stbi_load(fileName.c_str(), width, height, &channels, STBI_rgb_alpha);
 	if (!image) {
 		throw std::runtime_error("failed to load texture image!");
 	}
-
-	*imageSize = (*width) * (*height) * 4;
 	return image;
 }

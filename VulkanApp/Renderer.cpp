@@ -1279,37 +1279,55 @@ void Renderer::setViewProjection(const UboViewProjection& vp)
 	m_uboViewProjection = vp;
 }
 
-void Renderer::addImageTexture(ImageTexture* imageTexture)
+void Renderer::disposeImageTexture(int imageTexture)
 {
-	imageTexture->init(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool);
-	imageTexture->descriptorIndex = createTextureDescriptor(imageTexture->imageView);
-	imageTexture->state = GFX_BUFFER_STATE_INITIALIZED;
-	m_imageTextures.push_back(imageTexture);
-}
-
-void Renderer::disposeImageTexture(ImageTexture* imageTexture)
-{
-	imageTexture->dispose(m_renderDevice.logicalDevice);
+	if (imageTexture >= 0 && imageTexture < m_imageBuffers.size()) {
+		m_imageBuffers[imageTexture]->dispose(m_renderDevice.logicalDevice);
+	}
 }
 
 int Renderer::createVertexBuffer(std::vector<Vertex>* vertices)
 {
-	VertexBuffer* vertexBuffer = new VertexBuffer(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, vertices);
-	m_vertexBuffers.push_back(vertexBuffer);
+	auto vertexBuffer = std::make_unique<VertexBuffer>(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, vertices);
+	m_vertexBuffers.push_back(std::move(vertexBuffer));
 	return m_vertexBuffers.size() - 1;
+}
+
+int Renderer::createImageBuffer(ImageTexture* imageTexture)
+{
+	auto imageBuffer = std::make_unique<ImageBuffer>(
+		imageTexture->imageData,
+		imageTexture->width,
+		imageTexture->height,
+		m_renderDevice.physicalDevice,
+		m_renderDevice.logicalDevice,
+		m_graphicsQueue,
+		m_commandPool);
+
+	imageBuffer->descriptorIndex = createTextureDescriptor(imageBuffer->imageView);
+	imageBuffer->state = GFX_BUFFER_STATE_INITIALIZED;
+	m_imageBuffers.push_back(std::move(imageBuffer));
+	return m_imageBuffers.size() - 1;
 }
 
 VertexBuffer* Renderer::getVertexBuffer(int index)
 {
 	if (index >= 0 && index < m_vertexBuffers.size()) {
-		return m_vertexBuffers[index];
+		return m_vertexBuffers[index].get();
 	}
 }
 
 IndexBuffer* Renderer::getIndexBuffer(int index)
 {
 	if (index >= 0 && index < m_indexBuffers.size()) {
-		return m_indexBuffers[index];
+		return m_indexBuffers[index].get();
+	}
+}
+// TODO Add 0 exception
+ImageBuffer* Renderer::getImageBuffer(int index)
+{
+	if (index >= 0 && index < m_imageBuffers.size()) {
+		return m_imageBuffers[index].get();
 	}
 }
 
@@ -1341,8 +1359,8 @@ VkPipelineLayout Renderer::getPipelineLayout()
 
 int Renderer::createIndexBuffer(std::vector<uint32_t>* indices)
 {
-	IndexBuffer* indexBuffer = new IndexBuffer(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, indices);
-	m_indexBuffers.push_back(indexBuffer);
+	auto indexBuffer = std::make_unique<IndexBuffer>(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, indices);
+	m_indexBuffers.push_back(std::move(indexBuffer));
 	return m_indexBuffers.size() - 1;
 }
 
@@ -1457,27 +1475,25 @@ void Renderer::dispose()
 	m_dynamicUniformBuffers.clear();
 
 	// Free vertex buffers
-	for (auto vertexBuffer : m_vertexBuffers) {
+	for (auto& vertexBuffer : m_vertexBuffers) {
 		if (vertexBuffer->state == GFX_BUFFER_STATE_DISPOSED) continue;
 		vertexBuffer->dispose(m_renderDevice.logicalDevice);
-		delete vertexBuffer;
 	}
 	m_vertexBuffers.clear();
 
 	// Free index buffers
-	for (auto indexBuffer : m_indexBuffers) {
+	for (auto& indexBuffer : m_indexBuffers) {
 		if (indexBuffer->state == GFX_BUFFER_STATE_DISPOSED) continue;
 		indexBuffer->dispose(m_renderDevice.logicalDevice);
-		delete indexBuffer;
 	}
 	m_indexBuffers.clear();
 
 	// Free image textures
-	for (auto imageTexture : m_imageTextures) {
+	for (auto& imageTexture : m_imageBuffers) {
 		if (imageTexture->state == GFX_BUFFER_STATE_DISPOSED) continue;
 		imageTexture->dispose(m_renderDevice.logicalDevice);
 	}
-	m_imageTextures.clear();
+	m_imageBuffers.clear();
 
 	for (size_t i = 0; i < m_numFramesInFlight; i++) {
 		vkDestroySemaphore(m_renderDevice.logicalDevice, m_renderFinishedSemaphores[i], nullptr);

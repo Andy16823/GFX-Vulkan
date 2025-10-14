@@ -252,6 +252,7 @@
     <ClCompile Include="Camera3D.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="ImageBuffer.cpp" />
     <ClCompile Include="ImageTexture.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="main.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="Camera3D.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="ImageBuffer.h" />
     <ClInclude Include="ImageTexture.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="Mesh.h" />

@@ -34,7 +34,7 @@ int main() {
 
 	// Mesh
 	auto sprite = new Sprite("C:/Users/andy1/Downloads/giraffe.jpg");
-	sprite->addComponent(new RotationBehavior());
+	sprite->addComponent(std::make_unique<RotationBehavior>());
 
 	auto rotBehavior = sprite->findComponent<RotationBehavior>();
 

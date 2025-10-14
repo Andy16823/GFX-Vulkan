@@ -3,14 +3,8 @@
 
 Sprite::Sprite(std::string file)
 {
-	m_texture = new ImageTexture(file);
-	m_mesh = new Mesh();
-}
-
-Sprite::~Sprite()
-{
-	delete m_mesh;
-	delete m_texture;
+	m_textureImage = std::make_unique<ImageTexture>(file);
+	m_mesh = std::make_unique<Mesh>();
 }
 
 void Sprite::update(float dt)
@@ -20,7 +14,9 @@ void Sprite::update(float dt)
 
 void Sprite::init(Renderer* renderer)
 {
-	renderer->addImageTexture(m_texture);
+	m_textureImage->bufferIndex = renderer->createImageBuffer(m_textureImage.get());
+	m_textureImage->freeImageData();
+
 	auto spriteVertices = getSpriteVertices();
 	m_mesh->vertexBufferIndex = renderer->createVertexBuffer(&spriteVertices);
 
@@ -32,6 +28,7 @@ void Sprite::render(Renderer* renderer, int32_t currentFrame)
 {
 	auto vertexBuffer = renderer->getVertexBuffer(m_mesh->vertexBufferIndex);
 	auto indexBuffer = renderer->getIndexBuffer(m_mesh->indexBufferIndex);
+	auto imageBuffer = renderer->getImageBuffer(m_textureImage->bufferIndex);
 
 	VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer() };
 	VkDeviceSize offsets[] = { 0 };
@@ -41,7 +38,7 @@ void Sprite::render(Renderer* renderer, int32_t currentFrame)
 
 	std::array<VkDescriptorSet, 2> descriptorSets = {
 		renderer->getDescriptorSet(currentFrame),
-		renderer->getSamplerDescriptorSet(m_texture->descriptorIndex)
+		renderer->getSamplerDescriptorSet(imageBuffer->descriptorIndex)
 	};
 
 	auto commandBuffer = renderer->getCommandBuffer(currentFrame);
@@ -61,7 +58,7 @@ void Sprite::render(Renderer* renderer, int32_t currentFrame)
 
 void Sprite::destroy(Renderer* renderer)
 {
-	renderer->disposeImageTexture(m_texture);
+
 }
 
 std::vector<Vertex> Sprite::getSpriteVertices()

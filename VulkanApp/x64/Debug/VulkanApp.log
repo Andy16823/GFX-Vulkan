@@ -1,7 +1,2 @@
-﻿  Entity.cpp
-  RotationBehavior.cpp
-  Sprite.cpp
-  main.cpp
-  Code wird generiert...
-LINK : warning LNK4098: Standardbibliothek "MSVCRT" steht in Konflikt mit anderen Bibliotheken; /NODEFAULTLIB:Bibliothek verwenden.
+﻿  ImageTexture.cpp
   VulkanApp.vcxproj -> C:\Users\andy1\Documents\GitHub\GFX-Vulkan\x64\Debug\VulkanApp.exe

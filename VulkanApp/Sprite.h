@@ -8,13 +8,12 @@ class Sprite :
     public Entity
 {
 private:
-	Mesh* m_mesh;
-	ImageTexture* m_texture;
-
+	std::unique_ptr<Mesh> m_mesh;
+	std::unique_ptr<ImageTexture> m_textureImage;
 
 public:
 	Sprite(std::string file);
-	~Sprite();
+	~Sprite() = default;
 	void update(float dt) override;
 	void init(Renderer* renderer) override;
 	void render(Renderer* renderer, int32_t currentFrame) override;

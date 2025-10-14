@@ -11,6 +11,7 @@
 #include "IndexBuffer.h"
 #include "UniformBuffer.h"
 #include "Mesh.h"
+#include "ImageBuffer.h"
 #include "ImageTexture.h"
 #include <functional>
 
@@ -74,9 +75,9 @@ private:
 	VkSampler m_textureSampler;
 
 	// Buffer
-	std::vector<VertexBuffer*> m_vertexBuffers;
-	std::vector<IndexBuffer*> m_indexBuffers;
-	std::vector<ImageTexture* > m_imageTextures;
+	std::vector<std::unique_ptr<VertexBuffer>> m_vertexBuffers;
+	std::vector<std::unique_ptr<IndexBuffer>> m_indexBuffers;
+	std::vector<std::unique_ptr<ImageBuffer>> m_imageBuffers;
 
 	VkCommandPool m_commandPool;
 
@@ -144,11 +145,13 @@ private:
 public:
 	int init(GLFWwindow* window);
 	void setViewProjection(const UboViewProjection& vp);
-	void addImageTexture(ImageTexture* imageTexture);
-	void disposeImageTexture(ImageTexture* imageTexture);
+	void disposeImageTexture(int imageTexture);
 	int createVertexBuffer(std::vector<Vertex>* vertices);
+	int createImageBuffer(ImageTexture* imageTexture);
+
 	VertexBuffer* getVertexBuffer(int index);
 	IndexBuffer* getIndexBuffer(int index);
+	ImageBuffer* getImageBuffer(int index);
 	VkDescriptorSet getDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSet(int index);
 	VkCommandBuffer getCommandBuffer(int index);
