@@ -525,7 +525,7 @@ void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
 	pushConstantRange.offset = 0;
 	pushConstantRange.size = sizeof(UboModel);
 
-	std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = { m_descriptorSetLayout, m_samplerSetLayout };
+	std::array<VkDescriptorSetLayout, 3> descriptorSetLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout };
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

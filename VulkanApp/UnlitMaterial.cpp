@@ -10,6 +10,15 @@ void UnlitMaterial::init(Renderer* renderer)
 	else {
 		throw std::runtime_error("UnlitMaterial requires an albedo texture!");
 	}
+
+	if (normalTexture) {
+		normalTexture->bufferIndex = renderer->createImageBuffer(normalTexture.get());
+		normalTexture->freeImageData(); // Free image data after uploading to GPU
+	}
+	else {
+		// It's okay if there's no normal texture, just log a warning
+		std::cout << "Warning: UnlitMaterial has no normal texture!" << std::endl;
+	}
 }
 
 void UnlitMaterial::dispose(Renderer* renderer)
@@ -19,5 +28,5 @@ void UnlitMaterial::dispose(Renderer* renderer)
 
 std::vector<int> UnlitMaterial::getTextureIndices()
 {
-	return { albedoTexture->bufferIndex };
+	return { albedoTexture->bufferIndex, normalTexture->bufferIndex };
 }

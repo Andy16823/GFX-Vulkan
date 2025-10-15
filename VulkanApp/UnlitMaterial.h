@@ -12,6 +12,7 @@ private:
 
 public:
 	std::unique_ptr<ImageTexture> albedoTexture;
+	std::unique_ptr<ImageTexture> normalTexture;
 
 	UnlitMaterial() = default;
 	~UnlitMaterial() = default;

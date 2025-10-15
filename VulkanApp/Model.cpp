@@ -69,6 +69,18 @@ Model::Model(std::string name, std::string file) : Entity(name)
 			else {
 				throw std::runtime_error("Model material does not have a diffuse texture!");
 			}
+
+			if (aiMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath) == AI_SUCCESS) {
+				std::string fullPath = std::string(texturePath.C_Str());
+				std::string directory = file.substr(0, file.find_last_of('/'));
+				fullPath = directory + "/" + fullPath;
+				auto texture = std::make_unique<ImageTexture>(fullPath);
+				material->normalTexture = std::move(texture);
+			}
+			else {
+				// It's okay if there's no normal texture, just log a warning
+				std::cout << "Warning: Model material has no normal texture!" << std::endl;
+			}
 		}
 		mesh->material = std::unique_ptr<Material>(material);
 		m_meshes.push_back(std::unique_ptr<Mesh>(mesh));
