@@ -3,6 +3,7 @@
 layout(location = 0) in vec3 pos;
 layout(location = 1) in vec3 vcolor;
 layout(location = 2) in vec2 texCoord;
+layout(location = 3) in vec3 normal;
 
 layout(set = 0, binding = 0) uniform UboViewProjection {
     mat4 projection;

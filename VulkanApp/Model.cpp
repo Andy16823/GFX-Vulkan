@@ -27,6 +27,7 @@ Model::Model(std::string name, std::string file) : Entity(name)
 		for (size_t j = 0; j < aiMesh->mNumVertices; j++) {
 			Vertex vertex = {};
 			auto aiVertex = aiMesh->mVertices[j];
+			auto aiNormal = aiMesh->mNormals[j];
 			vertex.pos = glm::vec3(aiVertex.x, aiVertex.y, aiVertex.z);
 
 			if (aiMesh->HasVertexColors(0)) {
@@ -38,6 +39,7 @@ Model::Model(std::string name, std::string file) : Entity(name)
 			}
 			auto aiTexCoord = aiMesh->mTextureCoords[0][j];
 			vertex.texCoord = glm::vec2(aiTexCoord.x, aiTexCoord.y);
+			vertex.normal = glm::vec3(aiNormal.x, aiNormal.y, aiNormal.z);
 			vertices.push_back(vertex);
 		}
 		mesh->setVertices(vertices);
