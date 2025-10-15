@@ -18,7 +18,10 @@ private:
 
 	std::vector<std::unique_ptr<Component>> m_components;
 public:
-	Entity() = default;
+	std::string name;
+	std::string UniqueId;
+
+	Entity(std::string name);
 	virtual ~Entity() = default;
 
 	// Transforms  

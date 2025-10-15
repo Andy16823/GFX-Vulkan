@@ -12,7 +12,7 @@ private:
 	std::vector<std::unique_ptr<Mesh>> m_meshes;
 
 public:
-    Model(std::string file);
+    Model(std::string name, std::string file);
 	~Model() = default;
 
 	void update(float dt) override {};

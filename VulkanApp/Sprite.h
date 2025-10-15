@@ -12,7 +12,7 @@ private:
 	std::unique_ptr<ImageTexture> m_textureImage;
 
 public:
-	Sprite(std::string file);
+	Sprite(std::string name, std::string file);
 	~Sprite() = default;
 	void update(float dt) override;
 	void init(Renderer* renderer) override;

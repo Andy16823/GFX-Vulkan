@@ -8,7 +8,7 @@
 /// Load a model from a file using Assimp
 /// </summary>
 /// <param name="file"></param>
-Model::Model(std::string file) : Entity()
+Model::Model(std::string name, std::string file) : Entity(name)
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(file, aiProcess_Triangulate | aiProcess_FlipUVs);

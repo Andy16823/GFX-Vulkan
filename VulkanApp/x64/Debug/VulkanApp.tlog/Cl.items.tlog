@@ -3,6 +3,7 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Camera.cpp;C:\Users\andy1\D
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Camera3D.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Camera3D.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Component.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Component.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Entity.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Entity.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\GFX.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\GFX.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\ImageBuffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\ImageBuffer.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\ImageTexture.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\ImageTexture.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\IndexBuffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\IndexBuffer.obj
@@ -11,6 +12,7 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Material.cpp;C:\Users\andy1
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Mesh.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Mesh.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Model.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Model.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\RotationBehavior.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\RotationBehavior.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Scene.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Scene.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Sprite.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Sprite.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\UniformBuffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\UniformBuffer.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\UnlitMaterial.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\UnlitMaterial.obj

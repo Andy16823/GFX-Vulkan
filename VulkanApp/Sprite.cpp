@@ -1,7 +1,7 @@
 #include "Sprite.h"
 #include "Renderer.h"
 
-Sprite::Sprite(std::string file)
+Sprite::Sprite(std::string name, std::string file) : Entity(name)
 {
 	m_textureImage = std::make_unique<ImageTexture>(file);
 	m_mesh = std::make_unique<Mesh>();
