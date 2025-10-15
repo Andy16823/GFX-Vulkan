@@ -1,5 +1,5 @@
 #pragma once
-#include "Component.h"
+#include "../Core/Component.h"
 
 class RotationBehavior : public Component
 {

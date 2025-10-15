@@ -1,5 +1,5 @@
 #include "Sprite.h"
-#include "Renderer.h"
+#include "../Graphics/Renderer.h"
 
 Sprite::Sprite(std::string name, std::string file) : Entity(name)
 {

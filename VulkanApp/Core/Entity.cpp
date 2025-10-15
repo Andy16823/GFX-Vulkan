@@ -1,5 +1,5 @@
 #include "Entity.h"
-#include "Utils.h"
+#include "../Utils.h"
 
 Entity::Entity(std::string name)
 {

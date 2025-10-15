@@ -1,8 +1,8 @@
 #include "ImageBuffer.h"
-#include "stb_image.h"
+#include "../stb_image.h"
 #include "Renderer.h"
 #include <iostream>
-#include "Utils.h"
+#include "../Utils.h"
 
 void ImageBuffer::createImageBuffer(stbi_uc* imageData, int width, int height, VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool pool)
 {

@@ -1,5 +1,6 @@
 #include "UniformBuffer.h"
-#include "Utils.h"
+#include "../Utils.h"
+#include <stdexcept>
 
 void UniformBuffer::createUniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize)
 {

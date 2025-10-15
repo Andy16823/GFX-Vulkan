@@ -1,20 +1,20 @@
 // TODO: Add dependancys to release builds
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include "GFX.h"
+#include "Core/GFX.h"
 #include <iostream>
-#include "Renderer.h"
+#include "Graphics/Renderer.h"
 #include <string>
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "ImageTexture.h"
-#include "Mesh.h"
-#include "Sprite.h"
-#include "Camera3D.h"
-#include "Component.h"
-#include "RotationBehavior.h"
-#include "Model.h"
-#include "Scene.h"
+#include "Graphics/ImageTexture.h"
+#include "Graphics/Mesh.h"
+#include "Core/Sprite.h"
+#include "Graphics/Camera3D.h"
+#include "Core/Component.h"
+#include "Components/RotationBehavior.h"
+#include "Core/Model.h"
+#include "Core/Scene.h"
 
 GLFWwindow* window;
 Renderer renderer;

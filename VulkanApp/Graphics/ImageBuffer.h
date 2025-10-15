@@ -3,7 +3,7 @@
 #include "Buffer.h"
 #include <GLFW/glfw3.h>
 #include <string>
-#include "Utils.h"
+#include "../Utils.h"
 
 class ImageBuffer : public Buffer
 {

@@ -1,5 +1,5 @@
 #include "RotationBehavior.h"
-#include "Entity.h"
+#include "../Core/Entity.h"
 
 void RotationBehavior::update(float dt)
 {

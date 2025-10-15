@@ -1,8 +1,8 @@
 #pragma once
 #include "Entity.h"
-#include "Mesh.h"
+#include "../Graphics/Mesh.h"
 #include <vector>
-#include "VertexBuffer.h"
+#include "../Graphics/VertexBuffer.h"
 
 class Sprite :
     public Entity

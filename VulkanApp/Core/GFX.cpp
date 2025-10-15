@@ -1,7 +1,7 @@
 #include "GFX.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "../stb_image.h"
 
 GLFWwindow* GFX::createWindow(std::string wName, const int width, const int height)
 {

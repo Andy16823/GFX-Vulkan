@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
-#include "Utils.h"
-#include "Renderer.h"
+#include "../Utils.h"
+#include "../Graphics/Renderer.h"
 class Entity;
 
 class Component

@@ -1,11 +1,11 @@
 #pragma once  
 #define GLM_ENABLE_EXPERIMENTAL  
-#include "Renderer.h"  
+#include "../Graphics/Renderer.h"  
 #include <glm/vec3.hpp>  
 #include <glm/gtx/quaternion.hpp>  
 #include <glm/gtc/matrix_transform.hpp>  
 #include <glm/mat4x4.hpp>  
-#include "Component.h"  
+#include "Component.h"
 #include <vector>  
 #include <type_traits>  
 

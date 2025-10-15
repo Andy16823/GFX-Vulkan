@@ -2,7 +2,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "UnlitMaterial.h"
+#include "../Graphics/UnlitMaterial.h"
 
 /// <summary>
 /// Load a model from a file using Assimp

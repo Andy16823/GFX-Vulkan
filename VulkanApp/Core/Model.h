@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 #include "Entity.h"
-#include "Utils.h"
-#include "Mesh.h"
+#include "../Utils.h"
+#include "../Graphics/Mesh.h"
 
 class Model :
     public Entity

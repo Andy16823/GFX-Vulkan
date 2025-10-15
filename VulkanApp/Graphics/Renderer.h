@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <vector>
 #include <iostream>
-#include "Utils.h"
+#include "../Utils.h"
 #include <set>
 #include <array>
 #include "VertexBuffer.h"
