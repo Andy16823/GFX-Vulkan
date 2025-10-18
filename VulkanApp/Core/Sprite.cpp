@@ -24,7 +24,7 @@ void Sprite::init(Renderer* renderer)
 	m_mesh->indexBufferIndex = renderer->createIndexBuffer(&spriteIndices);
 }
 
-void Sprite::render(Renderer* renderer, int32_t currentFrame)
+void Sprite::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
 	//auto vertexBuffer = renderer->getVertexBuffer(m_mesh->vertexBufferIndex);
 	//auto indexBuffer = renderer->getIndexBuffer(m_mesh->indexBufferIndex);

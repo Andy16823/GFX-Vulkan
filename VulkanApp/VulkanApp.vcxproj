@@ -268,6 +268,7 @@
     <ClCompile Include="Graphics\VertexBuffer.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Graphics\Pipeline.cpp" />
+    <ClCompile Include="Graphics\PipelineManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Buffer.h" />
@@ -286,6 +287,7 @@
     <ClInclude Include="Core\Scene.h" />
     <ClInclude Include="Core\Sprite.h" />
     <ClInclude Include="Graphics\Pipeline.h" />
+    <ClInclude Include="Graphics\PipelineManager.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
     <ClInclude Include="Graphics\UnlitMaterial.h" />

@@ -17,7 +17,7 @@ void Scene::update(float deltaTime)
 void Scene::render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame)
 {
 	for (const auto& entity : m_entities) {
-		entity->render(renderer, currentFrame);
+		entity->render(renderer, commandBuffer, currentFrame);
 	}
 }
 

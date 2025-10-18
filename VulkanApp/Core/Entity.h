@@ -37,7 +37,7 @@ public:
 	// Virtual methods  
 	virtual void update(float dt);
 	virtual void init(Renderer* renderer) = 0;
-	virtual void render(Renderer* renderer, int32_t currentFrame) = 0;
+	virtual void render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame) = 0;
 	virtual void destroy(Renderer* renderer) = 0;
 
 	// Own components  

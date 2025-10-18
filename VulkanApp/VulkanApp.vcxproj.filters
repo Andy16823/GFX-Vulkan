@@ -78,6 +78,9 @@
     <ClCompile Include="Graphics\Pipeline.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\PipelineManager.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -144,6 +147,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Pipeline.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\PipelineManager.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

@@ -16,7 +16,7 @@ public:
 	~Sprite() = default;
 	void update(float dt) override;
 	void init(Renderer* renderer) override;
-	void render(Renderer* renderer, int32_t currentFrame) override;
+	void render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame) override;
 	void destroy(Renderer* renderer) override;
 	
 	// Statics

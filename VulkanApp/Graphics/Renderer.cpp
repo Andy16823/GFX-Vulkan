@@ -390,6 +390,8 @@ void Renderer::createDescriptorSetLayout()
 
 void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
 {
+	m_pipelineManager = std::make_unique<PipelineManager>();
+
 	// PIPLINE LAYOUT
 	VkPushConstantRange pushConstantRange = {};
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
@@ -435,38 +437,38 @@ void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
 
 
 	// PIPELINE
-	m_graphicsPipeline = new Pipeline(shaders, bindingInfo);
+	auto pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D), shaders, bindingInfo);
 
 	VertexAttributeInfo positionAttr = {};
 	positionAttr.binding = 0;
 	positionAttr.location = 0;
 	positionAttr.format = VK_FORMAT_R32G32B32_SFLOAT;
 	positionAttr.offset = offsetof(Vertex, pos);
-	m_graphicsPipeline->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(positionAttr);
 
 	VertexAttributeInfo colorAttr = {};
 	colorAttr.binding = 0;
 	colorAttr.location = 1;
 	colorAttr.format = VK_FORMAT_R32G32B32_SFLOAT;
 	colorAttr.offset = offsetof(Vertex, color);
-	m_graphicsPipeline->addVertexAttribute(colorAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
 
 	VertexAttributeInfo texCoordAttr = {};
 	texCoordAttr.binding = 0;
 	texCoordAttr.location = 2;
 	texCoordAttr.format = VK_FORMAT_R32G32_SFLOAT;
 	texCoordAttr.offset = offsetof(Vertex, texCoord);
-	m_graphicsPipeline->addVertexAttribute(texCoordAttr);
+	pipelinePtr->addVertexAttribute(texCoordAttr);
 
 	VertexAttributeInfo normalAttr = {};
 	normalAttr.binding = 0;
 	normalAttr.location = 3;
 	normalAttr.format = VK_FORMAT_R32G32B32_SFLOAT;
 	normalAttr.offset = offsetof(Vertex, normal);
-	m_graphicsPipeline->addVertexAttribute(normalAttr);
+	pipelinePtr->addVertexAttribute(normalAttr);
 
 	// Create the graphics pipeline
-	m_graphicsPipeline->createPipeline(m_renderDevice.logicalDevice, m_pipelineLayout, m_renderPass, viewport, scissor);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_pipelineLayout, m_renderPass, viewport, scissor);
 }
 
 void Renderer::createDepthBufferImage()
@@ -758,7 +760,11 @@ void Renderer::recordCommands(uint32_t currentImage)
 	}
 
 	vkCmdBeginRenderPass(m_commandBuffers[currentImage], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-	vkCmdBindPipeline(m_commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->pipeline);
+	auto pipelinePtr = m_pipelineManager->getPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D));
+	if (pipelinePtr == nullptr) {
+		throw std::runtime_error("failed to get graphics pipeline for command buffer recording!");
+	}
+	vkCmdBindPipeline(m_commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr->pipeline);
 
 	for (auto& renderCallback : m_drawCallbacks) {
 		renderCallback(this, m_commandBuffers[currentImage], currentImage);
@@ -1322,6 +1328,15 @@ void Renderer::addOnDisposeCallback(std::function<void(Renderer*)> callback)
 	m_disposeCallbacks.push_back(callback);
 }
 
+void Renderer::bindPipeline(VkCommandBuffer commandBuffer, std::string pipelineName)
+{
+	auto pipelinePtr = m_pipelineManager->getPipeline(pipelineName);
+	if (pipelinePtr == nullptr) {
+		throw std::runtime_error("failed to get graphics pipeline for binding!");
+	}
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr->pipeline);
+}
+
 // TODO change bufferInder for the imagebuffer with the material for the mesh.
 void Renderer::drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame)
 {
@@ -1455,8 +1470,7 @@ void Renderer::dispose()
 	for (auto framebuffer : m_swapChainFramebuffers) {
 		vkDestroyFramebuffer(m_renderDevice.logicalDevice, framebuffer, nullptr);
 	}
-	m_graphicsPipeline->destroy(m_renderDevice.logicalDevice);
-	m_graphicsPipeline = nullptr;
+	m_pipelineManager->destroyAllPipelines(m_renderDevice.logicalDevice);
 	vkDestroyPipelineLayout(m_renderDevice.logicalDevice, m_pipelineLayout, nullptr);
 	vkDestroyRenderPass(m_renderDevice.logicalDevice, m_renderPass, nullptr);
 	for (auto& image : m_swapChainImages) {

@@ -7,6 +7,7 @@
 #include "../Utils.h"
 #include <set>
 #include <array>
+#include "PipelineManager.h"
 #include "Pipeline.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -22,6 +23,18 @@ struct RenderDevice {
 	VkDevice logicalDevice;
 };
 
+enum class PipelineType {
+	PIPELINE_TYPE_GRAPHICS_3D,
+	PIPELINE_TYPE_GRAPHICS_2D
+};
+
+inline const char* ToString(PipelineType type) {
+	switch (type) {
+	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D: return "pipeline_3D";
+	case PipelineType::PIPELINE_TYPE_GRAPHICS_2D: return "pipeline_2D";
+	default: return "unknown";
+	}
+}
 
 class Renderer
 {
@@ -43,7 +56,7 @@ private:
 	std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
 	
-	Pipeline* m_graphicsPipeline;
+	std::unique_ptr<PipelineManager> m_pipelineManager;
 	VkPipelineLayout m_pipelineLayout;
 	VkRenderPass m_renderPass;
 
@@ -165,6 +178,7 @@ public:
 	void addOnDrawCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback);
 	void addOnInitCallback(std::function<void(Renderer*)> callback);
 	void addOnDisposeCallback(std::function<void(Renderer*)> callback);
+	void bindPipeline(VkCommandBuffer commandBuffer, std::string pipelineName);
 	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 

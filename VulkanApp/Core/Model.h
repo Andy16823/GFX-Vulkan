@@ -17,7 +17,7 @@ public:
 
 	void update(float dt) override {};
 	void init(Renderer* renderer);
-	void render(Renderer* renderer, int32_t currentFrame);
+	void render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame);
 	void destroy(Renderer* renderer);
 };
 

@@ -103,9 +103,10 @@ void Model::init(Renderer* renderer)
 /// </summary>
 /// <param name="renderer"></param>
 /// <param name="currentFrame"></param>
-void Model::render(Renderer* renderer, int32_t currentFrame)
+void Model::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
 	for (auto& mesh : m_meshes) {
+		renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D));
 		renderer->drawMesh(mesh.get(), mesh->material.get(), this->getModelMatrix(), currentFrame);
 	}
 }
