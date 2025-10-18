@@ -388,11 +388,11 @@ void Renderer::createDescriptorSetLayout()
 //	m_pushConstantRange.size = sizeof(Model);
 //}
 
-void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
+void Renderer::createGraphicsPipelines()
 {
 	m_pipelineManager = std::make_unique<PipelineManager>();
 
-	// PIPLINE LAYOUT
+	// CREATE DEFAULT PIPLINE LAYOUT
 	VkPushConstantRange pushConstantRange = {};
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	pushConstantRange.offset = 0;
@@ -407,7 +407,6 @@ void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
 	pipelineLayoutInfo.pushConstantRangeCount = 1;
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
-	// Create the pipeline layout
 	if (vkCreatePipelineLayout(m_renderDevice.logicalDevice, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
@@ -436,8 +435,9 @@ void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
 	bindingInfo.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 
-	// PIPELINE
-	auto pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D), shaders, bindingInfo);
+	// PIPELINE 3D
+	ShaderSourceCollection shaders3D = { "Shaders/vert.spv", "Shaders/frag.spv" };
+	auto pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D), shaders3D, bindingInfo);
 
 	VertexAttributeInfo positionAttr = {};
 	positionAttr.binding = 0;
@@ -467,7 +467,14 @@ void Renderer::createGraphicsPipeline(ShaderSourceCollection shaders)
 	normalAttr.offset = offsetof(Vertex, normal);
 	pipelinePtr->addVertexAttribute(normalAttr);
 
-	// Create the graphics pipeline
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_pipelineLayout, m_renderPass, viewport, scissor);
+
+	// PIPELINE 2D
+	ShaderSourceCollection shaders2D = { "Shaders/vert_2d.spv", "Shaders/frag_2d.spv" };
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D), shaders2D, bindingInfo);
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
+	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_pipelineLayout, m_renderPass, viewport, scissor);
 }
 
@@ -1139,10 +1146,7 @@ int Renderer::init(GLFWwindow* window)
 		createDepthBufferImage();
 		createRenderPass();
 		createDescriptorSetLayout();
-		ShaderSourceCollection shaders = {};
-		shaders.vert = "Shaders/vert.spv";
-		shaders.frag = "Shaders/frag.spv";
-		createGraphicsPipeline(shaders);
+		createGraphicsPipelines();
 		createFramebuffers();
 		createCommandPool();
 		createCommandBuffers();

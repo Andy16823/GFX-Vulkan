@@ -54,6 +54,7 @@ void Sprite::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t c
 	//vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 	//vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 
+	renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
 	renderer->drawMesh(m_mesh.get(), m_textureImage->bufferIndex, this->getModelMatrix(), currentFrame);
 }
 

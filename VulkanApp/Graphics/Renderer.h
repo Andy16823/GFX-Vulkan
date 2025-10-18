@@ -119,7 +119,7 @@ private:
 	void createRenderPass();
 	void createDescriptorSetLayout();
 	//void createPushConstantRange();
-	void createGraphicsPipeline(ShaderSourceCollection shaders);
+	void createGraphicsPipelines();
 	void createDepthBufferImage();
 	void createFramebuffers();
 	void createCommandPool();
