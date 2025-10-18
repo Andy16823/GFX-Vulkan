@@ -7,6 +7,7 @@
 #include "../Utils.h"
 #include <set>
 #include <array>
+#include "Pipeline.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "UniformBuffer.h"
@@ -41,7 +42,8 @@ private:
 	std::vector<SwapChainImage> m_swapChainImages;
 	std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
-	VkPipeline m_graphicsPipeline;
+	
+	Pipeline* m_graphicsPipeline;
 	VkPipelineLayout m_pipelineLayout;
 	VkRenderPass m_renderPass;
 

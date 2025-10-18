@@ -267,6 +267,7 @@
     <ClCompile Include="Graphics\UnlitMaterial.cpp" />
     <ClCompile Include="Graphics\VertexBuffer.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
+    <ClCompile Include="Graphics\Pipeline.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Buffer.h" />
@@ -284,6 +285,7 @@
     <ClInclude Include="Components\RotationBehavior.h" />
     <ClInclude Include="Core\Scene.h" />
     <ClInclude Include="Core\Sprite.h" />
+    <ClInclude Include="Graphics\Pipeline.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
     <ClInclude Include="Graphics\UnlitMaterial.h" />
