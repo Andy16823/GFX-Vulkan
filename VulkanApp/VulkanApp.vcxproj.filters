@@ -81,7 +81,7 @@
     <ClCompile Include="Graphics\PipelineManager.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Cubemap.cpp">
+    <ClCompile Include="Graphics\CubemapBuffer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -155,7 +155,7 @@
     <ClInclude Include="Graphics\PipelineManager.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Cubemap.h">
+    <ClInclude Include="Graphics\CubemapBuffer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

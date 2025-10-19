@@ -11,7 +11,7 @@ struct CubemapFaceData {
 	uint32_t height;
 };
 
-class Cubemap : public Buffer
+class CubemapBuffer : public Buffer
 {
 public:
 	VkImage image;
@@ -20,8 +20,8 @@ public:
 	VkDeviceSize imageSize;
 	int descriptorIndex = -1;
 
-	Cubemap(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool pool, CubemapFaceData faces);
-	~Cubemap();
+	CubemapBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool pool, CubemapFaceData faces);
+	~CubemapBuffer();
 	void createCubemapBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool pool, CubemapFaceData faces);
 	void dispose(VkDevice device);
 	

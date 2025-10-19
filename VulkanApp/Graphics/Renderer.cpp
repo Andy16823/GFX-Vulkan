@@ -1311,7 +1311,7 @@ int Renderer::createImageBuffer(ImageTexture* imageTexture)
 
 int Renderer::createCubemapBuffer(CubemapFaceData faces)
 {
-	auto cubemapBuffer = std::make_unique<Cubemap>(
+	auto cubemapBuffer = std::make_unique<CubemapBuffer>(
 		m_renderDevice.physicalDevice,
 		m_renderDevice.logicalDevice,
 		m_graphicsQueue,

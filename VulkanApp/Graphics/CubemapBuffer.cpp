@@ -1,18 +1,18 @@
-#include "Cubemap.h"
+#include "CubemapBuffer.h"
 #include <stdexcept>
 #include <array>
 
-Cubemap::Cubemap(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool pool, CubemapFaceData faces)
+CubemapBuffer::CubemapBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool pool, CubemapFaceData faces)
 {
 	this->createCubemapBuffer(physicalDevice, device, queue, pool, faces);
 }
 
-Cubemap::~Cubemap()
+CubemapBuffer::~CubemapBuffer()
 {
 
 }
 
-void Cubemap::createCubemapBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool pool, CubemapFaceData faces)
+void CubemapBuffer::createCubemapBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool pool, CubemapFaceData faces)
 {
 	// VALIDATE BUFFER STATE
 	if (this->state != GFX_BUFFER_STATE_NONE) {
@@ -113,7 +113,7 @@ void Cubemap::createCubemapBuffer(VkPhysicalDevice physicalDevice, VkDevice devi
 	);
 }
 
-void Cubemap::dispose(VkDevice device)
+void CubemapBuffer::dispose(VkDevice device)
 {
 	vkDestroyImageView(device, imageView, nullptr);
 	vkDestroyImage(device, image, nullptr);

@@ -15,7 +15,7 @@
 #include "Mesh.h"
 #include "ImageBuffer.h"
 #include "ImageTexture.h"
-#include "Cubemap.h"
+#include "CubemapBuffer.h"
 #include <functional>
 #include "Material.h"
 
@@ -93,7 +93,7 @@ private:
 	VkDescriptorPool m_samplerDescriptorPool;
 
 	// CUBEMAP STUFF
-	std::vector<std::unique_ptr<Cubemap>> m_cubemaps;
+	std::vector<std::unique_ptr<CubemapBuffer>> m_cubemaps;
 	std::vector<VkDescriptorSet> m_cubemapDescriptorSets;
 	VkSampler m_cubemapSampler;
 	VkDescriptorSetLayout m_cubemapSetLayout;

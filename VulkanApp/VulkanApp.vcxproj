@@ -247,7 +247,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Graphics\Cubemap.cpp" />
+    <ClCompile Include="Graphics\CubemapBuffer.cpp" />
     <ClCompile Include="Graphics\Buffer.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\Camera3D.cpp" />
@@ -272,7 +272,7 @@
     <ClCompile Include="Graphics\PipelineManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Graphics\Cubemap.h" />
+    <ClInclude Include="Graphics\CubemapBuffer.h" />
     <ClInclude Include="Graphics\Buffer.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Camera3D.h" />
