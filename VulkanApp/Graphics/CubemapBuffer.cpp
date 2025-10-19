@@ -106,7 +106,7 @@ void CubemapBuffer::createCubemapBuffer(VkPhysicalDevice physicalDevice, VkDevic
 	imageView = createImageViewLayered(
 		device, 
 		image, 
-		VK_FORMAT_R8G8B8_UNORM, 
+		VK_FORMAT_R8G8B8A8_UNORM,
 		VK_IMAGE_ASPECT_COLOR_BIT, 
 		VK_IMAGE_VIEW_TYPE_CUBE, 
 		6

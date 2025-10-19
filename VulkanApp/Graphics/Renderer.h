@@ -26,13 +26,15 @@ struct RenderDevice {
 
 enum class PipelineType {
 	PIPELINE_TYPE_GRAPHICS_3D,
-	PIPELINE_TYPE_GRAPHICS_2D
+	PIPELINE_TYPE_GRAPHICS_2D,
+	PIPELINE_TYPE_ENVIONMENT_MAP,
 };
 
 inline const char* ToString(PipelineType type) {
 	switch (type) {
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D: return "pipeline_3D";
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_2D: return "pipeline_2D";
+	case PipelineType::PIPELINE_TYPE_ENVIONMENT_MAP: return "pipeline_environment_map";
 	default: return "unknown";
 	}
 }
@@ -108,6 +110,8 @@ private:
 	std::vector<std::function<void(Renderer*)>> m_initCallbacks;
 	std::vector<std::function<void(Renderer*)>> m_disposeCallbacks;
 
+	// SKYBOX PIPLEINE LAYOUT TODO: REMOVE LATER TO OWN CLASS
+	VkPipelineLayout m_skyboxPipelineLayout;
 
 	// Core
 	void createValidationLayers();
@@ -170,9 +174,11 @@ public:
 	VertexBuffer* getVertexBuffer(int index);
 	IndexBuffer* getIndexBuffer(int index);
 	ImageBuffer* getImageBuffer(int index);
+	CubemapBuffer* getCubemapBuffer(int index);
 	VkDescriptorSet getDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSetFromImageBuffer(int imageBufferIndex);
+	VkDescriptorSet getCubemapDescriptorSet(int index);
 	VkCommandBuffer getCommandBuffer(int index);
 	VkPipelineLayout getPipelineLayout();
 	int createIndexBuffer(std::vector<uint32_t>* indices);
@@ -185,6 +191,7 @@ public:
 	void bindDescriptorSets(std::vector<VkDescriptorSet> descriptorSets, int frame);
 	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
+	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
 
 	void dispose();
 	~Renderer();

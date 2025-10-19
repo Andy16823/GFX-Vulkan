@@ -84,6 +84,12 @@
     <ClCompile Include="Graphics\CubemapBuffer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Cubemap.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Skybox.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -156,6 +162,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\CubemapBuffer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Cubemap.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Skybox.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

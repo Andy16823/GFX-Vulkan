@@ -2,6 +2,7 @@
 #include "../Graphics/Renderer.h"
 #include <vector>
 #include "Entity.h"
+#include "Skybox.h"
 
 class Scene
 {
@@ -9,6 +10,8 @@ private:
 	std::vector<std::unique_ptr<Entity>> m_entities;
 
 public:
+	std::unique_ptr<Skybox> skybox;
+
 	virtual void init(Renderer* renderer);
 	virtual void update(float deltaTime);
 	virtual void render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame);
@@ -18,6 +21,10 @@ public:
 	~Scene() = default;
 
 	void addEntity(std::unique_ptr<Entity> entity);
+
+	bool hasSkybox() const {
+		return skybox != nullptr;
+	}
 
 	template<typename T>
 	std::vector<T*> findEntities() {

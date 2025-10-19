@@ -6,6 +6,7 @@ layout(location = 1) in vec2 fragTexCoord;
 
 layout(set = 1, binding = 0) uniform sampler2D textureSampler;
 layout(set = 2, binding = 0) uniform sampler2D normalSampler;
+layout(set = 3, binding = 0) uniform samplerCube cubeSampler;
 
 void main() { 
     fragColor = texture(textureSampler, fragTexCoord);

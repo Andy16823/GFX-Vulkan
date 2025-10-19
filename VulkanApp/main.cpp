@@ -24,6 +24,16 @@ int main() {
 
 	auto scene = GFX::createScene();
 
+	std::vector<std::string> cubemapFaces = {
+		"C:/Users/andy1/Documents/Cubemaps/Test/nx.png",
+		"C:/Users/andy1/Documents/Cubemaps/Test/px.png",
+		"C:/Users/andy1/Documents/Cubemaps/Test/py.png",
+		"C:/Users/andy1/Documents/Cubemaps/Test/ny.png",
+		"C:/Users/andy1/Documents/Cubemaps/Test/pz.png",
+		"C:/Users/andy1/Documents/Cubemaps/Test/nz.png"
+	};
+	scene->skybox = std::make_unique<Skybox>(cubemapFaces);
+
 	auto model = GFX::createModel("D:/3D Modele/GFX/Lion2/Lion.gltf", "Lion");
 	model->setPosition(glm::vec3(0.0f, -0.75f, -1.0f));
 	model->rotate(0.0f, 45.0f, 0.0f);

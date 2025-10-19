@@ -496,6 +496,27 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_pipelineLayout, m_renderPass, viewport, scissor);
+
+	// PIPELINE ENVIRONMENT MAP
+
+	VkPipelineLayoutCreateInfo skyboxPipelineLayoutInfo = {};
+	skyboxPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	skyboxPipelineLayoutInfo.setLayoutCount = 2;
+	std::array<VkDescriptorSetLayout, 2> skyboxDescriptorSetLayouts = { m_descriptorSetLayout, m_cubemapSetLayout };
+	skyboxPipelineLayoutInfo.pSetLayouts = skyboxDescriptorSetLayouts.data();
+	skyboxPipelineLayoutInfo.pushConstantRangeCount = 0;
+
+	if (vkCreatePipelineLayout(m_renderDevice.logicalDevice, &skyboxPipelineLayoutInfo, nullptr, &m_skyboxPipelineLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create skybox pipeline layout!");
+	}
+	else {
+		std::cout << "Skybox pipeline layout created successfully!" << std::endl;
+	}
+
+	ShaderSourceCollection shadersEnvMap = { "Shaders/skybox_vert.spv", "Shaders/skybox_frag.spv" };
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_ENVIONMENT_MAP), shadersEnvMap, bindingInfo);
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_skyboxPipelineLayout, m_renderPass, viewport, scissor);
 }
 
 void Renderer::createDepthBufferImage()
@@ -1347,6 +1368,14 @@ ImageBuffer* Renderer::getImageBuffer(int index)
 	}
 }
 
+CubemapBuffer* Renderer::getCubemapBuffer(int index)
+{
+	if (index >= 0 && index < m_cubemaps.size()) {
+		return m_cubemaps[index].get();
+	}
+	throw std::runtime_error("failed to get cubemap buffer: invalid cubemap index!");
+}
+
 VkDescriptorSet Renderer::getDescriptorSet(int index)
 {
 	if (index >= 0 && index < m_descriptorSets.size()) {
@@ -1369,6 +1398,14 @@ VkDescriptorSet Renderer::getSamplerDescriptorSetFromImageBuffer(int imageBuffer
 		return getSamplerDescriptorSet(descriptorIndex);
 	}
 	throw std::runtime_error("failed to get sampler descriptor set from image buffer: invalid image buffer index!");
+}
+
+VkDescriptorSet Renderer::getCubemapDescriptorSet(int index)
+{
+	if (index >= 0 && index < m_cubemapDescriptorSets.size()) {
+		return m_cubemapDescriptorSets[index];
+	}
+	throw std::runtime_error("failed to get cubemap descriptor set: invalid descriptor set index!");
 }
 
 VkCommandBuffer Renderer::getCommandBuffer(int index)
@@ -1546,6 +1583,38 @@ void Renderer::drawMesh(Mesh* mesh, Material* material, UboModel model, int fram
 	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 }
 
+void Renderer::drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame)
+{
+	auto vertexBuffer = this->getVertexBuffer(vertexBufferIndex);
+	auto indexBuffer = this->getIndexBuffer(indexBufferIndex);
+	auto cubemapBuffer = this->getCubemapBuffer(cubemapBufferIndex);
+	auto commandBuffer = this->getCommandBuffer(frame);
+
+	VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer() };
+	VkDeviceSize offsets[] = { 0 };
+	uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
+
+	std::array<VkDescriptorSet, 2> descriptorSets = {
+		this->getDescriptorSet(frame),
+		this->getCubemapDescriptorSet(cubemapBuffer->descriptorIndex)
+	};
+
+	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_ENVIONMENT_MAP));
+	vkCmdBindDescriptorSets(
+		commandBuffer,
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		m_skyboxPipelineLayout,
+		0,
+		static_cast<uint32_t>(descriptorSets.size()),
+		descriptorSets.data(),
+		0,
+		nullptr
+	);
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+}
+
 /// <summary>
 /// Dispose the renderer and free resources
 /// </summary>
@@ -1613,6 +1682,13 @@ void Renderer::dispose()
 	}
 	m_imageBuffers.clear();
 
+	// Free cubemaps
+	for (auto& cubemap : m_cubemaps) {
+		if (cubemap->state == GFX_BUFFER_STATE_DISPOSED) continue;
+		cubemap->dispose(m_renderDevice.logicalDevice);
+	}
+	m_cubemaps.clear();
+
 	for (size_t i = 0; i < m_numFramesInFlight; i++) {
 		vkDestroySemaphore(m_renderDevice.logicalDevice, m_renderFinishedSemaphores[i], nullptr);
 		vkDestroySemaphore(m_renderDevice.logicalDevice, m_imageAvailableSemaphores[i], nullptr);
@@ -1624,6 +1700,7 @@ void Renderer::dispose()
 	}
 	m_pipelineManager->destroyAllPipelines(m_renderDevice.logicalDevice);
 	vkDestroyPipelineLayout(m_renderDevice.logicalDevice, m_pipelineLayout, nullptr);
+	vkDestroyPipelineLayout(m_renderDevice.logicalDevice, m_skyboxPipelineLayout, nullptr);
 	vkDestroyRenderPass(m_renderDevice.logicalDevice, m_renderPass, nullptr);
 	for (auto& image : m_swapChainImages) {
 		vkDestroyImageView(m_renderDevice.logicalDevice, image.imageView, nullptr);

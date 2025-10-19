@@ -247,6 +247,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\Cubemap.cpp" />
     <ClCompile Include="Graphics\CubemapBuffer.cpp" />
     <ClCompile Include="Graphics\Buffer.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
@@ -270,8 +271,10 @@
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Graphics\Pipeline.cpp" />
     <ClCompile Include="Graphics\PipelineManager.cpp" />
+    <ClCompile Include="Core\Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\Cubemap.h" />
     <ClInclude Include="Graphics\CubemapBuffer.h" />
     <ClInclude Include="Graphics\Buffer.h" />
     <ClInclude Include="Graphics\Camera.h" />
@@ -290,6 +293,7 @@
     <ClInclude Include="Core\Sprite.h" />
     <ClInclude Include="Graphics\Pipeline.h" />
     <ClInclude Include="Graphics\PipelineManager.h" />
+    <ClInclude Include="Core\Skybox.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
     <ClInclude Include="Graphics\UnlitMaterial.h" />
