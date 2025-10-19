@@ -9,6 +9,7 @@
 #include "stb_image.h"
 #include <chrono>
 #include <random>
+#include <array>
 
 /// <summary>
 /// Maximum number of objects
@@ -128,6 +129,31 @@ static VkImageView createImageView(VkDevice device, VkImage image, VkFormat form
 	}
 }
 
+static VkImageView createImageViewLayered(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType, uint32_t layerCount)
+{
+	VkImageViewCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	createInfo.image = image;
+	createInfo.viewType = viewType;
+	createInfo.format = format;
+	createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+	createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+	createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+	createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+	createInfo.subresourceRange.aspectMask = aspectFlags;
+	createInfo.subresourceRange.baseMipLevel = 0;
+	createInfo.subresourceRange.levelCount = 1;
+	createInfo.subresourceRange.baseArrayLayer = 0;
+	createInfo.subresourceRange.layerCount = layerCount;
+	VkImageView imageView;
+	if (vkCreateImageView(device, &createInfo, nullptr, &imageView) == VK_SUCCESS) {
+		return imageView;
+	}
+	else {
+		throw std::runtime_error("failed to create texture image view!");
+	}
+}
+
 static void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags bufferProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory) {
 	// Create buffer
 	VkBufferCreateInfo bufferInfo = {};
@@ -198,6 +224,49 @@ static VkImage createImage(VkPhysicalDevice physicalDevice, VkDevice device,uint
 	return image;
 }
 
+static VkImage createImageLayered(VkPhysicalDevice physicalDevice, VkDevice device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory* imageMemory, uint32_t layerCount, VkImageCreateFlags flags)
+{
+	// CREATE IMAGE
+	VkImageCreateInfo imageInfo = {};
+	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	imageInfo.imageType = VK_IMAGE_TYPE_2D;
+	imageInfo.extent.width = width;
+	imageInfo.extent.height = height;
+	imageInfo.extent.depth = 1;
+	imageInfo.mipLevels = 1;
+	imageInfo.arrayLayers = layerCount;
+	imageInfo.format = format;
+	imageInfo.tiling = tiling;
+	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	imageInfo.usage = useFlags;
+	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	imageInfo.flags = flags;
+
+	VkImage image;
+	if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create image!");
+	}
+
+	// ALLOCATE MEMORY
+	VkMemoryRequirements memRequirements;
+	vkGetImageMemoryRequirements(device, image, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, propFlags);
+
+	if (vkAllocateMemory(device, &allocInfo, nullptr, imageMemory) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate image memory!");
+	}
+
+	// BIND MEMORY TO IMAGE
+	vkBindImageMemory(device, image, *imageMemory, 0);
+
+	return image;
+}
+
 static VkCommandBuffer beginCommandBuffer(VkDevice device, VkCommandPool commandPool) {
 	// 1. Allocate a command buffer from the command pool
 	VkCommandBuffer commandBuffer;
@@ -238,6 +307,33 @@ static void submitCommandBuffer(VkDevice device, VkCommandPool commandPool, VkQu
 	}
 	vkQueueWaitIdle(queue);
 	vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+}
+
+static void copyBufferToImageCubemap(VkDevice device, VkQueue queue, VkCommandPool pool, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
+	VkCommandBuffer commandBuffer = beginCommandBuffer(device, pool);
+	std::array<VkBufferImageCopy, 6> copyRegions{};
+	VkDeviceSize layerSize = width * height * 4; // Assuming 4 bytes per pixel (e.g., VK_FORMAT_R8G8B8A8_UNORM)
+	for (uint32_t face = 0; face < 6; face++) {
+		copyRegions[face].bufferOffset = face * layerSize;
+		copyRegions[face].bufferRowLength = 0;
+		copyRegions[face].bufferImageHeight = 0;
+		copyRegions[face].imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		copyRegions[face].imageSubresource.mipLevel = 0;
+		copyRegions[face].imageSubresource.baseArrayLayer = face;
+		copyRegions[face].imageSubresource.layerCount = 1;
+		copyRegions[face].imageOffset = { 0, 0, 0 };
+		copyRegions[face].imageExtent = { width, height, 1 };
+	}
+
+	vkCmdCopyBufferToImage(
+		commandBuffer,
+		buffer,
+		image,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		static_cast<uint32_t>(copyRegions.size()),
+		copyRegions.data()
+	);
+	submitCommandBuffer(device, pool, queue, commandBuffer);
 }
 
 static void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize) {
@@ -323,6 +419,54 @@ static void transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool 
 		1, &barrier				// Image Memory Barrier count and data
 	);
 
+	submitCommandBuffer(device, commandPool, queue, commandBuffer);
+}
+
+static void transitionImageLayoutLayerd(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage image, VkImageLayout srcLayout, VkImageLayout destLayout, uint32_t layerCount) {
+	VkCommandBuffer commandBuffer = beginCommandBuffer(device, commandPool);
+
+	// CREATE PIPELINE BARRIER
+	VkImageMemoryBarrier barrier = {};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.oldLayout = srcLayout;										// Layout to transition from
+	barrier.newLayout = destLayout;										// Layout to transition to
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;				// Queue family to transition from
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;				// Queue family to transition to
+	barrier.image = image;												// Image beeing accessed and modified as part of the barrier
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;	// Which aspect of the image is included in the barrier (e.g. color, depth, stencil)
+	barrier.subresourceRange.baseMipLevel = 0;							// First mip level to be included in the barrier
+	barrier.subresourceRange.levelCount = 1;							// Number of mip levels to be included in the barrier
+	barrier.subresourceRange.baseArrayLayer = 0;						// First array layer to be included in the barrier
+	barrier.subresourceRange.layerCount = layerCount;					// Number of array layers to be included in the barrier
+
+	VkPipelineStageFlags srcStage;
+	VkPipelineStageFlags dstStage;
+
+	// if transition from new image to image to recive data ..
+	if (srcLayout == VK_IMAGE_LAYOUT_UNDEFINED && destLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		barrier.srcAccessMask = 0;										// Dont need to wait on anything
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;			// must happen before transfer write
+
+		srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	}
+	// if transition from image that has recived data to image to be read by shader ..
+	else if (srcLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && destLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;			// Wait after transfer write
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;				// must happen before shader read
+		srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	}
+
+	vkCmdPipelineBarrier(
+		commandBuffer,			 
+		srcStage, dstStage,		// Pipeline stages
+		0,						// Dependency flags
+		0, nullptr,				// Memory Barrier count + data
+		0, nullptr,				// Buffer Memory Barrier count + data
+		1, &barrier				// Image Memory Barrier count and data
+	);
+	
 	submitCommandBuffer(device, commandPool, queue, commandBuffer);
 }
 

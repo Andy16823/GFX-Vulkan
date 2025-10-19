@@ -105,8 +105,20 @@ void Model::init(Renderer* renderer)
 /// <param name="currentFrame"></param>
 void Model::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
+	VkDescriptorSet descriptorSet = renderer->getDescriptorSet(currentFrame); // Get the descriptorset for the per-frame UBOs (view/projection)
 	for (auto& mesh : m_meshes) {
+		std::vector<VkDescriptorSet> desriptorSets;
+		desriptorSets.push_back(descriptorSet); // Add the per-frame UBO descriptor set first
+
+		auto textureBufferIndices = mesh->material->getTextureIndices(); // Get the indices to the buffers from the material textures
+		for (size_t i = 0; i < textureBufferIndices.size(); i++) {
+			int textureBufferIndex = textureBufferIndices[i];
+			VkDescriptorSet textureDescriptorSet = renderer->getSamplerDescriptorSetFromImageBuffer(textureBufferIndex);
+			desriptorSets.push_back(textureDescriptorSet);
+		}
+		// Bind pipeline, descriptor sets and draw the mesh
 		renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D));
+		renderer->bindDescriptorSets(desriptorSets, currentFrame);
 		renderer->drawMesh(mesh.get(), mesh->material.get(), this->getModelMatrix(), currentFrame);
 	}
 }

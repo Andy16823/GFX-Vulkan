@@ -15,6 +15,7 @@
 #include "Mesh.h"
 #include "ImageBuffer.h"
 #include "ImageTexture.h"
+#include "Cubemap.h"
 #include <functional>
 #include "Material.h"
 
@@ -49,20 +50,27 @@ private:
 	VkQueue m_graphicsQueue;
 	VkQueue m_presentQueue;
 	VkSurfaceKHR m_surface;
-	VkSwapchainKHR m_swapChain;
 	bool m_enableValidationLayers = false;
 	std::vector<const char*> m_validationLayers;
-	std::vector<SwapChainImage> m_swapChainImages;
-	std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
-	
+	// PIPELINE & COMMAND BUFFERS
 	std::unique_ptr<PipelineManager> m_pipelineManager;
+	VkCommandPool m_commandPool;
 	VkPipelineLayout m_pipelineLayout;
 	VkRenderPass m_renderPass;
 
-	VkFormat m_swapChainImageFormat;
+	// SWAP CHAIN STUFF
+	int m_numFramesInFlight = 0;
+	VkSwapchainKHR m_swapChain;
 	VkExtent2D m_swapChainExtent;
+	VkFormat m_swapChainImageFormat;
+	std::vector<SwapChainImage> m_swapChainImages;
+	std::vector<VkFramebuffer> m_swapChainFramebuffers;
 	std::vector<VkCommandBuffer> m_commandBuffers;
+	std::vector<VkSemaphore> m_imageAvailableSemaphores;
+	std::vector<VkSemaphore> m_renderFinishedSemaphores;
+	std::vector<VkFence> m_inFlightFences;
+	std::vector<VkFence> m_imagesInFlight;
 
 	// Depth resources
 	VkFormat m_depthBufferFormat;
@@ -70,38 +78,30 @@ private:
 	VkDeviceMemory m_depthBufferImageMemory;
 	VkImageView m_depthBufferImageView;
 
-	VkDescriptorSetLayout m_descriptorSetLayout;
-	VkDescriptorSetLayout m_samplerSetLayout;
-	//VkPushConstantRange m_pushConstantRange;
-
-	VkDescriptorPool m_descriptorPool;
-	VkDescriptorPool m_samplerDescriptorPool;
-	std::vector<VkDescriptorSet> m_descriptorSets;
-	std::vector<VkDescriptorSet> m_samplerDescriptorSets;
-
+	// UNIFORM BUFFERS & DESCRIPTORS
 	std::vector<UniformBuffer*> m_uniformBuffers;
 	std::vector<UniformBuffer*> m_dynamicUniformBuffers;
+	VkDescriptorPool m_descriptorPool;
+	VkDescriptorSetLayout m_descriptorSetLayout;
+	std::vector<VkDescriptorSet> m_descriptorSets;
 
-
-	//VkDeviceSize m_minUniformBufferOffset;
-	//size_t m_modelUniformAlignment;
-	//Model* m_modelTransferSpace;
-
-	// Image Textures
+	// TEXTURE STUFF
+	std::vector<std::unique_ptr<ImageBuffer>> m_imageBuffers;
+	std::vector<VkDescriptorSet> m_samplerDescriptorSets;
 	VkSampler m_textureSampler;
+	VkDescriptorSetLayout m_samplerSetLayout;
+	VkDescriptorPool m_samplerDescriptorPool;
 
-	// Buffer
+	// CUBEMAP STUFF
+	std::vector<std::unique_ptr<Cubemap>> m_cubemaps;
+	std::vector<VkDescriptorSet> m_cubemapDescriptorSets;
+	VkSampler m_cubemapSampler;
+	VkDescriptorSetLayout m_cubemapSetLayout;
+	VkDescriptorPool m_cubemapDescriptorPool;
+	
+	// VERTEX BUFFERS
 	std::vector<std::unique_ptr<VertexBuffer>> m_vertexBuffers;
 	std::vector<std::unique_ptr<IndexBuffer>> m_indexBuffers;
-	std::vector<std::unique_ptr<ImageBuffer>> m_imageBuffers;
-
-	VkCommandPool m_commandPool;
-
-	int m_numFramesInFlight = 0;
-	std::vector<VkSemaphore> m_imageAvailableSemaphores;
-	std::vector<VkSemaphore> m_renderFinishedSemaphores;
-	std::vector<VkFence> m_inFlightFences;
-	std::vector<VkFence> m_imagesInFlight;
 
 	// Callbacks
 	std::vector<std::function<void(Renderer*, VkCommandBuffer, uint32_t)>> m_drawCallbacks;
@@ -154,6 +154,7 @@ private:
 	// Create functions
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	int createTextureDescriptor(VkImageView textureImageView);
+	int createCubemapDescriptor(VkImageView cubemapImageView);
 
 	// Allocate Functions
 	//void allocateDynamicBufferTransferSpace();
@@ -164,12 +165,14 @@ public:
 	void disposeImageTexture(int imageTexture);
 	int createVertexBuffer(std::vector<Vertex>* vertices);
 	int createImageBuffer(ImageTexture* imageTexture);
+	int createCubemapBuffer(CubemapFaceData faces);
 
 	VertexBuffer* getVertexBuffer(int index);
 	IndexBuffer* getIndexBuffer(int index);
 	ImageBuffer* getImageBuffer(int index);
 	VkDescriptorSet getDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSet(int index);
+	VkDescriptorSet getSamplerDescriptorSetFromImageBuffer(int imageBufferIndex);
 	VkCommandBuffer getCommandBuffer(int index);
 	VkPipelineLayout getPipelineLayout();
 	int createIndexBuffer(std::vector<uint32_t>* indices);
@@ -179,6 +182,7 @@ public:
 	void addOnInitCallback(std::function<void(Renderer*)> callback);
 	void addOnDisposeCallback(std::function<void(Renderer*)> callback);
 	void bindPipeline(VkCommandBuffer commandBuffer, std::string pipelineName);
+	void bindDescriptorSets(std::vector<VkDescriptorSet> descriptorSets, int frame);
 	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 

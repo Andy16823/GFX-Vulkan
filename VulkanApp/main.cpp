@@ -36,12 +36,6 @@ int main() {
 
 	auto camera = new Camera3D(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec2(800.0f, 600.0f));
 
-	// Mesh
-	//auto sprite = new Sprite("C:/Users/andy1/Downloads/giraffe.jpg");
-	//sprite->addComponent(std::make_unique<RotationBehavior>());
-
-	//auto rotBehavior = sprite->findComponent<RotationBehavior>();
-
 	renderer.addOnInitCallback([&scene](Renderer* renderer) {
 		scene->init(renderer);
 		});

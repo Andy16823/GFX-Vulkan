@@ -379,6 +379,26 @@ void Renderer::createDescriptorSetLayout()
 	else {
 		std::cout << "Sampler descriptor set layout created successfully!" << std::endl;
 	}
+
+	// CUBEMAP DESCRIPTOR SET LAYOUT
+	VkDescriptorSetLayoutBinding cubemapLayoutBinding = {};
+	cubemapLayoutBinding.binding = 0;
+	cubemapLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	cubemapLayoutBinding.descriptorCount = 1;
+	cubemapLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	cubemapLayoutBinding.pImmutableSamplers = nullptr;
+
+	VkDescriptorSetLayoutCreateInfo cubemapLayoutInfo = {};
+	cubemapLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	cubemapLayoutInfo.bindingCount = 1;
+	cubemapLayoutInfo.pBindings = &cubemapLayoutBinding;
+
+	if (vkCreateDescriptorSetLayout(m_renderDevice.logicalDevice, &cubemapLayoutInfo, nullptr, &m_cubemapSetLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create cubemap descriptor set layout!");
+	}
+	else {
+		std::cout << "Cubemap descriptor set layout created successfully!" << std::endl;
+	}
 }
 
 //void Renderer::createPushConstantRange()
@@ -392,13 +412,13 @@ void Renderer::createGraphicsPipelines()
 {
 	m_pipelineManager = std::make_unique<PipelineManager>();
 
-	// CREATE DEFAULT PIPLINE LAYOUT
+	// CREATE DEFAULT PIPLINE LAYOUT TODO: Create multiple pipeline layouts for 3D, 2D, UI, etc.
 	VkPushConstantRange pushConstantRange = {};
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	pushConstantRange.offset = 0;
 	pushConstantRange.size = sizeof(UboModel);
 
-	std::array<VkDescriptorSetLayout, 3> descriptorSetLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout };
+	std::array<VkDescriptorSetLayout, 4> descriptorSetLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout, m_cubemapSetLayout };
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -641,6 +661,24 @@ void Renderer::createDescriptorPool()
 	else {
 		std::cout << "Sampler descriptor pool created successfully!" << std::endl;
 	}
+
+	// CREATE CUBEMAP DESCRIPTOR POOL
+	VkDescriptorPoolSize cubemapPoolSize = {};
+	cubemapPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	cubemapPoolSize.descriptorCount = 10;
+	
+	VkDescriptorPoolCreateInfo cubemapPoolInfo = {};
+	cubemapPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	cubemapPoolInfo.maxSets = 10;
+	cubemapPoolInfo.poolSizeCount = 1;
+	cubemapPoolInfo.pPoolSizes = &cubemapPoolSize;
+
+	if (vkCreateDescriptorPool(m_renderDevice.logicalDevice, &cubemapPoolInfo, nullptr, &m_cubemapDescriptorPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create cubemap descriptor pool!");
+	}
+	else {
+		std::cout << "Cubemap descriptor pool created successfully!" << std::endl;
+	}
 }
 
 void Renderer::createDescriptorSets()
@@ -701,6 +739,7 @@ void Renderer::createDescriptorSets()
 
 void Renderer::createTextureSampler()
 {
+	// TEXTURE SAMPLER
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	samplerInfo.magFilter = VK_FILTER_LINEAR;
@@ -717,10 +756,31 @@ void Renderer::createTextureSampler()
 	samplerInfo.anisotropyEnable = VK_TRUE;
 	samplerInfo.maxAnisotropy = 16;
 
-
-
 	if (vkCreateSampler(m_renderDevice.logicalDevice, &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create texture sampler!");
+	}
+
+	// CUBE MAP SAMPLER
+	VkSamplerCreateInfo cubeSamplerInfo = {};
+	cubeSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	cubeSamplerInfo.magFilter = VK_FILTER_LINEAR;
+	cubeSamplerInfo.minFilter = VK_FILTER_LINEAR;
+	cubeSamplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	cubeSamplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	cubeSamplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	cubeSamplerInfo.anisotropyEnable = VK_FALSE;
+	cubeSamplerInfo.maxAnisotropy = 1.0f;
+	cubeSamplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	cubeSamplerInfo.unnormalizedCoordinates = VK_FALSE;
+	cubeSamplerInfo.compareEnable = VK_FALSE;
+	cubeSamplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+	cubeSamplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	cubeSamplerInfo.mipLodBias = 0.0f;
+	cubeSamplerInfo.minLod = 0.0f;
+	cubeSamplerInfo.maxLod = 0.0f;
+
+	if (vkCreateSampler(m_renderDevice.logicalDevice, &cubeSamplerInfo, nullptr, &m_cubemapSampler) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create cube map sampler!");
 	}
 }
 
@@ -1116,6 +1176,46 @@ int Renderer::createTextureDescriptor(VkImageView textureImageView)
 	return m_samplerDescriptorSets.size() - 1;
 }
 
+int Renderer::createCubemapDescriptor(VkImageView cubemapImageView)
+{
+	// Allocate descriptor set from the cubemap descriptor pool
+	VkDescriptorSetAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = m_cubemapDescriptorPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = &m_cubemapSetLayout;
+
+	VkDescriptorSet descriptorSet;
+	if (vkAllocateDescriptorSets(m_renderDevice.logicalDevice, &allocInfo, &descriptorSet) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate cubemap descriptor set!");
+	}
+
+	// Cubemap image info
+	VkDescriptorImageInfo imageInfo = {};
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = cubemapImageView;
+	imageInfo.sampler = m_cubemapSampler;
+
+	// Descriptor Write info
+	VkWriteDescriptorSet descriptorWrite = {};
+	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrite.dstSet = descriptorSet;
+	descriptorWrite.dstBinding = 0;
+	descriptorWrite.dstArrayElement = 0;
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptorWrite.descriptorCount = 1;
+	descriptorWrite.pImageInfo = &imageInfo;
+
+	// Update the descriptor set with the image info
+	vkUpdateDescriptorSets(m_renderDevice.logicalDevice, 1, &descriptorWrite, 0, nullptr);
+
+	// Store the descriptor set
+	m_cubemapDescriptorSets.push_back(descriptorSet);
+
+	// Return the index of the descriptor set
+	return m_cubemapDescriptorSets.size() - 1;
+}
+
 //void Renderer::allocateDynamicBufferTransferSpace()
 //{
 //	// Calculate alignment of model data
@@ -1209,6 +1309,23 @@ int Renderer::createImageBuffer(ImageTexture* imageTexture)
 	return m_imageBuffers.size() - 1;
 }
 
+int Renderer::createCubemapBuffer(CubemapFaceData faces)
+{
+	auto cubemapBuffer = std::make_unique<Cubemap>(
+		m_renderDevice.physicalDevice,
+		m_renderDevice.logicalDevice,
+		m_graphicsQueue,
+		m_commandPool,
+		faces
+	);
+
+	cubemapBuffer->descriptorIndex = createCubemapDescriptor(cubemapBuffer->imageView);
+	cubemapBuffer->state = GFX_BUFFER_STATE_INITIALIZED;
+	m_cubemaps.push_back(std::move(cubemapBuffer));
+
+	return m_cubemaps.size() - 1;
+}
+
 VertexBuffer* Renderer::getVertexBuffer(int index)
 {
 	if (index >= 0 && index < m_vertexBuffers.size()) {
@@ -1242,6 +1359,16 @@ VkDescriptorSet Renderer::getSamplerDescriptorSet(int index)
 	if (index >= 0 && index < m_samplerDescriptorSets.size()) {
 		return m_samplerDescriptorSets[index];
 	}
+	throw std::runtime_error("failed to get sampler descriptor set: invalid descriptor set index!");
+}
+
+VkDescriptorSet Renderer::getSamplerDescriptorSetFromImageBuffer(int imageBufferIndex)
+{
+	if (imageBufferIndex >= 0 && imageBufferIndex < m_imageBuffers.size()) {
+		int descriptorIndex = m_imageBuffers[imageBufferIndex]->descriptorIndex;
+		return getSamplerDescriptorSet(descriptorIndex);
+	}
+	throw std::runtime_error("failed to get sampler descriptor set from image buffer: invalid image buffer index!");
 }
 
 VkCommandBuffer Renderer::getCommandBuffer(int index)
@@ -1341,6 +1468,22 @@ void Renderer::bindPipeline(VkCommandBuffer commandBuffer, std::string pipelineN
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr->pipeline);
 }
 
+void Renderer::bindDescriptorSets(std::vector<VkDescriptorSet> descriptorSets, int frame)
+{
+	auto commandBuffer = this->getCommandBuffer(frame);
+	auto pipelineLayout = this->getPipelineLayout();
+	vkCmdBindDescriptorSets(
+		commandBuffer,
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		pipelineLayout,
+		0,
+		static_cast<uint32_t>(descriptorSets.size()),
+		descriptorSets.data(),
+		0,
+		nullptr
+	);
+}
+
 // TODO change bufferInder for the imagebuffer with the material for the mesh.
 void Renderer::drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame)
 {
@@ -1382,20 +1525,20 @@ void Renderer::drawMesh(Mesh* mesh, Material* material, UboModel model, int fram
 	uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
 
 	// Create a vector of descriptor sets to bind
-	std::vector<VkDescriptorSet> descriptorSets;
-	descriptorSets.push_back(this->getDescriptorSet(frame));
-	for (auto textureIndex : textureIndices) {
-		auto imageBuffer = this->getImageBuffer(textureIndex);
-		descriptorSets.push_back(this->getSamplerDescriptorSet(imageBuffer->descriptorIndex));
-	}
+	//std::vector<VkDescriptorSet> descriptorSets;
+	//descriptorSets.push_back(this->getDescriptorSet(frame));	// ViewProjection descriptor set
+	//for (auto textureIndex : textureIndices) {					// Texture descriptor sets
+	//	auto imageBuffer = this->getImageBuffer(textureIndex);
+	//	descriptorSets.push_back(this->getSamplerDescriptorSet(imageBuffer->descriptorIndex));
+	//}
 
 	// Get the command buffer and pipeline layout
 	auto commandBuffer = this->getCommandBuffer(frame);
 	auto pipelineLayout = this->getPipelineLayout();
 
 	// Bind the descriptor sets, vertex buffer, index buffer and draw the mesh
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-		0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+	//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+	//	0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 
 	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &model);
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
@@ -1419,7 +1562,12 @@ void Renderer::dispose()
 	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_samplerDescriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_samplerSetLayout, nullptr);
 
+	// DESTROY CUBEMAP DESCRIPTORS
+	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_cubemapDescriptorPool, nullptr);
+	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_cubemapSetLayout, nullptr);
+
 	// DESTROY SAMPLER
+	vkDestroySampler(m_renderDevice.logicalDevice, m_cubemapSampler, nullptr);
 	vkDestroySampler(m_renderDevice.logicalDevice, m_textureSampler, nullptr);
 
 	//_aligned_free(m_modelTransferSpace);
