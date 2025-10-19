@@ -43,17 +43,14 @@ int main() {
 	//auto rotBehavior = sprite->findComponent<RotationBehavior>();
 
 	renderer.addOnInitCallback([&scene](Renderer* renderer) {
-		//sprite->init(renderer);
 		scene->init(renderer);
 		});
 
 	renderer.addOnDisposeCallback([&scene](Renderer* renderer) {
-		//sprite->destroy(renderer);
 		scene->destroy(renderer);
 		});
 
 	renderer.addOnDrawCallback([&scene](Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) {
-		//sprite->render(renderer, currentFrame);
 		scene->render(renderer, commandBuffer, currentFrame);
 		});
 
