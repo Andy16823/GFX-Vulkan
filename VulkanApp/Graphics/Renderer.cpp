@@ -498,7 +498,6 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_pipelineLayout, m_renderPass, viewport, scissor);
 
 	// PIPELINE ENVIRONMENT MAP
-
 	VkPipelineLayoutCreateInfo skyboxPipelineLayoutInfo = {};
 	skyboxPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	skyboxPipelineLayoutInfo.setLayoutCount = 2;
@@ -515,6 +514,8 @@ void Renderer::createGraphicsPipelines()
 
 	ShaderSourceCollection shadersEnvMap = { "Shaders/skybox_vert.spv", "Shaders/skybox_frag.spv" };
 	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_ENVIONMENT_MAP), shadersEnvMap, bindingInfo);
+	pipelinePtr->depthWriteEnable = VK_FALSE; // Disable depth writing for skybox
+	pipelinePtr->depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; // Change depth comparison to less or equal
 	pipelinePtr->addVertexAttribute(positionAttr);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_skyboxPipelineLayout, m_renderPass, viewport, scissor);
 }
@@ -1610,6 +1611,7 @@ void Renderer::drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex,
 		0,
 		nullptr
 	);
+
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);

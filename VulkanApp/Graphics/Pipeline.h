@@ -34,6 +34,11 @@ private:
 
 
 public:
+	VkCullModeFlags cullMode = VK_CULL_MODE_BACK_BIT;
+	VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	VkCompareOp depthCompareOp = VK_COMPARE_OP_LESS;
+	VkBool32 depthTestEnable = VK_TRUE;
+	VkBool32 depthWriteEnable = VK_TRUE;
 	VkPipeline pipeline;
 
 	Pipeline(ShaderSourceCollection shaderSources, VertexBindingInfo bindingInfo);
