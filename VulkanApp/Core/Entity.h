@@ -8,16 +8,15 @@
 #include "Component.h"
 #include <vector>  
 #include <type_traits>  
+#include "../Math/Transform.h"
 
 class Entity
 {
 private:
-	glm::vec3 m_position = glm::vec3(0.0f);
-	glm::vec3 m_scale = glm::vec3(1.0f);
-	glm::quat m_rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-
 	std::vector<std::unique_ptr<Component>> m_components;
+
 public:
+	Transform transform;
 	std::string name;
 	std::string UniqueId;
 

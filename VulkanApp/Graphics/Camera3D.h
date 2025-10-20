@@ -4,9 +4,6 @@ class Camera3D
 	: public Camera
 {
 private:
-	glm::vec3 m_position;
-	glm::vec3 m_up;
-	glm::vec3 m_forward;
 	float m_fov;
 	float m_aspectRatio;
 	float m_nearPlane;
@@ -18,5 +15,10 @@ public:
 	glm::mat4 getViewMatrix() override;
 	glm::mat4 getProjectionMatrix() override;
 	UboViewProjection getViewProjection() override;
+
+	void moveForward(float distance) override;
+	void moveUp(float distance) override;
+	void moveRight(float distance) override;
+	void turn(float pitch, float yaw, float roll) override;
 };
 

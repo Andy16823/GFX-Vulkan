@@ -3,9 +3,7 @@
 Camera3D::Camera3D(glm::vec3 position, glm::vec2 aspectRatio, float fov, float nearPlane, float farPlane)
 	: Camera()
 {
-	m_position = position;
-	m_up = glm::vec3(0.0f, 1.0f, 0.0f);
-	m_forward = glm::vec3(0.0f, 0.0f, -1.0f);
+	transform.position = position;
 	m_fov = fov;
 	m_aspectRatio = aspectRatio.x / aspectRatio.y;
 	m_nearPlane = nearPlane;
@@ -14,7 +12,10 @@ Camera3D::Camera3D(glm::vec3 position, glm::vec2 aspectRatio, float fov, float n
 
 glm::mat4 Camera3D::getViewMatrix()
 {
-	return glm::lookAt(m_position, m_position + m_forward, m_up);
+	auto cameraForward = transform.position + transform.getForward();
+	auto up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	return glm::lookAt(transform.position, cameraForward, up);
 }
 
 glm::mat4 Camera3D::getProjectionMatrix()
@@ -30,6 +31,27 @@ UboViewProjection Camera3D::getViewProjection()
 	ubo.view = getViewMatrix();
 	ubo.projection = getProjectionMatrix();
 	return ubo;
+}
+
+void Camera3D::moveForward(float distance)
+{
+	transform.translate(transform.getForward() * distance);
+}
+
+void Camera3D::moveUp(float distance)
+{
+	transform.translate(transform.getUp() * distance);
+}
+
+void Camera3D::moveRight(float distance)
+{
+	auto right = transform.getRight();
+	transform.translate(right * distance);
+}
+
+void Camera3D::turn(float pitch, float yaw, float roll)
+{
+	transform.rotate(glm::vec3(pitch, yaw, roll));
 }
 
 Camera3D::~Camera3D()

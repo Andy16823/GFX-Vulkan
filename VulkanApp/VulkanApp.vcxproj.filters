@@ -90,6 +90,9 @@
     <ClCompile Include="Core\Skybox.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Transform.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -168,6 +171,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Core\Skybox.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Transform.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
