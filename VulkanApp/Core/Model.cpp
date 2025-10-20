@@ -106,7 +106,6 @@ void Model::init(Renderer* renderer)
 void Model::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
 	VkDescriptorSet descriptorSet = renderer->getDescriptorSet(currentFrame); // Get the descriptorset for the per-frame UBOs (view/projection)
-	VkDescriptorSet cubemapDescriptorSet = renderer->getCubemapDescriptorSet(0); // For debugging skybox cubemap
 	for (auto& mesh : m_meshes) {
 		std::vector<VkDescriptorSet> desriptorSets;
 		desriptorSets.push_back(descriptorSet); // Add the per-frame UBO descriptor set first
@@ -117,9 +116,8 @@ void Model::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t cu
 			VkDescriptorSet textureDescriptorSet = renderer->getSamplerDescriptorSetFromImageBuffer(textureBufferIndex);
 			desriptorSets.push_back(textureDescriptorSet);
 		}
-		desriptorSets.push_back(cubemapDescriptorSet); // Finally add the cubemap descriptor set
-		// Bind pipeline, descriptor sets and draw the mesh
 
+		// Bind pipeline, descriptor sets and draw the mesh
 		renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D));
 		renderer->bindDescriptorSets(desriptorSets, currentFrame);
 		renderer->drawMesh(mesh.get(), mesh->material.get(), this->getModelMatrix(), currentFrame);

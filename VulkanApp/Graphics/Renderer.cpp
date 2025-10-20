@@ -418,7 +418,7 @@ void Renderer::createGraphicsPipelines()
 	pushConstantRange.offset = 0;
 	pushConstantRange.size = sizeof(UboModel);
 
-	std::array<VkDescriptorSetLayout, 4> descriptorSetLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout, m_cubemapSetLayout };
+	std::array<VkDescriptorSetLayout, 3> descriptorSetLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout };
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -513,7 +513,7 @@ void Renderer::createGraphicsPipelines()
 	}
 
 	ShaderSourceCollection shadersEnvMap = { "Shaders/skybox_vert.spv", "Shaders/skybox_frag.spv" };
-	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_ENVIONMENT_MAP), shadersEnvMap, bindingInfo);
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_SKYBOX), shadersEnvMap, bindingInfo);
 	pipelinePtr->depthWriteEnable = VK_FALSE; // Disable depth writing for skybox
 	pipelinePtr->depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; // Change depth comparison to less or equal
 	pipelinePtr->addVertexAttribute(positionAttr);
@@ -1600,7 +1600,7 @@ void Renderer::drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex,
 		this->getCubemapDescriptorSet(cubemapBuffer->descriptorIndex)
 	};
 
-	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_ENVIONMENT_MAP));
+	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_SKYBOX));
 	vkCmdBindDescriptorSets(
 		commandBuffer,
 		VK_PIPELINE_BIND_POINT_GRAPHICS,

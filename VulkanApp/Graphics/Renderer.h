@@ -27,14 +27,14 @@ struct RenderDevice {
 enum class PipelineType {
 	PIPELINE_TYPE_GRAPHICS_3D,
 	PIPELINE_TYPE_GRAPHICS_2D,
-	PIPELINE_TYPE_ENVIONMENT_MAP,
+	PIPELINE_TYPE_SKYBOX,
 };
 
 inline const char* ToString(PipelineType type) {
 	switch (type) {
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D: return "pipeline_3D";
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_2D: return "pipeline_2D";
-	case PipelineType::PIPELINE_TYPE_ENVIONMENT_MAP: return "pipeline_environment_map";
+	case PipelineType::PIPELINE_TYPE_SKYBOX: return "pipeline_skybox";
 	default: return "unknown";
 	}
 }

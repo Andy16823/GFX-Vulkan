@@ -4,6 +4,7 @@ void Skybox::init(Renderer* renderer)
 {
 	if (cubemap) {
 		cubemap->bufferIndex = renderer->createCubemapBuffer(cubemap->faces);
+		cubemap->faces.faceData.clear(); // Free face data after uploading to GPU
 	}
 	else {
 		throw std::runtime_error("Skybox has no cubemap to initialize!");
