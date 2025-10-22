@@ -39,9 +39,22 @@ struct QueueFamilyIndices {
 	}
 };
 
-/// <summary>
-/// Swap chain support details
-/// </summary>
+struct VertexBindingInfo
+{
+	uint32_t binding;
+	uint32_t stride;
+	VkVertexInputRate inputRate;
+};
+
+
+struct VertexAttributeInfo
+{
+	uint32_t binding;
+	uint32_t location;
+	VkFormat format;
+	uint32_t offset;
+};
+
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
@@ -52,15 +65,25 @@ struct SwapChainSupportDetails {
 	}
 };
 
-struct SwapChainImage {
-	VkImage image;
-	VkImageView imageView;
-};
-
 struct ShaderSourceCollection {
 	std::string vert;
 	std::string frag;
 	std::string entryPoint = "main";
+};
+
+struct PipelineCreateInfos {
+	ShaderSourceCollection shaders;
+	VertexBindingInfo bindingInfo;
+	VkDescriptorSetLayout* descriptorSetLayouts;
+	uint32_t descriptorSetLayoutCount;
+	VkPushConstantRange* pushConstantRanges = nullptr;
+	uint32_t pushConstantRangeCount = 0;
+	VkRenderPass renderPass = nullptr;
+};
+
+struct SwapChainImage {
+	VkImage image;
+	VkImageView imageView;
 };
 
 struct UboModel {

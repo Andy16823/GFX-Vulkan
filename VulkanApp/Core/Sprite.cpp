@@ -26,8 +26,26 @@ void Sprite::init(Renderer* renderer)
 
 void Sprite::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
+	auto modelMatrix = this->getModelMatrix();
+	auto descriptorSet = renderer->getDescriptorSet(currentFrame);
+	auto imageDescriptorSet = renderer->getSamplerDescriptorSetFromImageBuffer(m_textureImage->bufferIndex);
+
+	std::vector<VkDescriptorSet> descriptorSets = {
+		descriptorSet,
+		imageDescriptorSet
+	};
 	renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
-	renderer->drawMesh(m_mesh.get(), m_textureImage->bufferIndex, this->getModelMatrix(), currentFrame);
+	renderer->bindPushConstants(
+		commandBuffer,
+		renderer->getCurrentPipelineLayout(),
+		VK_SHADER_STAGE_VERTEX_BIT,
+		0,
+		sizeof(UboModel),
+		&modelMatrix
+	);
+	renderer->bindDescriptorSets(descriptorSets, currentFrame);
+	renderer->drawBuffer(m_mesh->vertexBufferIndex, m_mesh->indexBufferIndex, currentFrame);
+	//renderer->drawMesh(m_mesh.get(), m_textureImage->bufferIndex, this->getModelMatrix(), currentFrame);
 }
 
 

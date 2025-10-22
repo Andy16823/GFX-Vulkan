@@ -4,33 +4,14 @@
 #include <vector>
 #include "../Utils.h"
 
-/// <summary>
-/// Binding info for vertex input
-/// </summary>
-struct VertexBindingInfo
-{
-	uint32_t binding;
-	uint32_t stride;
-	VkVertexInputRate inputRate;
-};
-
-/// <summary>
-/// Vertex attribute info for vertex input
-/// </summary>
-struct VertexAttributeInfo
-{
-	uint32_t binding;
-	uint32_t location;
-	VkFormat format;
-	uint32_t offset;
-};
-
+// TODO: Reduce create parameters and use more public members
 class Pipeline
 {
 private:
 	ShaderSourceCollection m_shaderSources;
 	std::vector<VertexAttributeInfo> m_vertexAttributeInofs;
 	VertexBindingInfo m_vertexBindingInfo;
+	VkPipelineLayout m_pipelineLayout;
 
 
 public:
@@ -41,15 +22,22 @@ public:
 	VkBool32 depthWriteEnable = VK_TRUE;
 	VkPipeline pipeline;
 
+	VkPipelineLayout getPipelineLayout() const {
+		return m_pipelineLayout;
+	}
+
 	Pipeline(ShaderSourceCollection shaderSources, VertexBindingInfo bindingInfo);
 	void addVertexAttribute(const VertexAttributeInfo& attributeInfo) {
 		m_vertexAttributeInofs.push_back(attributeInfo);
 	}
-	void createPipeline(VkDevice device, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, VkViewport viewport, VkRect2D scissor);
+
+	void createPipelineLayout(VkDevice device, VkDescriptorSetLayout* descriptorSetLayouts, uint32_t descriptorSetLayoutCount, VkPushConstantRange* pushConstantRanges = nullptr, uint32_t pushConstantRangeCount = 0);
+	void createPipeline(VkDevice device, VkRenderPass renderPass, VkViewport viewport, VkRect2D scissor);
 	static VkShaderModule createShaderModule(VkDevice device, const std::vector<char>& code);
 
 	void destroy(VkDevice device) {
 		vkDestroyPipeline(device, pipeline, nullptr);
+		vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr);
 	}
 };
 

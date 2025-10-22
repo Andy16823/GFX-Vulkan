@@ -412,29 +412,13 @@ void Renderer::createGraphicsPipelines()
 {
 	m_pipelineManager = std::make_unique<PipelineManager>();
 
-	// CREATE DEFAULT PIPLINE LAYOUT TODO: Create multiple pipeline layouts for 3D, 2D, UI, etc.
+	// CREATE PUSH CONSTANT RANGE FOR MODEL MATRIX
 	VkPushConstantRange pushConstantRange = {};
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	pushConstantRange.offset = 0;
 	pushConstantRange.size = sizeof(UboModel);
 
-	std::array<VkDescriptorSetLayout, 3> descriptorSetLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout };
-
-	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-	pipelineLayoutInfo.pushConstantRangeCount = 1;
-	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-
-	if (vkCreatePipelineLayout(m_renderDevice.logicalDevice, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create pipeline layout!");
-	}
-	else {
-		std::cout << "Pipeline layout created successfully!" << std::endl;
-	}
-
-	// VIEWPORT
+	// CREATE PIPLINE RELATED VIWPORT
 	VkViewport viewport = {};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
@@ -443,51 +427,52 @@ void Renderer::createGraphicsPipelines()
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 
-	// SCISSOR
+	// CREATE PIPELINES RELATED SCISSOR
 	VkRect2D scissor = {};
 	scissor.offset = { 0, 0 };
 	scissor.extent = m_swapChainExtent;
 
-	// BINDING INFO
+	// CREATE AN VERTEX BINDING INFO
 	VertexBindingInfo bindingInfo = {};
 	bindingInfo.binding = 0;
 	bindingInfo.stride = sizeof(Vertex);
 	bindingInfo.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-
-	// PIPELINE 3D
-	ShaderSourceCollection shaders3D = { "Shaders/vert.spv", "Shaders/frag.spv" };
-	auto pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D), shaders3D, bindingInfo);
-
+	// CREATE VERTEX ATTRIBUTE INFOS
 	VertexAttributeInfo positionAttr = {};
 	positionAttr.binding = 0;
 	positionAttr.location = 0;
 	positionAttr.format = VK_FORMAT_R32G32B32_SFLOAT;
 	positionAttr.offset = offsetof(Vertex, pos);
-	pipelinePtr->addVertexAttribute(positionAttr);
 
 	VertexAttributeInfo colorAttr = {};
 	colorAttr.binding = 0;
 	colorAttr.location = 1;
 	colorAttr.format = VK_FORMAT_R32G32B32_SFLOAT;
 	colorAttr.offset = offsetof(Vertex, color);
-	pipelinePtr->addVertexAttribute(colorAttr);
 
 	VertexAttributeInfo texCoordAttr = {};
 	texCoordAttr.binding = 0;
 	texCoordAttr.location = 2;
 	texCoordAttr.format = VK_FORMAT_R32G32_SFLOAT;
 	texCoordAttr.offset = offsetof(Vertex, texCoord);
-	pipelinePtr->addVertexAttribute(texCoordAttr);
 
 	VertexAttributeInfo normalAttr = {};
 	normalAttr.binding = 0;
 	normalAttr.location = 3;
 	normalAttr.format = VK_FORMAT_R32G32B32_SFLOAT;
 	normalAttr.offset = offsetof(Vertex, normal);
-	pipelinePtr->addVertexAttribute(normalAttr);
 
-	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_pipelineLayout, m_renderPass, viewport, scissor);
+	// PIPELINE 3D
+	ShaderSourceCollection shaders3D = { "Shaders/vert.spv", "Shaders/frag.spv" };
+	auto pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D), shaders3D, bindingInfo);
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
+	pipelinePtr->addVertexAttribute(texCoordAttr);
+	pipelinePtr->addVertexAttribute(normalAttr);
+	std::array<VkDescriptorSetLayout, 3> pipline3DLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout };
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DLayouts.data(), static_cast<uint32_t>(pipline3DLayouts.size()), &pushConstantRange, 1);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_renderPass, viewport, scissor);
 
 	// PIPELINE 2D
 	ShaderSourceCollection shaders2D = { "Shaders/vert_2d.spv", "Shaders/frag_2d.spv" };
@@ -495,29 +480,19 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(positionAttr);
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
-	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_pipelineLayout, m_renderPass, viewport, scissor);
+	std::array<VkDescriptorSetLayout, 2> pipline2DLayouts = { m_descriptorSetLayout, m_samplerSetLayout };
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline2DLayouts.data(), static_cast<uint32_t>(pipline2DLayouts.size()), &pushConstantRange, 1);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_renderPass, viewport, scissor);
 
 	// PIPELINE ENVIRONMENT MAP
-	VkPipelineLayoutCreateInfo skyboxPipelineLayoutInfo = {};
-	skyboxPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	skyboxPipelineLayoutInfo.setLayoutCount = 2;
-	std::array<VkDescriptorSetLayout, 2> skyboxDescriptorSetLayouts = { m_descriptorSetLayout, m_cubemapSetLayout };
-	skyboxPipelineLayoutInfo.pSetLayouts = skyboxDescriptorSetLayouts.data();
-	skyboxPipelineLayoutInfo.pushConstantRangeCount = 0;
-
-	if (vkCreatePipelineLayout(m_renderDevice.logicalDevice, &skyboxPipelineLayoutInfo, nullptr, &m_skyboxPipelineLayout) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create skybox pipeline layout!");
-	}
-	else {
-		std::cout << "Skybox pipeline layout created successfully!" << std::endl;
-	}
-
 	ShaderSourceCollection shadersEnvMap = { "Shaders/skybox_vert.spv", "Shaders/skybox_frag.spv" };
 	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_SKYBOX), shadersEnvMap, bindingInfo);
 	pipelinePtr->depthWriteEnable = VK_FALSE; // Disable depth writing for skybox
 	pipelinePtr->depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; // Change depth comparison to less or equal
 	pipelinePtr->addVertexAttribute(positionAttr);
-	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_skyboxPipelineLayout, m_renderPass, viewport, scissor);
+	std::array<VkDescriptorSetLayout, 2> skyboxDescriptorSetLayouts = { m_descriptorSetLayout, m_cubemapSetLayout };
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, skyboxDescriptorSetLayouts.data(), static_cast<uint32_t>(skyboxDescriptorSetLayouts.size()), nullptr, 0);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_renderPass, viewport, scissor);
 }
 
 void Renderer::createDepthBufferImage()
@@ -849,11 +824,8 @@ void Renderer::recordCommands(uint32_t currentImage)
 	}
 
 	vkCmdBeginRenderPass(m_commandBuffers[currentImage], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-	auto pipelinePtr = m_pipelineManager->getPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D));
-	if (pipelinePtr == nullptr) {
-		throw std::runtime_error("failed to get graphics pipeline for command buffer recording!");
-	}
-	vkCmdBindPipeline(m_commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr->pipeline);
+
+	// Elements must bind the pipeline self before drawing
 
 	for (auto& renderCallback : m_drawCallbacks) {
 		renderCallback(this, m_commandBuffers[currentImage], currentImage);
@@ -1137,6 +1109,14 @@ VkFormat Renderer::chooseSupportedFormat(const std::vector<VkFormat>& formats, V
 	std::runtime_error("failed to find supported format!");	
 }
 
+void Renderer::validateCurrentPipeline()
+{
+	if (m_currentPipeline == nullptr)
+	{
+		throw std::runtime_error("No pipeline is currently bound! Call bindPipeline() before drawing.");
+	}
+}
+
 /// <summary>
 /// Create a shader module from SPIR-V code
 /// </summary>
@@ -1416,9 +1396,19 @@ VkCommandBuffer Renderer::getCommandBuffer(int index)
 	}
 }
 
-VkPipelineLayout Renderer::getPipelineLayout()
+VkPipelineLayout Renderer::getPipelineLayout(std::string pipelineName)
 {
-	return m_pipelineLayout;
+	auto pipeline = m_pipelineManager->getPipeline(pipelineName);
+	if (pipeline == nullptr) {
+		throw std::runtime_error("failed to get pipeline layout: pipeline not found!");
+	}
+	return pipeline->getPipelineLayout();
+}
+
+VkPipelineLayout Renderer::getCurrentPipelineLayout()
+{
+	validateCurrentPipeline();
+	return m_currentPipeline->getPipelineLayout();
 }
 
 int Renderer::createIndexBuffer(std::vector<uint32_t>* indices)
@@ -1497,6 +1487,50 @@ void Renderer::addOnDisposeCallback(std::function<void(Renderer*)> callback)
 	m_disposeCallbacks.push_back(callback);
 }
 
+VkViewport Renderer::getSwapchainViewport()
+{
+	VkViewport viewport = {};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = (float)m_swapChainExtent.width;
+	viewport.height = (float)m_swapChainExtent.height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	return viewport;
+}
+
+VkRect2D Renderer::getSwapchainBounds()
+{
+	VkRect2D bounds = {};
+	bounds.offset = { 0, 0 };
+	bounds.extent = m_swapChainExtent;
+	return bounds;
+}
+
+void Renderer::createPipeline(std::string name, PipelineCreateInfos infos, std::function<void(Pipeline*, Renderer*)> creationCallback)
+{
+	// Get the viewport and scissor for the swapchain
+	VkViewport viewport = this->getSwapchainViewport();
+	VkRect2D scissor = this->getSwapchainBounds();
+
+	// Use the default render pass if none is provided
+	if (infos.renderPass == nullptr) {
+		infos.renderPass = m_renderPass;
+	}
+
+	// Create the pipline instance but dont initialize it yet
+	auto pipeline = m_pipelineManager->createPipeline(name, infos.shaders, infos.bindingInfo);
+
+	// Call the creation callback if provided so the user can modify the pipeline before creation
+	if (creationCallback != nullptr) {
+		creationCallback(pipeline, this);
+	}
+
+	// Create the pipeline
+	pipeline->createPipelineLayout(m_renderDevice.logicalDevice, infos.descriptorSetLayouts, infos.descriptorSetLayoutCount, infos.pushConstantRanges, infos.pushConstantRangeCount);
+	pipeline->createPipeline(m_renderDevice.logicalDevice, infos.renderPass, viewport, scissor);
+}
+
 void Renderer::bindPipeline(VkCommandBuffer commandBuffer, std::string pipelineName)
 {
 	auto pipelinePtr = m_pipelineManager->getPipeline(pipelineName);
@@ -1504,12 +1538,19 @@ void Renderer::bindPipeline(VkCommandBuffer commandBuffer, std::string pipelineN
 		throw std::runtime_error("failed to get graphics pipeline for binding!");
 	}
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinePtr->pipeline);
+	m_currentPipeline = pipelinePtr;
 }
 
 void Renderer::bindDescriptorSets(std::vector<VkDescriptorSet> descriptorSets, int frame)
 {
+	// Ensure a pipeline is currently bound
+	validateCurrentPipeline();
+
+	// Get the command buffer and pipeline layout
 	auto commandBuffer = this->getCommandBuffer(frame);
-	auto pipelineLayout = this->getPipelineLayout();
+	auto pipelineLayout = m_currentPipeline->getPipelineLayout();
+
+	// Bind the descriptor sets
 	vkCmdBindDescriptorSets(
 		commandBuffer,
 		VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -1522,9 +1563,35 @@ void Renderer::bindDescriptorSets(std::vector<VkDescriptorSet> descriptorSets, i
 	);
 }
 
+void Renderer::bindPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* pValues)
+{
+	vkCmdPushConstants(commandBuffer, pipelineLayout, stageFlags, offset, size, pValues);
+}
+
+void Renderer::drawBuffer(int vertexBufferIndex, int indexBufferIndex, int frame)
+{
+	// Get the required buffers
+	auto vertexBuffer = this->getVertexBuffer(vertexBufferIndex);
+	auto indexBuffer = this->getIndexBuffer(indexBufferIndex); 
+
+	// Bind the buffers
+	VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer() };
+	VkDeviceSize offsets[] = { 0 };
+	uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
+
+	auto commandBuffer = this->getCommandBuffer(frame);
+
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+}
+
 // TODO change bufferInder for the imagebuffer with the material for the mesh.
 void Renderer::drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame)
 {
+	// Ensure a pipeline is currently bound
+	validateCurrentPipeline();
+
 	auto vertexBuffer = this->getVertexBuffer(mesh->vertexBufferIndex);
 	auto indexBuffer = this->getIndexBuffer(mesh->indexBufferIndex);
 	auto imageBuffer = this->getImageBuffer(bufferIndex);
@@ -1539,7 +1606,7 @@ void Renderer::drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame)
 	};
 
 	auto commandBuffer = this->getCommandBuffer(frame);
-	auto pipelineLayout = this->getPipelineLayout();
+	auto pipelineLayout = m_currentPipeline->getPipelineLayout();
 
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
 		0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
@@ -1552,6 +1619,9 @@ void Renderer::drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame)
 
 void Renderer::drawMesh(Mesh* mesh, Material* material, UboModel model, int frame)
 {
+	// Ensure a pipeline is currently bound
+	validateCurrentPipeline();
+
 	// Get the required buffers and descriptors
 	std::vector<int> textureIndices = material->getTextureIndices();
 	auto vertexBuffer = this->getVertexBuffer(mesh->vertexBufferIndex);
@@ -1572,7 +1642,7 @@ void Renderer::drawMesh(Mesh* mesh, Material* material, UboModel model, int fram
 
 	// Get the command buffer and pipeline layout
 	auto commandBuffer = this->getCommandBuffer(frame);
-	auto pipelineLayout = this->getPipelineLayout();
+	auto pipelineLayout = m_currentPipeline->getPipelineLayout();
 
 	// Bind the descriptor sets, vertex buffer, index buffer and draw the mesh
 	//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
@@ -1600,11 +1670,14 @@ void Renderer::drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex,
 		this->getCubemapDescriptorSet(cubemapBuffer->descriptorIndex)
 	};
 
+	// Bind the skybox pipeline and descriptor sets
 	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_SKYBOX));
+	auto pipelineLayout = m_currentPipeline->getPipelineLayout();
+
 	vkCmdBindDescriptorSets(
 		commandBuffer,
 		VK_PIPELINE_BIND_POINT_GRAPHICS,
-		m_skyboxPipelineLayout,
+		pipelineLayout,
 		0,
 		static_cast<uint32_t>(descriptorSets.size()),
 		descriptorSets.data(),
@@ -1701,8 +1774,6 @@ void Renderer::dispose()
 		vkDestroyFramebuffer(m_renderDevice.logicalDevice, framebuffer, nullptr);
 	}
 	m_pipelineManager->destroyAllPipelines(m_renderDevice.logicalDevice);
-	vkDestroyPipelineLayout(m_renderDevice.logicalDevice, m_pipelineLayout, nullptr);
-	vkDestroyPipelineLayout(m_renderDevice.logicalDevice, m_skyboxPipelineLayout, nullptr);
 	vkDestroyRenderPass(m_renderDevice.logicalDevice, m_renderPass, nullptr);
 	for (auto& image : m_swapChainImages) {
 		vkDestroyImageView(m_renderDevice.logicalDevice, image.imageView, nullptr);

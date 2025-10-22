@@ -6,8 +6,29 @@ Pipeline::Pipeline(ShaderSourceCollection shaderSources, VertexBindingInfo bindi
 	m_vertexBindingInfo = bindingInfo;
 }
 
-void Pipeline::createPipeline(VkDevice device, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, VkViewport viewport, VkRect2D scissor)
+void Pipeline::createPipelineLayout(VkDevice device, VkDescriptorSetLayout* descriptorSetLayouts, uint32_t descriptorSetLayoutCount, VkPushConstantRange* pushConstantRanges, uint32_t pushConstantRangeCount)
 {
+	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipelineLayoutInfo.setLayoutCount = descriptorSetLayoutCount;
+	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;
+	pipelineLayoutInfo.pushConstantRangeCount = pushConstantRangeCount;
+	pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges;
+
+	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create pipeline layout!");
+	}
+	else {
+		printf("Pipeline layout created successfully!\n");
+	}
+}
+
+void Pipeline::createPipeline(VkDevice device, VkRenderPass renderPass, VkViewport viewport, VkRect2D scissor)
+{
+	if (m_pipelineLayout == VK_NULL_HANDLE) {
+		throw std::runtime_error("Pipeline layout must be created before creating the pipeline!");
+	}
+
 	auto vertexShaderSrc = readFile(m_shaderSources.vert);
 	auto fragmentShaderSrc = readFile(m_shaderSources.frag);
 
@@ -124,7 +145,7 @@ void Pipeline::createPipeline(VkDevice device, VkPipelineLayout pipelineLayout, 
 	pipelineInfo.pMultisampleState = &multisampling;
 	pipelineInfo.pColorBlendState = &colorBlending;
 	pipelineInfo.pDepthStencilState = &depthStencil;
-	pipelineInfo.layout = pipelineLayout;
+	pipelineInfo.layout = m_pipelineLayout;
 	pipelineInfo.renderPass = renderPass;
 	pipelineInfo.subpass = 0;
 	// Pipeline derivation

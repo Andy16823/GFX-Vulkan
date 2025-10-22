@@ -45,8 +45,10 @@ private:
 	GLFWwindow* m_window;
 	int m_currentFrame = 0;
 
+	// CURRENT VIEW PROJECTION
 	UboViewProjection m_uboViewProjection;
 
+	// CORE VULKAN STUFF
 	VkInstance m_instance;
 	RenderDevice m_renderDevice;
 	VkQueue m_graphicsQueue;
@@ -57,8 +59,8 @@ private:
 
 	// PIPELINE & COMMAND BUFFERS
 	std::unique_ptr<PipelineManager> m_pipelineManager;
+	Pipeline* m_currentPipeline;
 	VkCommandPool m_commandPool;
-	VkPipelineLayout m_pipelineLayout;
 	VkRenderPass m_renderPass;
 
 	// SWAP CHAIN STUFF
@@ -110,9 +112,6 @@ private:
 	std::vector<std::function<void(Renderer*)>> m_initCallbacks;
 	std::vector<std::function<void(Renderer*)>> m_disposeCallbacks;
 
-	// SKYBOX PIPLEINE LAYOUT TODO: REMOVE LATER TO OWN CLASS
-	VkPipelineLayout m_skyboxPipelineLayout;
-
 	// Core
 	void createValidationLayers();
 	void createInstance();
@@ -154,6 +153,7 @@ private:
 	VkPresentModeKHR chooseBestPresentationMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 	VkFormat chooseSupportedFormat(const std::vector<VkFormat>& formats, VkImageTiling tiling, VkFormatFeatureFlags features);
+	void validateCurrentPipeline();
 
 	// Create functions
 	VkShaderModule createShaderModule(const std::vector<char>& code);
@@ -180,15 +180,30 @@ public:
 	VkDescriptorSet getSamplerDescriptorSetFromImageBuffer(int imageBufferIndex);
 	VkDescriptorSet getCubemapDescriptorSet(int index);
 	VkCommandBuffer getCommandBuffer(int index);
-	VkPipelineLayout getPipelineLayout();
+	VkPipelineLayout getPipelineLayout(std::string pipelineName);
+	VkPipelineLayout getCurrentPipelineLayout();
 	int createIndexBuffer(std::vector<uint32_t>* indices);
 	void draw();
 
+	// Callback functions
 	void addOnDrawCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback);
 	void addOnInitCallback(std::function<void(Renderer*)> callback);
 	void addOnDisposeCallback(std::function<void(Renderer*)> callback);
+
+	// Create functions
+	VkViewport getSwapchainViewport();
+	VkRect2D getSwapchainBounds();
+
+	// Pipeline functions
+	void createPipeline(std::string name, PipelineCreateInfos infos, std::function<void(Pipeline*, Renderer*)> creationCallback = nullptr);
 	void bindPipeline(VkCommandBuffer commandBuffer, std::string pipelineName);
+
+	// Descriptor & Push constant functions
 	void bindDescriptorSets(std::vector<VkDescriptorSet> descriptorSets, int frame);
+	void bindPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* pValues);
+
+	// Draw functions
+	void drawBuffer(int vertexBufferIndex, int indexBufferIndex, int frame);
 	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
