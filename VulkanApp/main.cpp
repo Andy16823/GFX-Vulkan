@@ -55,7 +55,9 @@ int main() {
 		});
 
 	renderer.addOnDrawCallback([&scene](Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) {
+		renderer->beginnRenderPass(commandBuffer, renderer->getSwapchainFramebuffer(currentFrame), glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 		scene->render(renderer, commandBuffer, currentFrame);
+		renderer->endRenderPass(commandBuffer);
 		});
 
 

@@ -804,37 +804,18 @@ void Renderer::recordCommands(uint32_t currentImage)
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-	VkRenderPassBeginInfo renderPassBeginInfo = {};
-	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassBeginInfo.renderPass = m_renderPass;
-	renderPassBeginInfo.renderArea.offset = { 0, 0 };
-	renderPassBeginInfo.renderArea.extent = m_swapChainExtent;
-
-	std::array<VkClearValue, 2> clearValues = {};
-	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-	clearValues[1].depthStencil.depth = 1.0f;
-
-	renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassBeginInfo.pClearValues = clearValues.data();
-
-	renderPassBeginInfo.framebuffer = m_swapChainFramebuffers[currentImage];
-	VkResult result = vkBeginCommandBuffer(m_commandBuffers[currentImage], &beginInfo);
-	if (result != VK_SUCCESS) {
+	if (vkBeginCommandBuffer(m_commandBuffers[currentImage], &beginInfo) != VK_SUCCESS) {
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 
-	vkCmdBeginRenderPass(m_commandBuffers[currentImage], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-	// Elements must bind the pipeline self before drawing
-
+	// Callbacks need to beginn the render pass themself now. With beginRenderPass and endRenderPass.
 	for (auto& renderCallback : m_drawCallbacks) {
 		renderCallback(this, m_commandBuffers[currentImage], currentImage);
 	}
 
-	vkCmdEndRenderPass(m_commandBuffers[currentImage]);
+	//vkCmdEndRenderPass(m_commandBuffers[currentImage]);
 
-	result = vkEndCommandBuffer(m_commandBuffers[currentImage]);
-	if (result != VK_SUCCESS) {
+	if (vkEndCommandBuffer(m_commandBuffers[currentImage]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
 	}
 }
@@ -1411,6 +1392,13 @@ VkPipelineLayout Renderer::getCurrentPipelineLayout()
 	return m_currentPipeline->getPipelineLayout();
 }
 
+VkFramebuffer Renderer::getSwapchainFramebuffer(int index)
+{
+	if (index >= 0 && index < m_swapChainFramebuffers.size()) {
+		return m_swapChainFramebuffers[index];
+	}
+}
+
 int Renderer::createIndexBuffer(std::vector<uint32_t>* indices)
 {
 	auto indexBuffer = std::make_unique<IndexBuffer>(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, indices);
@@ -1566,6 +1554,30 @@ void Renderer::bindDescriptorSets(std::vector<VkDescriptorSet> descriptorSets, i
 void Renderer::bindPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* pValues)
 {
 	vkCmdPushConstants(commandBuffer, pipelineLayout, stageFlags, offset, size, pValues);
+}
+
+void Renderer::beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, glm::vec4 clearColor)
+{
+	VkRenderPassBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	beginInfo.renderPass = m_renderPass;
+	beginInfo.renderArea.offset = { 0, 0 };
+	beginInfo.renderArea.extent = m_swapChainExtent;
+
+	std::array<VkClearValue, 2> clearValues = {};
+	clearValues[0].color = { clearColor.r, clearColor.g, clearColor.b, clearColor.a };
+	clearValues[1].depthStencil.depth = 1.0f;
+
+	beginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	beginInfo.pClearValues = clearValues.data();
+	beginInfo.framebuffer = framebuffer;
+
+	vkCmdBeginRenderPass(commandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
+
+void Renderer::endRenderPass(VkCommandBuffer commandBuffer)
+{
+	vkCmdEndRenderPass(commandBuffer);
 }
 
 void Renderer::drawBuffer(int vertexBufferIndex, int indexBufferIndex, int frame)

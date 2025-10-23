@@ -182,6 +182,7 @@ public:
 	VkCommandBuffer getCommandBuffer(int index);
 	VkPipelineLayout getPipelineLayout(std::string pipelineName);
 	VkPipelineLayout getCurrentPipelineLayout();
+	VkFramebuffer getSwapchainFramebuffer(int index);
 	int createIndexBuffer(std::vector<uint32_t>* indices);
 	void draw();
 
@@ -201,6 +202,10 @@ public:
 	// Descriptor & Push constant functions
 	void bindDescriptorSets(std::vector<VkDescriptorSet> descriptorSets, int frame);
 	void bindPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* pValues);
+
+	// Beginn / End functions
+	void beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, glm::vec4 clearColor);
+	void endRenderPass(VkCommandBuffer commandBuffer);
 
 	// Draw functions
 	void drawBuffer(int vertexBufferIndex, int indexBufferIndex, int frame);
