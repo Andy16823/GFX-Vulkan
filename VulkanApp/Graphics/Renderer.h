@@ -164,17 +164,21 @@ private:
 	//void allocateDynamicBufferTransferSpace();
 
 public:
+	// Main functions
 	int init(GLFWwindow* window);
+	void draw();
+	void dispose();
+
+	// Setters
 	void setViewProjection(const UboViewProjection& vp);
 	void disposeImageTexture(int imageTexture);
-	int createVertexBuffer(std::vector<Vertex>* vertices);
-	int createImageBuffer(ImageTexture* imageTexture);
-	int createCubemapBuffer(CubemapFaceData faces);
 
-	VertexBuffer* getVertexBuffer(int index);
-	IndexBuffer* getIndexBuffer(int index);
-	ImageBuffer* getImageBuffer(int index);
-	CubemapBuffer* getCubemapBuffer(int index);
+	// Callbacks
+	void addOnDrawCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback);
+	void addOnInitCallback(std::function<void(Renderer*)> callback);
+	void addOnDisposeCallback(std::function<void(Renderer*)> callback);
+
+	// Getters
 	VkDescriptorSet getDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSetFromImageBuffer(int imageBufferIndex);
@@ -183,13 +187,18 @@ public:
 	VkPipelineLayout getPipelineLayout(std::string pipelineName);
 	VkPipelineLayout getCurrentPipelineLayout();
 	VkFramebuffer getSwapchainFramebuffer(int index);
+	
+	// Create buffer functions
+	int createVertexBuffer(std::vector<Vertex>* vertices);
+	int createImageBuffer(ImageTexture* imageTexture);
+	int createCubemapBuffer(CubemapFaceData faces);
 	int createIndexBuffer(std::vector<uint32_t>* indices);
-	void draw();
 
-	// Callback functions
-	void addOnDrawCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback);
-	void addOnInitCallback(std::function<void(Renderer*)> callback);
-	void addOnDisposeCallback(std::function<void(Renderer*)> callback);
+	// Get buffer functions
+	VertexBuffer* getVertexBuffer(int index);
+	IndexBuffer* getIndexBuffer(int index);
+	ImageBuffer* getImageBuffer(int index);
+	CubemapBuffer* getCubemapBuffer(int index);
 
 	// Create functions
 	VkViewport getSwapchainViewport();
@@ -213,7 +222,7 @@ public:
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
 
-	void dispose();
+
 	~Renderer();
 };
 
