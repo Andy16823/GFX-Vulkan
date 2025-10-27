@@ -1395,7 +1395,7 @@ int Renderer::createRenderTarget(const bool presentOnScreen)
 	auto renderPass = m_renderPassManager.getRenderPass(m_offscreenRenderPassIndex);
 
 	auto renderTarget = std::make_unique<RenderTarget>(presentOnScreen);
-	renderTarget->createRenderTarget(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_swapChainExtent, m_swapChainImageFormat, renderPass->getRenderPass());
+	renderTarget->createRenderTarget(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_swapChainExtent, m_swapChainImageFormat, renderPass->getRenderPass(), m_depthBufferFormat);
 	renderTarget->createOffscreenQuadBuffers(this);
 	renderTarget->createCommandBuffer(m_renderDevice.logicalDevice, m_commandPool);
 	

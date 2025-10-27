@@ -1,10 +1,2 @@
-﻿  RenderTarget.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(508,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(508,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(508,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(508,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(508,11): warning C4244:         ]
-  (Quelldatei „Graphics/RenderTarget.cpp“ wird kompiliert)
-  
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(126,1): warning C4715: "findMemoryType": Nicht alle Codepfade geben einen Wert zurück.
+﻿  OffscreenRenderPass.cpp
   VulkanApp.vcxproj -> C:\Users\andy1\Documents\GitHub\GFX-Vulkan\x64\Debug\VulkanApp.exe

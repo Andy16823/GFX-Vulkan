@@ -20,7 +20,7 @@ VkCommandBuffer RenderTarget::getCommandBuffer()
 /// <param name="extent"></param>
 /// <param name="format"></param>
 /// <param name="renderpass"></param>
-void RenderTarget::createRenderTarget(VkPhysicalDevice physicalDevice, VkDevice device, VkExtent2D extent, VkFormat format, VkRenderPass renderpass)
+void RenderTarget::createRenderTarget(VkPhysicalDevice physicalDevice, VkDevice device, VkExtent2D extent, VkFormat format, VkRenderPass renderpass, VkFormat depthFormat)
 {
 	// Create the image for the render target
 	m_image = createImage(
@@ -41,15 +41,34 @@ void RenderTarget::createRenderTarget(VkPhysicalDevice physicalDevice, VkDevice 
 		format, 
 		VK_IMAGE_ASPECT_COLOR_BIT);
 
+	// DEPTH BUFFER CREATION
+	m_depthImage = createImage(
+		physicalDevice,
+		device,
+		extent.width,
+		extent.height,
+		depthFormat,
+		VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		&m_depthImageMemory);
+
+	m_depthImageView = createImageView(
+		device,
+		m_depthImage,
+		depthFormat,
+		VK_IMAGE_ASPECT_DEPTH_BIT);
+
 	VkImageView attachments[] = {
-		m_imageView
+		m_imageView,
+		m_depthImageView
 	};
 
 	// Create the framebuffer for the render target
 	VkFramebufferCreateInfo framebufferInfo = {};
 	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	framebufferInfo.renderPass = renderpass;
-	framebufferInfo.attachmentCount = 1;
+	framebufferInfo.attachmentCount = 2;
 	framebufferInfo.pAttachments = attachments;
 	framebufferInfo.width = extent.width;
 	framebufferInfo.height = extent.height;
@@ -101,6 +120,9 @@ void RenderTarget::dispose(VkDevice device)
 	vkDestroyImageView(device, m_imageView, nullptr);
 	vkDestroyImage(device, m_image, nullptr);
 	vkFreeMemory(device, m_imageMemory, nullptr);
+	vkDestroyImageView(device, m_depthImageView, nullptr);
+	vkDestroyImage(device, m_depthImage, nullptr);
+	vkFreeMemory(device, m_depthImageMemory, nullptr);
 }
 
 /// <summary>

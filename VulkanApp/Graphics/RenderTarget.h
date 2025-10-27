@@ -58,6 +58,21 @@ private:
 	/// </summary>
 	bool m_presentOnScreen = false;
 
+    /// <summary>
+	/// The depth image for the render target.
+    /// </summary>
+    VkImage m_depthImage;
+
+	/// <summary>
+	/// The memory allocated for the depth image.
+	/// </summary>
+	VkDeviceMemory m_depthImageMemory;
+
+	/// <summary>
+	/// The image view for the depth image.
+	/// </summary>
+	VkImageView m_depthImageView;
+
 public:
     RenderTarget(const bool presentOnScreen);
     ~RenderTarget() = default;
@@ -76,7 +91,7 @@ public:
     /// <param name="extent">The dimensions of the render target.</param>
     /// <param name="format">The image format of the render target.</param>
     /// <param name="renderpass">The render pass used to create the framebuffer.</param>
-    void createRenderTarget(VkPhysicalDevice physicalDevice, VkDevice device, VkExtent2D extent, VkFormat format, VkRenderPass renderpass);
+    void createRenderTarget(VkPhysicalDevice physicalDevice, VkDevice device, VkExtent2D extent, VkFormat format, VkRenderPass renderpass, VkFormat depthFormat);
 
     /// <summary>
     /// Creates vertex and index buffers for the fullscreen quad.
