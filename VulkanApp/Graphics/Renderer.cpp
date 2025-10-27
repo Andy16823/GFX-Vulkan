@@ -433,7 +433,7 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(positionAttr);
 	std::array<VkDescriptorSetLayout, 2> skyboxDescriptorSetLayouts = { m_descriptorSetLayout, m_cubemapSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, skyboxDescriptorSetLayouts.data(), static_cast<uint32_t>(skyboxDescriptorSetLayouts.size()), nullptr, 0);
-	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, renderPass->getRenderPass(), viewport, scissor);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
 	// PRESENT PIPELINE FOR RENDER TARGETS
 	ShaderSourceCollection presentShaders = { "Shaders/fullscreen_vert.spv", "Shaders/fullscreen_frag.spv" };

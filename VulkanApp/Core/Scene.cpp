@@ -29,7 +29,7 @@ void Scene::render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t c
 	}
 
 	if (this->hasSkybox()) {
-		//skybox->render(renderer, commandBuffer, currentFrame);
+		skybox->render(renderer, commandBuffer, currentFrame);
 	}
 	renderer->endRenderPass(commandBuffer);
 }
