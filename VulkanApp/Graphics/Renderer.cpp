@@ -391,6 +391,8 @@ void Renderer::createGraphicsPipelines()
 
 	// PIPELINE 3D
 	auto renderPass = m_renderPassManager.getRenderPass(m_mainRenderPassIndex);
+	auto offscreenRenderPass = m_renderPassManager.getRenderPass(m_offscreenRenderPassIndex);
+
 	ShaderSourceCollection shaders3D = { "Shaders/vert.spv", "Shaders/frag.spv" };
 	auto pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D), shaders3D, bindingInfo);
 	pipelinePtr->addVertexAttribute(positionAttr);
@@ -399,11 +401,10 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(normalAttr);
 	std::array<VkDescriptorSetLayout, 3> pipline3DLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DLayouts.data(), static_cast<uint32_t>(pipline3DLayouts.size()), &pushConstantRange, 1);
-	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, renderPass->getRenderPass(), viewport, scissor);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
 	// Offscrenen 3d test pipeline
 	VertexBindingInfo offscreenBindingInfo = {};
-	auto offscreenRenderPass = m_renderPassManager.getRenderPass(m_offscreenRenderPassIndex);
 	ShaderSourceCollection triangleTestShaders = { "Shaders/triangle_vert.spv", "Shaders/triangle_frag.spv" };
 	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_OFFSCREN_3D_TEST), triangleTestShaders, offscreenBindingInfo);
 	pipelinePtr->addVertexAttribute(positionAttr);
@@ -432,6 +433,17 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(positionAttr);
 	std::array<VkDescriptorSetLayout, 2> skyboxDescriptorSetLayouts = { m_descriptorSetLayout, m_cubemapSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, skyboxDescriptorSetLayouts.data(), static_cast<uint32_t>(skyboxDescriptorSetLayouts.size()), nullptr, 0);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, renderPass->getRenderPass(), viewport, scissor);
+
+	// PRESENT PIPELINE FOR RENDER TARGETS
+	ShaderSourceCollection presentShaders = { "Shaders/fullscreen_vert.spv", "Shaders/fullscreen_frag.spv" };
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT), presentShaders, bindingInfo);
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
+	pipelinePtr->addVertexAttribute(texCoordAttr);
+	pipelinePtr->addVertexAttribute(normalAttr);
+	std::array<VkDescriptorSetLayout, 1> presentPipelineSetLayouts = { m_samplerSetLayout };
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, presentPipelineSetLayouts.data(), static_cast<uint32_t>(presentPipelineSetLayouts.size()), nullptr, 0);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, renderPass->getRenderPass(), viewport, scissor);
 }
 
@@ -746,6 +758,11 @@ void Renderer::recordCommands(uint32_t currentImage)
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
+	// Offscreen callbacks
+	for (auto& offscreenCallback : m_offscreenCallbacks) {
+		offscreenCallback(this, m_commandBuffers[currentImage], currentImage);
+	}
+
 	if (vkBeginCommandBuffer(m_commandBuffers[currentImage], &beginInfo) != VK_SUCCESS) {
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
@@ -755,8 +772,15 @@ void Renderer::recordCommands(uint32_t currentImage)
 		renderCallback(this, m_commandBuffers[currentImage], currentImage);
 	}
 
-	//vkCmdEndRenderPass(m_commandBuffers[currentImage]);
+	// Draw framebuffer
+	auto commandBuffer = m_commandBuffers[currentImage];
+	this->beginnRenderPass(commandBuffer, this->getSwapchainFramebuffer(currentImage), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), this->getMainRenderPass());
+	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT));
+	for (auto& renderTarget : m_renderTargets) {
+		this->drawRenderTargetQuad(renderTarget->getOffscreenDescriptorIndex(), commandBuffer, currentImage);
+	}
 
+	this->endRenderPass(commandBuffer);
 	if (vkEndCommandBuffer(m_commandBuffers[currentImage]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
 	}
@@ -1366,11 +1390,11 @@ int Renderer::createIndexBuffer(std::vector<uint32_t>* indices)
 	return m_indexBuffers.size() - 1;
 }
 
-int Renderer::createRenderTarget()
+int Renderer::createRenderTarget(const bool presentOnScreen)
 {
 	auto renderPass = m_renderPassManager.getRenderPass(m_offscreenRenderPassIndex);
 
-	auto renderTarget = std::make_unique<RenderTarget>();
+	auto renderTarget = std::make_unique<RenderTarget>(presentOnScreen);
 	renderTarget->createRenderTarget(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_swapChainExtent, m_swapChainImageFormat, renderPass->getRenderPass());
 	renderTarget->createOffscreenQuadBuffers(this);
 	renderTarget->createCommandBuffer(m_renderDevice.logicalDevice, m_commandPool);
@@ -1449,6 +1473,11 @@ void Renderer::addOnInitCallback(std::function<void(Renderer*)> callback)
 void Renderer::addOnDisposeCallback(std::function<void(Renderer*)> callback)
 {
 	m_disposeCallbacks.push_back(callback);
+}
+
+void Renderer::addOnOffscreenCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback)
+{
+	m_offscreenCallbacks.push_back(callback);
 }
 
 VkViewport Renderer::getSwapchainViewport()
@@ -1675,6 +1704,22 @@ void Renderer::drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex,
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+}
+
+void Renderer::drawRenderTargetQuad(int renderTargetDescriptorIndex, VkCommandBuffer commandBuffer, int frame)
+{
+	auto renderTarget = this->getRenderTarget(renderTargetDescriptorIndex);
+	auto imageDescriptorSet = this->getSamplerDescriptorSet(renderTarget->getOffscreenDescriptorIndex());
+	std::vector<VkDescriptorSet> descriptorSets = {
+		imageDescriptorSet
+	};
+	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT));
+	this->bindDescriptorSets(descriptorSets, frame);
+	this->drawBuffer(
+		renderTarget->getOffscreenQuadVBO(),
+		renderTarget->getOffscreenQuadIBO(),
+		commandBuffer
+	);
 }
 
 /// <summary>

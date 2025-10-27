@@ -44,7 +44,7 @@ int main() {
 
 	auto spritePtr = sprite.get();
 
-	scene->addEntity(std::move(sprite));
+	//scene->addEntity(std::move(sprite));
 
 
 	auto camera = new Camera3D(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec2(800.0f, 600.0f));
@@ -57,13 +57,31 @@ int main() {
 		scene->destroy(renderer);
 		});
 
-	renderer.addOnDrawCallback([&scene](Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) {
-		auto renderPass = renderer->getMainRenderPass();
+	renderer.addOnDrawCallback([&scene, spritePtr](Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) {
 
-		renderer->beginnRenderPass(commandBuffer, renderer->getSwapchainFramebuffer(currentFrame), glm::vec4(0.1f, 0.1f, 0.1f, 1.0f), renderPass);
+		// Render to rendertarget in current commandbuffer
+		//auto renderTarget = renderer->getRenderTarget(0);
+		//renderer->beginnRenderPass(commandBuffer, renderTarget->getFramebuffer(), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), renderer->getOffscreenRenderPass());
+		//renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_OFFSCREN_3D_TEST));
+		//renderer->drawBuffer(spritePtr->getVertexBufferIndex(), spritePtr->getIndexBufferIndex(), commandBuffer);
+		//renderer->endRenderPass(commandBuffer);
+
+		// Render the scene to the swapchain framebuffer
 		scene->render(renderer, commandBuffer, currentFrame);
-		renderer->endRenderPass(commandBuffer);
 		});
+
+	renderer.addOnOffscreenCallback([spritePtr](Renderer* renderer, VkCommandBuffer commandBuffers, uint32_t currentFrame) {
+		// Render the sprite to the offscreen render target
+		//auto renderTarget = renderer->getRenderTarget(0);
+		//renderTarget->startRecord(renderer->getDevice());
+		//renderer->beginnRenderPass(renderTarget->getCommandBuffer(), renderTarget->getFramebuffer(), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), renderer->getOffscreenRenderPass());
+		//renderer->bindPipeline(renderTarget->getCommandBuffer(), ToString(PipelineType::PIPELINE_TYPE_OFFSCREN_3D_TEST));
+		//renderer->drawBuffer(spritePtr->getVertexBufferIndex(), spritePtr->getIndexBufferIndex(), renderTarget->getCommandBuffer());
+		//renderer->endRenderPass(renderTarget->getCommandBuffer());
+		//renderTarget->endRecord(renderer->getDevice());
+		//renderTarget->submitAndWait(renderer->getGraphicsQueue(), renderer->getDevice());
+		});
+
 
 
 	// Init the vulkan renderer
@@ -72,17 +90,17 @@ int main() {
 	}
 
 	// TODO Complete render target system
-	auto renderTargetIndex = renderer.createRenderTarget();
-	auto renderTarget = renderer.getRenderTarget(renderTargetIndex);
-	renderTarget->startRecord(renderer.getDevice());
+	//auto renderTargetIndex = renderer.createRenderTarget();
+	//auto renderTarget = renderer.getRenderTarget(renderTargetIndex);
+	//renderTarget->startRecord(renderer.getDevice());
 
-	renderer.beginnRenderPass(renderTarget->getCommandBuffer(), renderTarget->getFramebuffer(), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), renderer.getOffscreenRenderPass());
-	renderer.bindPipeline(renderTarget->getCommandBuffer(), ToString(PipelineType::PIPELINE_TYPE_OFFSCREN_3D_TEST));
-	renderer.drawBuffer(spritePtr->getVertexBufferIndex(), spritePtr->getIndexBufferIndex(), renderTarget->getCommandBuffer());
-	renderer.endRenderPass(renderTarget->getCommandBuffer());
+	//renderer.beginnRenderPass(renderTarget->getCommandBuffer(), renderTarget->getFramebuffer(), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), renderer.getOffscreenRenderPass());
+	//renderer.bindPipeline(renderTarget->getCommandBuffer(), ToString(PipelineType::PIPELINE_TYPE_OFFSCREN_3D_TEST));
+	//renderer.drawBuffer(spritePtr->getVertexBufferIndex(), spritePtr->getIndexBufferIndex(), renderTarget->getCommandBuffer());
+	//renderer.endRenderPass(renderTarget->getCommandBuffer());
 
-	renderTarget->endRecord(renderer.getDevice());
-	renderTarget->submitAndWait(renderer.getGraphicsQueue(), renderer.getDevice());
+	//renderTarget->endRecord(renderer.getDevice());
+	//renderTarget->submitAndWait(renderer.getGraphicsQueue(), renderer.getDevice());
 
 
 	glm::vec2 mousePosLastFrame = glm::vec2(0.0f);

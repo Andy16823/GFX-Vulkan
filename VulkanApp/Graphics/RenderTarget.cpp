@@ -2,6 +2,11 @@
 #include "../Utils.h"
 #include "Renderer.h"
 
+RenderTarget::RenderTarget(const bool presentOnScreen)
+{
+	m_presentOnScreen = presentOnScreen;
+}
+
 VkCommandBuffer RenderTarget::getCommandBuffer()
 {
 	return m_commandBuffer;
@@ -123,6 +128,17 @@ void RenderTarget::endRecord(VkDevice device)
 	}
 }
 
+void RenderTarget::submit(VkQueue graphicsQueue, VkDevice device)
+{
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &m_commandBuffer;
+	if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+		throw std::runtime_error("failed to submit command buffer!");
+	}
+}
+
 void RenderTarget::submitAndWait(VkQueue graphicsQueue, VkDevice device)
 {
 	VkSubmitInfo submitInfo = {};
@@ -153,12 +169,15 @@ void RenderTarget::submitAndWait(VkQueue graphicsQueue, VkDevice device)
 std::vector<Vertex> RenderTarget::getFullscreenQuadVertices()
 {
 	return {
-		{{-1.0f, -1.0f, 0.0f}, {1,1,1}, {0.0f, 1.0f}, {0,0,1}},
-		{{ 1.0f, -1.0f, 0.0f}, {1,1,1}, {1.0f, 1.0f}, {0,0,1}},
-		{{ 1.0f,  1.0f, 0.0f}, {1,1,1}, {1.0f, 0.0f}, {0,0,1}},
-		{{-1.0f,  1.0f, 0.0f}, {1,1,1}, {0.0f, 0.0f}, {0,0,1}},
+		// Reihenfolge: bottom-left, top-left, top-right, bottom-right
+		// UVs: (0,0) bottom-left, (0,1) top-left, (1,1) top-right, (1,0) bottom-right
+		{{-1.0f, -1.0f, 0.0f}, {1,1,1}, {0.0f, 0.0f}, {0,0,1}}, // 0
+		{{-1.0f,  1.0f, 0.0f}, {1,1,1}, {0.0f, 1.0f}, {0,0,1}}, // 1
+		{{ 1.0f,  1.0f, 0.0f}, {1,1,1}, {1.0f, 1.0f}, {0,0,1}}, // 2
+		{{ 1.0f, -1.0f, 0.0f}, {1,1,1}, {1.0f, 0.0f}, {0,0,1}}, // 3
 	};
 }
+
 
 /// <summary>
 /// Returns the indices for a fullscreen quad

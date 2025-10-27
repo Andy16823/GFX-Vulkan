@@ -1,7 +1,14 @@
 #version 450
-layout(binding = 0) uniform sampler2D offscreenTex;
-layout(location = 0) in vec2 uv;
+layout(location = 0) in vec3 fragColor;
+layout(location = 1) in vec2 fragUV;
+
 layout(location = 0) out vec4 outColor;
+
+// Sampler: set = 0, binding = 0  (passe an dein set-layout an falls anders)
+layout(set = 0, binding = 0) uniform sampler2D offscreenSampler;
+
 void main() {
-    outColor = texture(offscreenTex, uv);
+    vec4 tex = texture(offscreenSampler, fragUV);
+    // combine texture and vertex color; if you want only texture use tex directly
+    outColor = tex * vec4(fragColor, 1.0);
 }

@@ -1,9 +1,16 @@
 #version 450
-// Fullscreen triangle using vertexIndex trick
-vec2 positions[3] = vec2[](vec2(-1.0,-1.0), vec2(3.0,-1.0), vec2(-1.0, 3.0));
-layout(location = 0) out vec2 uv;
+
+layout(location = 0) in vec3 inPos;
+layout(location = 1) in vec3 inColor;
+layout(location = 2) in vec2 inUV;
+layout(location = 3) in vec3 inNormal;
+
+layout(location = 0) out vec3 fragColor;
+layout(location = 1) out vec2 fragUV;
+
 void main() {
-    vec2 pos = positions[gl_VertexIndex];
-    gl_Position = vec4(pos, 0.0, 1.0);
-    uv = pos*0.5+0.5;
+    // inPos is already in NDC for a fullscreen quad (-1..1)
+    gl_Position = vec4(inPos, 1.0);
+    fragColor = inColor;
+    fragUV = inUV;
 }

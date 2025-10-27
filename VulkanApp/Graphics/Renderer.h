@@ -196,6 +196,7 @@ public:
 	void addOnDrawCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback);
 	void addOnInitCallback(std::function<void(Renderer*)> callback);
 	void addOnDisposeCallback(std::function<void(Renderer*)> callback);
+	void addOnOffscreenCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback);
 
 	// Getters
 	VkDevice getDevice();
@@ -215,7 +216,7 @@ public:
 	int createImageBuffer(ImageTexture* imageTexture);
 	int createCubemapBuffer(CubemapFaceData faces);
 	int createIndexBuffer(std::vector<uint32_t>* indices);
-	int createRenderTarget();
+	int createRenderTarget(const bool presentOnScreen = false);
 
 	// Get buffer functions
 	VertexBuffer* getVertexBuffer(int index);
@@ -246,6 +247,7 @@ public:
 	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
+	void drawRenderTargetQuad(int renderTargetDescriptorIndex, VkCommandBuffer commandBuffer, int frame);
 
 	~Renderer();
 };

@@ -8,6 +8,7 @@ class Scene
 {
 private:
 	std::vector<std::unique_ptr<Entity>> m_entities;
+	int m_renderTargetIndex = -1;
 
 public:
 	std::unique_ptr<Skybox> skybox;
