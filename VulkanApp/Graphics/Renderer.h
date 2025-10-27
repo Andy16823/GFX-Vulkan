@@ -18,6 +18,11 @@
 #include "CubemapBuffer.h"
 #include <functional>
 #include "Material.h"
+#include "RenderPass.h"
+#include "RenderPassManager.h"
+#include "DefaultRenderPass.h"
+#include "OffscreenRenderPass.h"
+#include "RenderTarget.h"
 
 struct RenderDevice {
 	VkPhysicalDevice physicalDevice;
@@ -28,6 +33,8 @@ enum class PipelineType {
 	PIPELINE_TYPE_GRAPHICS_3D,
 	PIPELINE_TYPE_GRAPHICS_2D,
 	PIPELINE_TYPE_SKYBOX,
+	PIPELINE_TYPE_OFFSCREN_3D_TEST,
+	PIPELINE_TYPE_RENDER_TARGET_PRESENT
 };
 
 inline const char* ToString(PipelineType type) {
@@ -35,6 +42,8 @@ inline const char* ToString(PipelineType type) {
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D: return "pipeline_3D";
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_2D: return "pipeline_2D";
 	case PipelineType::PIPELINE_TYPE_SKYBOX: return "pipeline_skybox";
+	case PipelineType::PIPELINE_TYPE_OFFSCREN_3D_TEST: return "pipeline_offscreen_3D_test";
+	case PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT: return "pipeline_render_target_present";
 	default: return "unknown";
 	}
 }
@@ -48,6 +57,8 @@ private:
 	// CURRENT VIEW PROJECTION
 	UboViewProjection m_uboViewProjection;
 
+
+
 	// CORE VULKAN STUFF
 	VkInstance m_instance;
 	RenderDevice m_renderDevice;
@@ -57,11 +68,18 @@ private:
 	bool m_enableValidationLayers = false;
 	std::vector<const char*> m_validationLayers;
 
+	// RENDER TARGETS
+	std::vector<std::unique_ptr<RenderTarget>> m_renderTargets;
+
 	// PIPELINE & COMMAND BUFFERS
 	std::unique_ptr<PipelineManager> m_pipelineManager;
 	Pipeline* m_currentPipeline;
 	VkCommandPool m_commandPool;
-	VkRenderPass m_renderPass;
+
+	// RENDER PASS
+	RenderPassManager m_renderPassManager;
+	int m_mainRenderPassIndex = -1;
+	int m_offscreenRenderPassIndex = -1;
 
 	// SWAP CHAIN STUFF
 	int m_numFramesInFlight = 0;
@@ -111,6 +129,7 @@ private:
 	std::vector<std::function<void(Renderer*, VkCommandBuffer, uint32_t)>> m_drawCallbacks;
 	std::vector<std::function<void(Renderer*)>> m_initCallbacks;
 	std::vector<std::function<void(Renderer*)>> m_disposeCallbacks;
+	std::vector<std::function<void(Renderer*, VkCommandBuffer, uint32_t)>> m_offscreenCallbacks;
 
 	// Core
 	void createValidationLayers();
@@ -179,6 +198,8 @@ public:
 	void addOnDisposeCallback(std::function<void(Renderer*)> callback);
 
 	// Getters
+	VkDevice getDevice();
+	VkQueue getGraphicsQueue();
 	VkDescriptorSet getDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSetFromImageBuffer(int imageBufferIndex);
@@ -187,12 +208,14 @@ public:
 	VkPipelineLayout getPipelineLayout(std::string pipelineName);
 	VkPipelineLayout getCurrentPipelineLayout();
 	VkFramebuffer getSwapchainFramebuffer(int index);
+	RenderTarget* getRenderTarget(int index);
 	
 	// Create buffer functions
 	int createVertexBuffer(std::vector<Vertex>* vertices);
 	int createImageBuffer(ImageTexture* imageTexture);
 	int createCubemapBuffer(CubemapFaceData faces);
 	int createIndexBuffer(std::vector<uint32_t>* indices);
+	int createRenderTarget();
 
 	// Get buffer functions
 	VertexBuffer* getVertexBuffer(int index);
@@ -213,15 +236,16 @@ public:
 	void bindPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* pValues);
 
 	// Beginn / End functions
-	void beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, glm::vec4 clearColor);
+	int getMainRenderPass() { return m_mainRenderPassIndex; }
+	int getOffscreenRenderPass() { return m_offscreenRenderPassIndex; }
+	void beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, glm::vec4 clearColor, int renderPassIndex);
 	void endRenderPass(VkCommandBuffer commandBuffer);
 
 	// Draw functions
-	void drawBuffer(int vertexBufferIndex, int indexBufferIndex, int frame);
+	void drawBuffer(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer);
 	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
-
 
 	~Renderer();
 };

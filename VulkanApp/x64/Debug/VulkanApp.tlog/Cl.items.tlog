@@ -1,3 +1,4 @@
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\DefaultRenderPass.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\DefaultRenderPass.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Cubemap.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Cubemap.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\CubemapBuffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\CubemapBuffer.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Buffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Buffer.obj
@@ -24,3 +25,6 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Pipeline.cpp;C:\Us
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\PipelineManager.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\PipelineManager.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Skybox.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Skybox.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Math\Transform.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\Transform.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\RenderTarget.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\RenderTarget.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\OffscreenRenderPass.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\OffscreenRenderPass.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\RenderPassManager.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug\RenderPassManager.obj

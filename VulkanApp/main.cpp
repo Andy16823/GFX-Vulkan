@@ -41,6 +41,9 @@ int main() {
 
 	auto sprite = GFX::createSprite("C:/Users/andy1/Downloads/giraffe.jpg", "GiraffeSprite");
 	sprite->setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
+
+	auto spritePtr = sprite.get();
+
 	scene->addEntity(std::move(sprite));
 
 
@@ -55,7 +58,9 @@ int main() {
 		});
 
 	renderer.addOnDrawCallback([&scene](Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) {
-		renderer->beginnRenderPass(commandBuffer, renderer->getSwapchainFramebuffer(currentFrame), glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+		auto renderPass = renderer->getMainRenderPass();
+
+		renderer->beginnRenderPass(commandBuffer, renderer->getSwapchainFramebuffer(currentFrame), glm::vec4(0.1f, 0.1f, 0.1f, 1.0f), renderPass);
 		scene->render(renderer, commandBuffer, currentFrame);
 		renderer->endRenderPass(commandBuffer);
 		});
@@ -65,6 +70,20 @@ int main() {
 	if (renderer.init(window) == EXIT_FAILURE) {
 		return EXIT_FAILURE;
 	}
+
+	// TODO Complete render target system
+	auto renderTargetIndex = renderer.createRenderTarget();
+	auto renderTarget = renderer.getRenderTarget(renderTargetIndex);
+	renderTarget->startRecord(renderer.getDevice());
+
+	renderer.beginnRenderPass(renderTarget->getCommandBuffer(), renderTarget->getFramebuffer(), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), renderer.getOffscreenRenderPass());
+	renderer.bindPipeline(renderTarget->getCommandBuffer(), ToString(PipelineType::PIPELINE_TYPE_OFFSCREN_3D_TEST));
+	renderer.drawBuffer(spritePtr->getVertexBufferIndex(), spritePtr->getIndexBufferIndex(), renderTarget->getCommandBuffer());
+	renderer.endRenderPass(renderTarget->getCommandBuffer());
+
+	renderTarget->endRecord(renderer.getDevice());
+	renderTarget->submitAndWait(renderer.getGraphicsQueue(), renderer.getDevice());
+
 
 	glm::vec2 mousePosLastFrame = glm::vec2(0.0f);
 

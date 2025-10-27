@@ -245,88 +245,14 @@ void Renderer::createSwapChain()
 
 void Renderer::createRenderPass()
 {
-	// Color attachment
-	VkAttachmentDescription colorAttachment = {};
-	colorAttachment.format = m_swapChainImageFormat;
-	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;						// No multisampling
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;					// Clear the framebuffer to a color at the start of the render pass
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;					// Rendered contents will be stored in memory and can be read later
-	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;		// We don't use stencil buffer
-	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;		// We don't use stencil buffer
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;				// We don't care about the initial layout of the image (Input Layout)
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;			// Image will be presented in the swap chain (Output Layout)
+	// TODO: Make render pass selectable
+	auto mainRenderPass = std::make_unique<DefaultRenderPass>();
+	mainRenderPass->createRenderPass(m_renderDevice.logicalDevice, m_swapChainImageFormat, m_depthBufferFormat);
+	m_mainRenderPassIndex = m_renderPassManager.addRenderPass(std::move(mainRenderPass));
 
-	// Color attachment reference
-	VkAttachmentReference colorAttachmentRef = {};
-	colorAttachmentRef.attachment = 0;										// This refers to the index of the attachment in the pAttachments array
-	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;	// Optimal layout for a color attachment
-
-	// Depth attachment
-	VkAttachmentDescription depthAttachment = {};
-	depthAttachment.format = m_depthBufferFormat;
-	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-	// Depth attachment reference
-	VkAttachmentReference depthAttachmentRef = {};
-	depthAttachmentRef.attachment = 1;
-	depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-	// Subpass
-	VkSubpassDescription subpass = {};
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;			// This subpass is a graphics subpass
-	subpass.colorAttachmentCount = 1;										// Number of color attachments
-	subpass.pColorAttachments = &colorAttachmentRef;						// Reference to the color attachment
-	subpass.pDepthStencilAttachment = &depthAttachmentRef;					// Reference to the depth attachment
-
-	// Implicit layout transitions
-	std::array<VkSubpassDependency, 2> dependencies;
-	
-	// Conversion from VK_IMAGE_LAYOUT_UNDEFINED to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-	// Transition must happen after ...
-	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-	// But must happen before ...
-	dependencies[0].dstSubpass = 0;
-	dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	dependencies[0].dependencyFlags = 0;
-
-
-	// Conversion from VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-	// Transition must happen after ...
-	dependencies[1].srcSubpass = 0;
-	dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	// But must happen before ...
-	dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-	dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-	dependencies[1].dependencyFlags = 0;
-
-	// Create the render pass
-	std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
-	VkRenderPassCreateInfo renderPassInfo = {};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-	renderPassInfo.pAttachments = attachments.data();
-	renderPassInfo.subpassCount = 1;
-	renderPassInfo.pSubpasses = &subpass;
-	renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
-	renderPassInfo.pDependencies = dependencies.data();
-
-	if (vkCreateRenderPass(m_renderDevice.logicalDevice, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create render pass!");
-	}
-	else {
-		std::cout << "Render pass created successfully!" << std::endl;
-	}
+	auto offScreenRenderPass = std::make_unique<OffscreenRenderPass>();
+	offScreenRenderPass->createRenderPass(m_renderDevice.logicalDevice, m_swapChainImageFormat, m_depthBufferFormat);
+	m_offscreenRenderPassIndex = m_renderPassManager.addRenderPass(std::move(offScreenRenderPass));
 }
 
 void Renderer::createDescriptorSetLayout()
@@ -464,6 +390,7 @@ void Renderer::createGraphicsPipelines()
 	normalAttr.offset = offsetof(Vertex, normal);
 
 	// PIPELINE 3D
+	auto renderPass = m_renderPassManager.getRenderPass(m_mainRenderPassIndex);
 	ShaderSourceCollection shaders3D = { "Shaders/vert.spv", "Shaders/frag.spv" };
 	auto pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D), shaders3D, bindingInfo);
 	pipelinePtr->addVertexAttribute(positionAttr);
@@ -472,7 +399,20 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(normalAttr);
 	std::array<VkDescriptorSetLayout, 3> pipline3DLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DLayouts.data(), static_cast<uint32_t>(pipline3DLayouts.size()), &pushConstantRange, 1);
-	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_renderPass, viewport, scissor);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, renderPass->getRenderPass(), viewport, scissor);
+
+	// Offscrenen 3d test pipeline
+	VertexBindingInfo offscreenBindingInfo = {};
+	auto offscreenRenderPass = m_renderPassManager.getRenderPass(m_offscreenRenderPassIndex);
+	ShaderSourceCollection triangleTestShaders = { "Shaders/triangle_vert.spv", "Shaders/triangle_frag.spv" };
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_OFFSCREN_3D_TEST), triangleTestShaders, offscreenBindingInfo);
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
+	pipelinePtr->addVertexAttribute(texCoordAttr);
+	pipelinePtr->addVertexAttribute(normalAttr);
+	std::array<VkDescriptorSetLayout, 3> offscreen3DLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout };
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, offscreen3DLayouts.data(), static_cast<uint32_t>(offscreen3DLayouts.size()), &pushConstantRange, 1);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
 	// PIPELINE 2D
 	ShaderSourceCollection shaders2D = { "Shaders/vert_2d.spv", "Shaders/frag_2d.spv" };
@@ -482,7 +422,7 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	std::array<VkDescriptorSetLayout, 2> pipline2DLayouts = { m_descriptorSetLayout, m_samplerSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline2DLayouts.data(), static_cast<uint32_t>(pipline2DLayouts.size()), &pushConstantRange, 1);
-	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_renderPass, viewport, scissor);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, renderPass->getRenderPass(), viewport, scissor);
 
 	// PIPELINE ENVIRONMENT MAP
 	ShaderSourceCollection shadersEnvMap = { "Shaders/skybox_vert.spv", "Shaders/skybox_frag.spv" };
@@ -492,7 +432,7 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(positionAttr);
 	std::array<VkDescriptorSetLayout, 2> skyboxDescriptorSetLayouts = { m_descriptorSetLayout, m_cubemapSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, skyboxDescriptorSetLayouts.data(), static_cast<uint32_t>(skyboxDescriptorSetLayouts.size()), nullptr, 0);
-	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, m_renderPass, viewport, scissor);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, renderPass->getRenderPass(), viewport, scissor);
 }
 
 void Renderer::createDepthBufferImage()
@@ -521,6 +461,8 @@ void Renderer::createDepthBufferImage()
 
 void Renderer::createFramebuffers()
 {
+	auto renderPass = m_renderPassManager.getRenderPass(m_mainRenderPassIndex);
+
 	m_swapChainFramebuffers.resize(m_swapChainImages.size());
 	for (size_t i = 0; i < m_swapChainImages.size(); i++) {
 		std::array<VkImageView, 2> attachments = {
@@ -530,7 +472,7 @@ void Renderer::createFramebuffers()
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = m_renderPass;
+		framebufferInfo.renderPass = renderPass->getRenderPass();
 		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 		framebufferInfo.pAttachments = attachments.data(); // must match the layout of the render pass e.g. color attachment is first attachment
 		framebufferInfo.width = m_swapChainExtent.width;
@@ -1338,6 +1280,16 @@ CubemapBuffer* Renderer::getCubemapBuffer(int index)
 	throw std::runtime_error("failed to get cubemap buffer: invalid cubemap index!");
 }
 
+VkDevice Renderer::getDevice()
+{
+	return m_renderDevice.logicalDevice;
+}
+
+VkQueue Renderer::getGraphicsQueue()
+{
+	return m_graphicsQueue;
+}
+
 VkDescriptorSet Renderer::getDescriptorSet(int index)
 {
 	if (index >= 0 && index < m_descriptorSets.size()) {
@@ -1399,11 +1351,35 @@ VkFramebuffer Renderer::getSwapchainFramebuffer(int index)
 	}
 }
 
+RenderTarget* Renderer::getRenderTarget(int index)
+{
+	if (index >= 0 && index < m_renderTargets.size()) {
+		return m_renderTargets[index].get();
+	}
+	throw std::runtime_error("failed to get render target: invalid render target index!");
+}
+
 int Renderer::createIndexBuffer(std::vector<uint32_t>* indices)
 {
 	auto indexBuffer = std::make_unique<IndexBuffer>(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, indices);
 	m_indexBuffers.push_back(std::move(indexBuffer));
 	return m_indexBuffers.size() - 1;
+}
+
+int Renderer::createRenderTarget()
+{
+	auto renderPass = m_renderPassManager.getRenderPass(m_offscreenRenderPassIndex);
+
+	auto renderTarget = std::make_unique<RenderTarget>();
+	renderTarget->createRenderTarget(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_swapChainExtent, m_swapChainImageFormat, renderPass->getRenderPass());
+	renderTarget->createOffscreenQuadBuffers(this);
+	renderTarget->createCommandBuffer(m_renderDevice.logicalDevice, m_commandPool);
+	
+	auto descriptorIndex = createTextureDescriptor(renderTarget->getImageView());
+	renderTarget->setDescriptorIndex(descriptorIndex);
+
+	m_renderTargets.push_back(std::move(renderTarget));
+	return m_renderTargets.size() - 1;
 }
 
 void Renderer::draw()
@@ -1503,7 +1479,7 @@ void Renderer::createPipeline(std::string name, PipelineCreateInfos infos, std::
 
 	// Use the default render pass if none is provided
 	if (infos.renderPass == nullptr) {
-		infos.renderPass = m_renderPass;
+		infos.renderPass = m_renderPassManager.getRenderPass(m_mainRenderPassIndex)->getRenderPass();
 	}
 
 	// Create the pipline instance but dont initialize it yet
@@ -1556,11 +1532,12 @@ void Renderer::bindPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout
 	vkCmdPushConstants(commandBuffer, pipelineLayout, stageFlags, offset, size, pValues);
 }
 
-void Renderer::beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, glm::vec4 clearColor)
+void Renderer::beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, glm::vec4 clearColor, int renderPassIndex)
 {
+	auto renderPass = m_renderPassManager.getRenderPass(renderPassIndex);
 	VkRenderPassBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	beginInfo.renderPass = m_renderPass;
+	beginInfo.renderPass = renderPass->getRenderPass();
 	beginInfo.renderArea.offset = { 0, 0 };
 	beginInfo.renderArea.extent = m_swapChainExtent;
 
@@ -1580,7 +1557,7 @@ void Renderer::endRenderPass(VkCommandBuffer commandBuffer)
 	vkCmdEndRenderPass(commandBuffer);
 }
 
-void Renderer::drawBuffer(int vertexBufferIndex, int indexBufferIndex, int frame)
+void Renderer::drawBuffer(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer)
 {
 	// Get the required buffers
 	auto vertexBuffer = this->getVertexBuffer(vertexBufferIndex);
@@ -1590,8 +1567,6 @@ void Renderer::drawBuffer(int vertexBufferIndex, int indexBufferIndex, int frame
 	VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer() };
 	VkDeviceSize offsets[] = { 0 };
 	uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
-
-	auto commandBuffer = this->getCommandBuffer(frame);
 
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
@@ -1776,6 +1751,12 @@ void Renderer::dispose()
 	}
 	m_cubemaps.clear();
 
+	// Free render targets
+	for (auto& renderTarget : m_renderTargets) {
+		renderTarget->dispose(m_renderDevice.logicalDevice);
+	}
+	m_renderTargets.clear();
+
 	for (size_t i = 0; i < m_numFramesInFlight; i++) {
 		vkDestroySemaphore(m_renderDevice.logicalDevice, m_renderFinishedSemaphores[i], nullptr);
 		vkDestroySemaphore(m_renderDevice.logicalDevice, m_imageAvailableSemaphores[i], nullptr);
@@ -1786,7 +1767,9 @@ void Renderer::dispose()
 		vkDestroyFramebuffer(m_renderDevice.logicalDevice, framebuffer, nullptr);
 	}
 	m_pipelineManager->destroyAllPipelines(m_renderDevice.logicalDevice);
-	vkDestroyRenderPass(m_renderDevice.logicalDevice, m_renderPass, nullptr);
+	
+	m_renderPassManager.dispose(m_renderDevice.logicalDevice);
+
 	for (auto& image : m_swapChainImages) {
 		vkDestroyImageView(m_renderDevice.logicalDevice, image.imageView, nullptr);
 	}

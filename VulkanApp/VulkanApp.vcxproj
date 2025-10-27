@@ -247,6 +247,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\DefaultRenderPass.cpp" />
     <ClCompile Include="Graphics\Cubemap.cpp" />
     <ClCompile Include="Graphics\CubemapBuffer.cpp" />
     <ClCompile Include="Graphics\Buffer.cpp" />
@@ -273,8 +274,12 @@
     <ClCompile Include="Graphics\PipelineManager.cpp" />
     <ClCompile Include="Core\Skybox.cpp" />
     <ClCompile Include="Math\Transform.cpp" />
+    <ClCompile Include="Graphics\RenderTarget.cpp" />
+    <ClCompile Include="Graphics\OffscreenRenderPass.cpp" />
+    <ClCompile Include="Graphics\RenderPassManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\DefaultRenderPass.h" />
     <ClInclude Include="Graphics\Cubemap.h" />
     <ClInclude Include="Graphics\CubemapBuffer.h" />
     <ClInclude Include="Graphics\Buffer.h" />
@@ -295,6 +300,10 @@
     <ClInclude Include="Graphics\Pipeline.h" />
     <ClInclude Include="Graphics\PipelineManager.h" />
     <ClInclude Include="Core\Skybox.h" />
+    <ClInclude Include="Graphics\RenderTarget.h" />
+    <ClInclude Include="Graphics\RenderPass.h" />
+    <ClInclude Include="Graphics\OffscreenRenderPass.h" />
+    <ClInclude Include="Graphics\RenderPassManager.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
     <ClInclude Include="Graphics\UnlitMaterial.h" />
