@@ -202,7 +202,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\andy1\source\externals\glfw\include;C:\Users\andy1\source\externals\glm;C:\VulkanSDK\1.4.328.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\andy1\source\externals\glfw\include;C:\Users\andy1\source\externals\glm;C:\VulkanSDK\1.4.328.0\Include;C:\Program Files\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -211,6 +211,16 @@
       <AdditionalLibraryDirectories>C:\Users\andy1\source\externals\glfw\lib-vc2022;C:\VulkanSDK\1.4.328.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>:: Shader kopieren ins Build-Verzeichnis
+xcopy /E /Y /I "$(ProjectDir)shaders" "$(OutDir)shaders"
+xcopy /S /Y /I "$(ProjectDir)*.h" "$(OutDir)include\GFX"
+xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"
+
+
+
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -247,6 +257,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Graphics\DefaultRenderPass.cpp" />
     <ClCompile Include="Graphics\Cubemap.cpp" />
     <ClCompile Include="Graphics\CubemapBuffer.cpp" />
@@ -279,6 +290,7 @@
     <ClCompile Include="Graphics\RenderPassManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\Game.h" />
     <ClInclude Include="Graphics\DefaultRenderPass.h" />
     <ClInclude Include="Graphics\Cubemap.h" />
     <ClInclude Include="Graphics\CubemapBuffer.h" />
