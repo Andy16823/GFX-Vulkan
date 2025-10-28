@@ -257,6 +257,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\Camera2D.cpp" />
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Graphics\DefaultRenderPass.cpp" />
     <ClCompile Include="Graphics\Cubemap.cpp" />
@@ -291,6 +292,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"
     <ClCompile Include="Graphics\RenderPassManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\Camera2D.h" />
     <ClInclude Include="Core\Game.h" />
     <ClInclude Include="Graphics\DefaultRenderPass.h" />
     <ClInclude Include="Graphics\Cubemap.h" />
