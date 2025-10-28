@@ -108,6 +108,9 @@
     <ClCompile Include="Core\Game.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Input.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -207,6 +210,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Core\Game.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Input.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

@@ -270,6 +270,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"
     <ClCompile Include="Graphics\ImageBuffer.cpp" />
     <ClCompile Include="Graphics\ImageTexture.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.cpp" />
+    <ClCompile Include="Core\Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Graphics\Material.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
@@ -316,6 +317,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"
     <ClInclude Include="Graphics\RenderPass.h" />
     <ClInclude Include="Graphics\OffscreenRenderPass.h" />
     <ClInclude Include="Graphics\RenderPassManager.h" />
+    <ClInclude Include="Core\Input.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
     <ClInclude Include="Graphics\UnlitMaterial.h" />

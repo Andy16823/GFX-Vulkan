@@ -32,15 +32,24 @@ void Game::run(const std::string name, const glm::i32vec2 windowSize)
 			this->dispose(renderer);
 		}
 	);
+
+	this->loadContent();
+
 	if (m_renderer->init(this->window) == EXIT_FAILURE) {
 		throw std::runtime_error("Failed to initialize renderer!");
 	}
-	this->loadContent();
 
 	// Main loop
 	while (!glfwWindowShouldClose(this->window)) {
 		glfwPollEvents();
+
+		// Get the frame time and update the game
+		float frametime = glfwGetTime() * 1000; // Convert to milliseconds
+		this->update(frametime);
 		m_renderer->draw();
+
+		// Reset the timer
+		glfwSetTime(0.0);
 	}
 
 	// Dispose the renderer

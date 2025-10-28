@@ -13,7 +13,6 @@ private:
 	/// Renderer instance responsible for graphics rendering.
 	/// </summary>
 	std::unique_ptr<Renderer> m_renderer;
-
 public:
 	/// <summary>
 	/// GLFW window handle for the game.
