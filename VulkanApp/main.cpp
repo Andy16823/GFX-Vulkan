@@ -23,6 +23,7 @@ int main() {
 	window = GFX::createWindow("Vulkan App", 800, 600);
 
 	auto scene = GFX::createScene();
+	auto scene2 = GFX::createScene();
 
 	std::vector<std::string> cubemapFaces = {
 		"C:/Users/andy1/Documents/Cubemaps/Test/px.png", // +X (right)
@@ -41,23 +42,22 @@ int main() {
 
 	auto sprite = GFX::createSprite("C:/Users/andy1/Downloads/giraffe.jpg", "GiraffeSprite");
 	sprite->setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
-
-	auto spritePtr = sprite.get();
-
-	//scene->addEntity(std::move(sprite));
+	scene2->addEntity(std::move(sprite));
 
 
 	auto camera = new Camera3D(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec2(800.0f, 600.0f));
 
-	renderer.addOnInitCallback([&scene](Renderer* renderer) {
+	renderer.addOnInitCallback([&scene, &scene2](Renderer* renderer) {
 		scene->init(renderer);
+		scene2->init(renderer);
 		});
 
-	renderer.addOnDisposeCallback([&scene](Renderer* renderer) {
+	renderer.addOnDisposeCallback([&scene, &scene2](Renderer* renderer) {
 		scene->destroy(renderer);
+		scene2->destroy(renderer);
 		});
 
-	renderer.addOnDrawCallback([&scene, spritePtr](Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) {
+	renderer.addOnDrawCallback([&scene, &scene2](Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) {
 
 		// Render to rendertarget in current commandbuffer
 		//auto renderTarget = renderer->getRenderTarget(0);
@@ -68,9 +68,10 @@ int main() {
 
 		// Render the scene to the swapchain framebuffer
 		scene->render(renderer, commandBuffer, currentFrame);
+		scene2->render(renderer, commandBuffer, currentFrame);
 		});
 
-	renderer.addOnOffscreenCallback([spritePtr](Renderer* renderer, VkCommandBuffer commandBuffers, uint32_t currentFrame) {
+	renderer.addOnOffscreenCallback([](Renderer* renderer, VkCommandBuffer commandBuffers, uint32_t currentFrame) {
 		// Render the sprite to the offscreen render target
 		//auto renderTarget = renderer->getRenderTarget(0);
 		//renderTarget->startRecord(renderer->getDevice());
@@ -147,6 +148,7 @@ int main() {
 
 		camera->transform.towards(glm::vec3(0.0f, -0.75f, -1.0f));
 		scene->update(0.016f);
+		scene2->update(0.016f);
 		renderer.setViewProjection(camera->getViewProjection());
 		renderer.draw();
 	}

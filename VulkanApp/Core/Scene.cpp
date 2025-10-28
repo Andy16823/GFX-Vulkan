@@ -23,7 +23,7 @@ void Scene::render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t c
 {
 	auto renderTarget = renderer->getRenderTarget(m_renderTargetIndex);
 
-	renderer->beginnRenderPass(commandBuffer, renderTarget->getFramebuffer(), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), renderer->getOffscreenRenderPass());
+	renderer->beginnRenderPass(commandBuffer, renderTarget->getFramebuffer(), glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), renderer->getOffscreenRenderPass());
 	for (const auto& entity : m_entities) {
 		entity->render(renderer, commandBuffer, currentFrame);
 	}

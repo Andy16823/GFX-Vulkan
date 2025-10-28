@@ -9,6 +9,10 @@ layout(set = 0, binding = 0) uniform sampler2D offscreenSampler;
 
 void main() {
     vec4 tex = texture(offscreenSampler, fragUV);
+    float alphaThreshold = 0.1;
+    if (tex.a < alphaThreshold) {
+        discard;
+    }
     // combine texture and vertex color; if you want only texture use tex directly
     outColor = tex * vec4(fragColor, 1.0);
 }

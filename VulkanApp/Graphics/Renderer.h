@@ -247,7 +247,7 @@ public:
 	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
-	void drawRenderTargetQuad(int renderTargetDescriptorIndex, VkCommandBuffer commandBuffer, int frame);
+	void drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame);
 
 	~Renderer();
 };

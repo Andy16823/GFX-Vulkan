@@ -26,13 +26,9 @@ void Sprite::init(Renderer* renderer)
 
 void Sprite::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
-	auto renderTarget = renderer->getRenderTarget(0);
-	renderTarget->getOffscreenDescriptorIndex();
-
 	auto modelMatrix = this->getModelMatrix();
 	auto descriptorSet = renderer->getDescriptorSet(currentFrame);
-	//auto imageDescriptorSet = renderer->getSamplerDescriptorSetFromImageBuffer(m_textureImage->bufferIndex);
-	auto imageDescriptorSet = renderer->getSamplerDescriptorSet(renderTarget->getOffscreenDescriptorIndex());
+	auto imageDescriptorSet = renderer->getSamplerDescriptorSetFromImageBuffer(m_textureImage->bufferIndex);
 
 	std::vector<VkDescriptorSet> descriptorSets = {
 		descriptorSet,
@@ -49,7 +45,6 @@ void Sprite::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t c
 	);
 	renderer->bindDescriptorSets(descriptorSets, currentFrame);
 	renderer->drawBuffer(m_mesh->vertexBufferIndex, m_mesh->indexBufferIndex, commandBuffer);
-	//renderer->drawMesh(m_mesh.get(), m_textureImage->bufferIndex, this->getModelMatrix(), currentFrame);
 }
 
 

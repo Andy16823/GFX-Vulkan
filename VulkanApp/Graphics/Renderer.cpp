@@ -423,7 +423,7 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	std::array<VkDescriptorSetLayout, 2> pipline2DLayouts = { m_descriptorSetLayout, m_samplerSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline2DLayouts.data(), static_cast<uint32_t>(pipline2DLayouts.size()), &pushConstantRange, 1);
-	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, renderPass->getRenderPass(), viewport, scissor);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
 	// PIPELINE ENVIRONMENT MAP
 	ShaderSourceCollection shadersEnvMap = { "Shaders/skybox_vert.spv", "Shaders/skybox_frag.spv" };
@@ -438,6 +438,7 @@ void Renderer::createGraphicsPipelines()
 	// PRESENT PIPELINE FOR RENDER TARGETS
 	ShaderSourceCollection presentShaders = { "Shaders/fullscreen_vert.spv", "Shaders/fullscreen_frag.spv" };
 	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT), presentShaders, bindingInfo);
+	pipelinePtr->depthTestEnable = VK_FALSE;
 	pipelinePtr->addVertexAttribute(positionAttr);
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
@@ -777,7 +778,7 @@ void Renderer::recordCommands(uint32_t currentImage)
 	this->beginnRenderPass(commandBuffer, this->getSwapchainFramebuffer(currentImage), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), this->getMainRenderPass());
 	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT));
 	for (auto& renderTarget : m_renderTargets) {
-		this->drawRenderTargetQuad(renderTarget->getOffscreenDescriptorIndex(), commandBuffer, currentImage);
+		this->drawRenderTargetQuad(renderTarget.get(), commandBuffer, currentImage);
 	}
 
 	this->endRenderPass(commandBuffer);
@@ -1706,18 +1707,17 @@ void Renderer::drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex,
 	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 }
 
-void Renderer::drawRenderTargetQuad(int renderTargetDescriptorIndex, VkCommandBuffer commandBuffer, int frame)
+void Renderer::drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame)
 {
-	auto renderTarget = this->getRenderTarget(renderTargetDescriptorIndex);
-	auto imageDescriptorSet = this->getSamplerDescriptorSet(renderTarget->getOffscreenDescriptorIndex());
+	auto imageDescriptorSet = this->getSamplerDescriptorSet(rendertarget->getOffscreenDescriptorIndex());
 	std::vector<VkDescriptorSet> descriptorSets = {
 		imageDescriptorSet
 	};
 	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT));
 	this->bindDescriptorSets(descriptorSets, frame);
 	this->drawBuffer(
-		renderTarget->getOffscreenQuadVBO(),
-		renderTarget->getOffscreenQuadIBO(),
+		rendertarget->getOffscreenQuadVBO(),
+		rendertarget->getOffscreenQuadIBO(),
 		commandBuffer
 	);
 }
