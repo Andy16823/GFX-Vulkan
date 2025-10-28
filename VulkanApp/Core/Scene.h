@@ -41,7 +41,7 @@ public:
 	template<typename T>
 	T* findEntity(std::string name) {
 		for (const auto& entity : m_entities) {
-			if (entity->getName() == name) {
+			if (entity->name == name) {
 				if (auto casted = dynamic_cast<T*>(entity.get())) {
 					return casted;
 				}

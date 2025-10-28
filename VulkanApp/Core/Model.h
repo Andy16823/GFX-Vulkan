@@ -19,5 +19,6 @@ public:
 	void init(Renderer* renderer);
 	void render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame);
 	void destroy(Renderer* renderer);
+	Mesh* getMesh(int index);
 };
 

@@ -12,11 +12,6 @@
 #include <array>
 
 /// <summary>
-/// Maximum number of objects
-/// </summary>
-const int MAX_OBJECTS = 1000;
-
-/// <summary>
 /// Required device extensions
 /// </summary>
 const std::vector<const char*> deviceExtensions = {

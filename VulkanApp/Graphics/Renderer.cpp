@@ -325,6 +325,26 @@ void Renderer::createDescriptorSetLayout()
 	else {
 		std::cout << "Cubemap descriptor set layout created successfully!" << std::endl;
 	}
+
+	// FONT TEXTURE DESCRIPTOR SET LAYOUT
+	VkDescriptorSetLayoutBinding fontTextureLayoutBinding = {};
+	fontTextureLayoutBinding.binding = 0;
+	fontTextureLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	fontTextureLayoutBinding.descriptorCount = 1;
+	fontTextureLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	fontTextureLayoutBinding.pImmutableSamplers = nullptr;
+
+	VkDescriptorSetLayoutCreateInfo fontTextureLayoutInfo = {};
+	fontTextureLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	fontTextureLayoutInfo.bindingCount = 1;
+	fontTextureLayoutInfo.pBindings = &fontTextureLayoutBinding;
+
+	if (vkCreateDescriptorSetLayout(m_renderDevice.logicalDevice, &fontTextureLayoutInfo, nullptr, &m_fontTextureSetLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create font texture descriptor set layout!");
+	}
+	else {
+		std::cout << "Font texture descriptor set layout created successfully!" << std::endl;
+	}
 }
 
 //void Renderer::createPushConstantRange()
@@ -433,6 +453,16 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(positionAttr);
 	std::array<VkDescriptorSetLayout, 2> skyboxDescriptorSetLayouts = { m_descriptorSetLayout, m_cubemapSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, skyboxDescriptorSetLayouts.data(), static_cast<uint32_t>(skyboxDescriptorSetLayouts.size()), nullptr, 0);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
+
+	// FONT RERNDERING PIPELINE TODO: CHANGE SHADERS
+	ShaderSourceCollection fontShaders = { "Shaders/vert_2d.spv", "Shaders/frag_2d.spv" };
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_FONT_RENDERING), fontShaders, bindingInfo);
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
+	pipelinePtr->addVertexAttribute(texCoordAttr);
+	std::array<VkDescriptorSetLayout, 2> fontPipelineLayouts = { m_descriptorSetLayout, m_fontTextureSetLayout };
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, fontPipelineLayouts.data(), static_cast<uint32_t>(fontPipelineLayouts.size()), &pushConstantRange, 1);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
 	// PRESENT PIPELINE FOR RENDER TARGETS
@@ -631,6 +661,24 @@ void Renderer::createDescriptorPool()
 	else {
 		std::cout << "Cubemap descriptor pool created successfully!" << std::endl;
 	}
+
+	// CREATE FONT DESCRIPTOR POOL
+	VkDescriptorPoolSize fontPoolSize = {};
+	fontPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	fontPoolSize.descriptorCount = MAX_FONT_TEXTURES;
+
+	VkDescriptorPoolCreateInfo fontPoolInfo = {};
+	fontPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	fontPoolInfo.maxSets = MAX_FONT_TEXTURES;
+	fontPoolInfo.poolSizeCount = 1;
+	fontPoolInfo.pPoolSizes = &fontPoolSize;
+
+	if (vkCreateDescriptorPool(m_renderDevice.logicalDevice, &fontPoolInfo, nullptr, &m_fontTextureDescriptorPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create font descriptor pool!");
+	}
+	else {
+		std::cout << "Font descriptor pool created successfully!" << std::endl;
+	}
 }
 
 void Renderer::createDescriptorSets()
@@ -689,7 +737,7 @@ void Renderer::createDescriptorSets()
 	}
 }
 
-void Renderer::createTextureSampler()
+void Renderer::createSampler()
 {
 	// TEXTURE SAMPLER
 	VkSamplerCreateInfo samplerInfo = {};
@@ -734,6 +782,49 @@ void Renderer::createTextureSampler()
 	if (vkCreateSampler(m_renderDevice.logicalDevice, &cubeSamplerInfo, nullptr, &m_cubemapSampler) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create cube map sampler!");
 	}
+
+	// FONT SAMPLER
+	VkSamplerCreateInfo fontSamplerInfo = {};
+	fontSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	fontSamplerInfo.magFilter = VK_FILTER_LINEAR;
+	fontSamplerInfo.minFilter = VK_FILTER_LINEAR;
+	fontSamplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	fontSamplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	fontSamplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	fontSamplerInfo.anisotropyEnable = VK_FALSE;
+	fontSamplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	fontSamplerInfo.unnormalizedCoordinates = VK_FALSE;
+	fontSamplerInfo.compareEnable = VK_FALSE;
+	fontSamplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+	if (vkCreateSampler(m_renderDevice.logicalDevice, &fontSamplerInfo, nullptr, &m_fontTextureSampler) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create texture sampler!");
+	}
+}
+
+void Renderer::createRendererPrimitives()
+{
+	// Create Quad Ressource
+	auto quadVertices = std::vector<Vertex> {
+		{{0.5f, -0.5f, 0.0f}, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }}, // Bottom Right
+		{ {0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f} }, // Top Right
+		{ {-0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f} }, // Top Left
+		{ {-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f} }, // Bottom Left
+	};
+
+	// Create quad index data
+	auto quadIndices = std::vector<uint32_t>{
+		0, 1, 2, 2, 3, 0
+	};
+
+	auto quadVertexBuffer = createVertexBuffer(&quadVertices);
+	auto quadIndexBuffer = createIndexBuffer(&quadIndices);
+
+	PrimitiveBuffer quadPrimitive = {};
+	quadPrimitive.vertexBufferIndex = quadVertexBuffer;
+	quadPrimitive.indexBufferIndex = quadIndexBuffer;
+
+	m_rendererPrimitives[PrimitiveType::PRIMITVE_TYPE_QUAD] = quadPrimitive;
 }
 
 void Renderer::updateUniformBuffer(uint32_t currentImage)
@@ -1166,6 +1257,46 @@ int Renderer::createCubemapDescriptor(VkImageView cubemapImageView)
 	return m_cubemapDescriptorSets.size() - 1;
 }
 
+int Renderer::createFontTextureDescriptor(VkImageView fontTextureImageView)
+{
+	// Allocate descriptor set from the sampler descriptor pool
+	VkDescriptorSetAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = m_fontTextureDescriptorPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = &m_fontTextureSetLayout;
+
+	VkDescriptorSet descriptorSet;
+	if (vkAllocateDescriptorSets(m_renderDevice.logicalDevice, &allocInfo, &descriptorSet) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate font texture descriptor set!");
+	}
+
+	// Texture image info
+	VkDescriptorImageInfo imageInfo = {};
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = fontTextureImageView;
+	imageInfo.sampler = m_fontTextureSampler;
+
+	// Descriptor Write info
+	VkWriteDescriptorSet descriptorWrite = {};
+	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrite.dstSet = descriptorSet;
+	descriptorWrite.dstBinding = 0;
+	descriptorWrite.dstArrayElement = 0;
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptorWrite.descriptorCount = 1;
+	descriptorWrite.pImageInfo = &imageInfo;
+
+	// Update the descriptor set with the image info
+	vkUpdateDescriptorSets(m_renderDevice.logicalDevice, 1, &descriptorWrite, 0, nullptr);
+
+	// Store the descriptor set
+	m_fontTextureDescriptorSets.push_back(descriptorSet);
+
+	// Return the index of the descriptor set
+	return m_fontTextureDescriptorSets.size() - 1;
+}
+
 //void Renderer::allocateDynamicBufferTransferSpace()
 //{
 //	// Calculate alignment of model data
@@ -1200,11 +1331,12 @@ int Renderer::init(GLFWwindow* window)
 		createFramebuffers();
 		createCommandPool();
 		createCommandBuffers();
-		createTextureSampler();
+		createSampler();
 		createUniformBuffers();
 		createDescriptorPool();
 		createDescriptorSets();
 		createSyncObjects();
+		createRendererPrimitives();
 
 
 		m_uboViewProjection.projection = glm::perspective(glm::radians(45.0f), m_swapChainExtent.width / (float)m_swapChainExtent.height, 0.1f, 10.0f);
@@ -1276,6 +1408,23 @@ int Renderer::createCubemapBuffer(CubemapFaceData faces)
 	return m_cubemaps.size() - 1;
 }
 
+int Renderer::createFontBuffer(const FontAtlas& fontAtlas)
+{
+	auto fontTextureBuffer = std::make_unique<FontTextureBuffer>(
+		fontAtlas,
+		m_renderDevice.physicalDevice,
+		m_renderDevice.logicalDevice,
+		m_graphicsQueue,
+		m_commandPool
+	);
+
+	fontTextureBuffer->descriptorIndex = createFontTextureDescriptor(fontTextureBuffer->imageView);
+	fontTextureBuffer->state = GFX_BUFFER_STATE_INITIALIZED;
+	m_fontTextureBuffers.push_back(std::move(fontTextureBuffer));
+
+	return m_fontTextureBuffers.size() - 1;
+}
+
 VertexBuffer* Renderer::getVertexBuffer(int index)
 {
 	if (index >= 0 && index < m_vertexBuffers.size()) {
@@ -1303,6 +1452,14 @@ CubemapBuffer* Renderer::getCubemapBuffer(int index)
 		return m_cubemaps[index].get();
 	}
 	throw std::runtime_error("failed to get cubemap buffer: invalid cubemap index!");
+}
+
+FontTextureBuffer* Renderer::getFontBuffer(int index)
+{
+	if (index >= 0 && index < m_fontTextureBuffers.size()) {
+		return m_fontTextureBuffers[index].get();
+	}
+	throw std::runtime_error("failed to get font texture buffer: invalid font texture index!");
 }
 
 VkDevice Renderer::getDevice()
@@ -1345,6 +1502,14 @@ VkDescriptorSet Renderer::getCubemapDescriptorSet(int index)
 		return m_cubemapDescriptorSets[index];
 	}
 	throw std::runtime_error("failed to get cubemap descriptor set: invalid descriptor set index!");
+}
+
+VkDescriptorSet Renderer::getFontDescriptorSet(int index)
+{
+	if (index >= 0 && index < m_fontTextureDescriptorSets.size()) {
+		return m_fontTextureDescriptorSets[index];
+	}
+	throw std::runtime_error("failed to get font texture descriptor set: invalid descriptor set index!");
 }
 
 VkCommandBuffer Renderer::getCommandBuffer(int index)
@@ -1722,6 +1887,65 @@ void Renderer::drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer 
 	);
 }
 
+void Renderer::drawFontTexture(int fontTextureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size, glm::vec3 rotation, glm::vec3 color)
+{
+	// Get the required buffers and descriptors
+	auto descriptorSet = this->getDescriptorSet(frame);
+	auto fontBuffer = this->getFontBuffer(fontTextureBufferIndex);
+	auto imageDescriptorSet = this->getFontDescriptorSet(fontBuffer->descriptorIndex);
+
+	// Get the primitve
+	auto primitveBuffer = m_rendererPrimitives[PrimitiveType::PRIMITVE_TYPE_QUAD];
+
+	// Create the model matrix for the font quad
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(position, 0.0f));
+	model = glm::scale(model, glm::vec3(size, 1.0f));
+	model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+	UboModel fontModel = {};
+	fontModel.model = model;
+
+	// Bind the pipeline, descriptor sets and draw the font quad
+	std::vector<VkDescriptorSet> descriptorSets = {
+		descriptorSet,
+		imageDescriptorSet
+	};
+	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_FONT_RENDERING));
+	this->bindPushConstants(commandBuffer,this->getCurrentPipelineLayout(),	VK_SHADER_STAGE_VERTEX_BIT,	0,	sizeof(UboModel), &fontModel);
+	this->bindDescriptorSets(descriptorSets, frame);
+	this->drawBuffer(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
+}
+
+void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size)
+{
+	// Get the required buffers and descriptors
+	auto descriptorSet = this->getDescriptorSet(frame);
+	auto imageBuffer = this->getImageBuffer(textureBufferIndex);
+	auto imageDescriptorSet = this->getSamplerDescriptorSet(imageBuffer->descriptorIndex);
+
+	// Get the primitve
+	auto primitveBuffer = m_rendererPrimitives[PrimitiveType::PRIMITVE_TYPE_QUAD];
+
+	// Create the model matrix for the font quad
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(position, 0.0f));
+	model = glm::scale(model, glm::vec3(size, 1.0f));
+	UboModel fontModel = {};
+	fontModel.model = model;
+
+	// Bind the pipeline, descriptor sets and draw the font quad
+	std::vector<VkDescriptorSet> descriptorSets = {
+		descriptorSet,
+		imageDescriptorSet
+	};
+	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
+	this->bindPushConstants(commandBuffer, this->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &fontModel);
+	this->bindDescriptorSets(descriptorSets, frame);
+	this->drawBuffer(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
+}
+
 /// <summary>
 /// Dispose the renderer and free resources
 /// </summary>
@@ -1742,9 +1966,14 @@ void Renderer::dispose()
 	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_cubemapDescriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_cubemapSetLayout, nullptr);
 
+	// DESTROY FONT TEXTURE DESCRIPTORS
+	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_fontTextureDescriptorPool, nullptr);
+	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_fontTextureSetLayout, nullptr);
+
 	// DESTROY SAMPLER
 	vkDestroySampler(m_renderDevice.logicalDevice, m_cubemapSampler, nullptr);
 	vkDestroySampler(m_renderDevice.logicalDevice, m_textureSampler, nullptr);
+	vkDestroySampler(m_renderDevice.logicalDevice, m_fontTextureSampler, nullptr);
 
 	//_aligned_free(m_modelTransferSpace);
 	vkDestroyImageView(m_renderDevice.logicalDevice, m_depthBufferImageView, nullptr);
@@ -1795,6 +2024,13 @@ void Renderer::dispose()
 		cubemap->dispose(m_renderDevice.logicalDevice);
 	}
 	m_cubemaps.clear();
+
+	// Free font textures
+	for (auto& fontTexture : m_fontTextureBuffers) {
+		if (fontTexture->state == GFX_BUFFER_STATE_DISPOSED) continue;
+		fontTexture->dispose(m_renderDevice.logicalDevice);
+	}
+	m_fontTextureBuffers.clear();
 
 	// Free render targets
 	for (auto& renderTarget : m_renderTargets) {

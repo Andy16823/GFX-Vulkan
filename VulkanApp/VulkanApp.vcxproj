@@ -186,14 +186,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\andy1\source\externals\glfw\include;C:\Users\andy1\source\externals\glm;C:\VulkanSDK\1.4.328.0\Include;C:\Program Files\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\andy1\source\externals\glfw\include;C:\Users\andy1\source\externals\glm;C:\VulkanSDK\1.4.328.0\Include;C:\Program Files\Assimp\include;C:\Users\andy1\source\externals\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\andy1\source\externals\glfw\lib-vc2022;C:\VulkanSDK\1.4.328.0\Lib;C:\Program Files\Assimp\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\andy1\source\externals\glfw\lib-vc2022;C:\VulkanSDK\1.4.328.0\Lib;C:\Program Files\Assimp\lib\x64;C:\Users\andy1\source\externals\freetype\release dll\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Lib)|x64'">
@@ -202,7 +202,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\andy1\source\externals\glfw\include;C:\Users\andy1\source\externals\glm;C:\VulkanSDK\1.4.328.0\Include;C:\Program Files\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\andy1\source\externals\glfw\include;C:\Users\andy1\source\externals\glm;C:\VulkanSDK\1.4.328.0\Include;C:\Program Files\Assimp\include;C:\Users\andy1\source\externals\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -212,14 +212,16 @@
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>:: Shader kopieren ins Build-Verzeichnis
+      <Command>:: Shader-, Header- und Include-Verzeichnisse bereinigen
+rmdir /S /Q "$(OutDir)shaders"
+rmdir /S /Q "$(OutDir)include\GFX"
+
+:: Shader kopieren ins Build-Verzeichnis
 xcopy /E /Y /I "$(ProjectDir)shaders" "$(OutDir)shaders"
+
+:: Header-Dateien kopieren
 xcopy /S /Y /I "$(ProjectDir)*.h" "$(OutDir)include\GFX"
-xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"
-
-
-
-</Command>
+xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -257,6 +259,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\FontAtlas.cpp" />
     <ClCompile Include="Graphics\Camera2D.cpp" />
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Graphics\DefaultRenderPass.cpp" />
@@ -290,8 +293,10 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"
     <ClCompile Include="Graphics\RenderTarget.cpp" />
     <ClCompile Include="Graphics\OffscreenRenderPass.cpp" />
     <ClCompile Include="Graphics\RenderPassManager.cpp" />
+    <ClCompile Include="Graphics\FontTextureBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\FontAtlas.h" />
     <ClInclude Include="Graphics\Camera2D.h" />
     <ClInclude Include="Core\Game.h" />
     <ClInclude Include="Graphics\DefaultRenderPass.h" />
@@ -326,6 +331,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Math\Transform.h" />
+    <ClInclude Include="Graphics\FontTextureBuffer.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

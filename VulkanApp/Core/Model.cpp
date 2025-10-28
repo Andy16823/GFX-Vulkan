@@ -134,3 +134,11 @@ void Model::destroy(Renderer* renderer)
 		mesh.get()->dispose(renderer);
 	}
 }
+
+Mesh* Model::getMesh(int index)
+{
+	if (index >= 0 && index < m_meshes.size()) {
+		return m_meshes[index].get();
+	}
+	throw std::runtime_error("failed to get mesh: invalid mesh index!");
+}
