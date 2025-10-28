@@ -20,5 +20,9 @@ public:
 	void moveUp(float distance) override;
 	void moveRight(float distance) override;
 	void turn(float pitch, float yaw, float roll) override;
+
+	glm::vec3 projectPosition(const glm::vec3& worldpos, const glm::vec2 viewport) override;
+	glm::vec3 unprojectPosition(const glm::vec3& screenpos, const glm::vec2 viewport) override;
+
 };
 

@@ -89,5 +89,21 @@ public:
 	/// <param name="yaw"></param>
 	/// <param name="roll"></param>
 	void turn(float pitch, float yaw, float roll) override;
+
+	/// <summary>
+	/// Projects a world position to screen space.
+	/// </summary>
+	/// <param name="worldpos"></param>
+	/// <param name="viewport"></param>
+	/// <returns></returns>
+	glm::vec3 projectPosition(const glm::vec3& worldpos, const glm::vec2 viewport) override;
+
+	/// <summary>
+	/// Projects a screen position back to world space.
+	/// </summary>
+	/// <param name="screenpos"></param>
+	/// <param name="viewport"></param>
+	/// <returns></returns>
+	glm::vec3 unprojectPosition(const glm::vec3& screenpos, const glm::vec2 viewport) override;
 };
 

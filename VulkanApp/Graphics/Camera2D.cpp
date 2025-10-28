@@ -73,3 +73,26 @@ void Camera2D::turn(float pitch, float yaw, float roll)
 {
 	// No rotation for 2D camera
 }
+
+glm::vec3 Camera2D::projectPosition(const glm::vec3& worldpos, const glm::vec2 viewport)
+{
+	glm::vec4 clipSpacePos = getProjectionMatrix() * getViewMatrix() * glm::vec4(worldpos, 1.0f);
+	glm::vec3 ndc = glm::vec3(clipSpacePos) / clipSpacePos.w;
+	glm::vec3 windowPos;
+	windowPos.x = ((ndc.x + 1.0f) / 2.0f) * viewport.x;
+	windowPos.y = ((1.0f - ndc.y) / 2.0f) * viewport.y;
+	windowPos.z = ndc.z;
+	return windowPos;
+}
+
+glm::vec3 Camera2D::unprojectPosition(const glm::vec3& screenpos, const glm::vec2 viewport)
+{
+	float ndcX = (2.0f * screenpos.x) / viewport.x - 1.0f;
+	float ndcY = 1.0f - (2.0f * screenpos.y) / viewport.y;
+	float ndcZ = screenpos.z * 2.0f - 1.0f;
+
+	glm::vec4 ndc = glm::vec4(ndcX, ndcY, ndcZ, 1.0f);
+	glm::mat4 invVP = glm::inverse(getProjectionMatrix() * getViewMatrix());
+	glm::vec4 worldPos = invVP * ndc;
+	return glm::vec3(worldPos) / worldPos.w;
+}
