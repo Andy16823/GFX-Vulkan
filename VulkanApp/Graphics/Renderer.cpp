@@ -1,4 +1,4 @@
-#include "Renderer.h"
+﻿#include "Renderer.h"
 #include <algorithm>
 
 void Renderer::createValidationLayers()
@@ -424,11 +424,13 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
 	// FONT RERNDERING PIPELINE TODO: CHANGE SHADERS
-	ShaderSourceCollection fontShaders = { "Shaders/vert_2d.spv", "Shaders/frag_2d.spv" };
+	ShaderSourceCollection fontShaders = { "Shaders/text_vert.spv", "Shaders/text_frag.spv" };
 	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_FONT_RENDERING), fontShaders, bindingInfo);
+	pipelinePtr->cullMode = VK_CULL_MODE_NONE;
 	pipelinePtr->addVertexAttribute(positionAttr);
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
+	pipelinePtr->addVertexAttribute(normalAttr);
 	std::array<VkDescriptorSetLayout, 2> fontPipelineLayouts = { m_descriptorSetLayout, m_samplerSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, fontPipelineLayouts.data(), static_cast<uint32_t>(fontPipelineLayouts.size()), &pushConstantRange, 1);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
@@ -1259,9 +1261,9 @@ void Renderer::disposeImageTexture(int imageTexture)
 	}
 }
 
-int Renderer::createVertexBuffer(std::vector<Vertex>* vertices)
+int Renderer::createVertexBuffer(std::vector<Vertex>* vertices, const VertexBufferType vertexBufferType)
 {
-	auto vertexBuffer = std::make_unique<VertexBuffer>(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, vertices);
+	auto vertexBuffer = std::make_unique<VertexBuffer>(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, vertices, vertexBufferType);
 	m_vertexBuffers.push_back(std::move(vertexBuffer));
 	return m_vertexBuffers.size() - 1;
 }
@@ -1440,6 +1442,14 @@ RenderTarget* Renderer::getRenderTarget(int index)
 	throw std::runtime_error("failed to get render target: invalid render target index!");
 }
 
+Font* Renderer::getFont(int index)
+{
+	if (index >= 0 && index < m_loadedFonts.size()) {
+		return m_loadedFonts[index].get();
+	}
+	throw std::runtime_error("failed to get font: invalid font index!");
+}
+
 int Renderer::createIndexBuffer(std::vector<uint32_t>* indices)
 {
 	auto indexBuffer = std::make_unique<IndexBuffer>(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, indices);
@@ -1461,6 +1471,27 @@ int Renderer::createRenderTarget(const bool presentOnScreen)
 
 	m_renderTargets.push_back(std::move(renderTarget));
 	return m_renderTargets.size() - 1;
+}
+
+int Renderer::loadFont(const std::string& fontPath, int fontSize)
+{
+	FontAtlas fontAtlas;
+	if (!fontAtlas.loadFont(fontPath, fontSize)) {
+		throw std::runtime_error("failed to load font atlas!");
+	}
+
+	int imageBufferIndex = createImageBuffer(fontAtlas);
+	std::cout << "[FONT]: Texture buffer created with index " << imageBufferIndex << std::endl;
+
+	std::vector<Vertex> emptyVertices;
+	int vertexBufferIndex = createVertexBuffer(&emptyVertices, VertexBufferType::VERTEX_BUFFER_TYPE_DYNAMIC); // Dynamic because we will update it with the quads for each character
+	std::cout << "[FONT]: Vertex buffer created with index " << vertexBufferIndex << std::endl;
+
+	auto font = std::make_unique<Font>(fontPath, fontSize, imageBufferIndex, vertexBufferIndex, fontAtlas);
+	m_loadedFonts.push_back(std::move(font));
+	std::cout << "[FONT]: Font loaded: " << fontPath << " with size " << fontSize << std::endl;
+
+	return m_loadedFonts.size() - 1;
 }
 
 void Renderer::draw()
@@ -1643,6 +1674,11 @@ void Renderer::endRenderPass(VkCommandBuffer commandBuffer)
 	vkCmdEndRenderPass(commandBuffer);
 }
 
+void Renderer::updateViewProjectionBuffer(int frame)
+{
+	updateUniformBuffer(frame);
+}
+
 void Renderer::drawBuffer(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer)
 {
 	// Get the required buffers
@@ -1806,6 +1842,78 @@ void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer
 	this->drawBuffer(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
 }
 
+void Renderer::drawString(const std::string& text, int fontIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale)
+{
+	if (text.empty()) return;
+
+	auto font = getFont(fontIndex);
+	const FontAtlas& fontAtlas = font->getFontAtlas();
+
+	std::vector<Vertex> vertices;
+	vertices.reserve(text.length() * 6);
+
+	float currentX = position.x;
+	float currentY = position.y;
+
+	for (char c : text) {
+		if (fontAtlas.characters.find(c) == fontAtlas.characters.end()) continue;
+		const Character& ch = fontAtlas.characters.at(c);
+
+		float xpos = currentX + ch.bearingX * scale;
+		float ypos = currentY - (ch.height - ch.bearingY) * scale;
+		float w = ch.width * scale;
+		float h = ch.height * scale;
+
+		if (w <= 0 || h <= 0) {
+			currentX += ch.advance * scale;
+			continue;
+		}
+
+		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glm::vec3 normal = glm::vec3(0.0f, 0.0f, 1.0f);
+
+		// UV coordinates
+		float u0 = ch.uvX;
+		float v0 = ch.uvY;
+		float u1 = ch.uvX + ch.uvWidth;
+		float v1 = ch.uvY + ch.uvHeight;
+
+		// ✅ V-Koordinaten flippen (vertauschen)
+		vertices.push_back({ {xpos, ypos + h, 0.0f}, color, {u0, v0}, normal });  // v1 -> v0
+		vertices.push_back({ {xpos, ypos, 0.0f}, color, {u0, v1}, normal });      // v0 -> v1
+		vertices.push_back({ {xpos + w, ypos, 0.0f}, color, {u1, v1}, normal });  // v0 -> v1
+
+		vertices.push_back({ {xpos, ypos + h, 0.0f}, color, {u0, v0}, normal });  // v1 -> v0
+		vertices.push_back({ {xpos + w, ypos, 0.0f}, color, {u1, v1}, normal });  // v0 -> v1
+		vertices.push_back({ {xpos + w, ypos + h, 0.0f}, color, {u1, v0}, normal }); // v1 -> v0
+
+		currentX += ch.advance * scale;
+	}
+
+	if (vertices.empty()) return;
+
+	auto vertexBuffer = getVertexBuffer(font->getVertexBufferIndex());
+	vertexBuffer->updateBuffer(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, &vertices);
+
+	bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_FONT_RENDERING));
+
+	auto imageBuffer = getImageBuffer(font->getTextureBufferIndex());
+	std::vector<VkDescriptorSet> descriptorSets = {
+		this->getDescriptorSet(frame),
+		this->getSamplerDescriptorSet(imageBuffer->descriptorIndex)
+	};
+	this->bindDescriptorSets(descriptorSets, frame);
+
+	UboModel fontModel = { glm::mat4(1) };
+	this->bindPushConstants(commandBuffer, this->getCurrentPipelineLayout(),
+		VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &fontModel);
+
+	VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer() };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+}
+
 /// <summary>
 /// Dispose the renderer and free resources
 /// </summary>
@@ -1885,6 +1993,12 @@ void Renderer::dispose()
 		renderTarget->dispose(m_renderDevice.logicalDevice);
 	}
 	m_renderTargets.clear();
+
+	// Free loaded fonts
+	for (auto& font : m_loadedFonts) {
+		font->dispose(m_renderDevice.logicalDevice);
+	}
+	m_loadedFonts.clear();
 
 	for (size_t i = 0; i < m_numFramesInFlight; i++) {
 		vkDestroySemaphore(m_renderDevice.logicalDevice, m_renderFinishedSemaphores[i], nullptr);

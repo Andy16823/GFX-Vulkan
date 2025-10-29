@@ -12,21 +12,19 @@ float Camera2D::calculateScreenCorrection(float viewportWidth, float viewportHei
 	}
 }
 
-Camera2D::Camera2D(glm::vec2 position, glm::vec2 viewSize, const float near, const float far)
+Camera2D::Camera2D(glm::vec3 position, glm::vec2 viewSize, const float near, const float far)
 {
 	m_near = near;
 	m_far = far;
-	this->transform.position = glm::vec3(position, 0.0f);
+	this->transform.position = position;
 	this->m_viewSize = viewSize;
 }
 
 glm::mat4 Camera2D::getViewMatrix()
 {
-	return glm::lookAt(
-		transform.position,
-		glm::vec3(0, 0, 0),
-		glm::vec3(0, 1, 0)
-	);
+	return glm::lookAt(transform.position, transform.position + transform.getForward(), transform.getUp());
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	//return view;
 }
 
 glm::mat4 Camera2D::getProjectionMatrix()
@@ -43,7 +41,11 @@ glm::mat4 Camera2D::getProjectionMatrix()
 	float bottom = this->transform.position.y - halfHeight;
 	float top = this->transform.position.y + halfHeight;
 
-	return glm::ortho(left, right, bottom, top, m_near, m_far);
+	auto projection = glm::ortho(left, right, bottom, top, m_near, m_far);
+
+	// Vulkan Fix: Invertiere die Y-Achse
+	projection[1][1] *= -1;
+	return projection;
 }
 
 UboViewProjection Camera2D::getViewProjection()

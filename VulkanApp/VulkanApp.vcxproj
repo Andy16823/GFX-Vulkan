@@ -259,6 +259,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\Font.cpp" />
     <ClCompile Include="Graphics\FontAtlas.cpp" />
     <ClCompile Include="Graphics\Camera2D.cpp" />
     <ClCompile Include="Core\Game.cpp" />
@@ -295,6 +296,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Graphics\RenderPassManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\Font.h" />
     <ClInclude Include="Graphics\FontAtlas.h" />
     <ClInclude Include="Graphics\Camera2D.h" />
     <ClInclude Include="Core\Game.h" />

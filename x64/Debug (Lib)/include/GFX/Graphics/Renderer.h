@@ -24,11 +24,14 @@
 #include "DefaultRenderPass.h"
 #include "OffscreenRenderPass.h"
 #include "RenderTarget.h"
+#include "Font.h"
 
 /// <summary>
 /// Maximum number of objects supported by the renderer
 /// </summary>
 const int MAX_OBJECTS = 1000;
+
+#define DEFAULT_DYNAMIC_BUFFER_SIZE 1200;
 
 /// <summary>
 /// Render device structure
@@ -153,6 +156,9 @@ private:
 	std::vector<std::unique_ptr<VertexBuffer>> m_vertexBuffers;
 	std::vector<std::unique_ptr<IndexBuffer>> m_indexBuffers;
 
+	// OTHER RESOURCES
+	std::vector<std::unique_ptr<Font>> m_loadedFonts;
+
 	// Callbacks
 	std::vector<std::function<void(Renderer*, VkCommandBuffer, uint32_t)>> m_drawCallbacks;
 	std::vector<std::function<void(Renderer*)>> m_initCallbacks;
@@ -239,14 +245,18 @@ public:
 	VkPipelineLayout getCurrentPipelineLayout();
 	VkFramebuffer getSwapchainFramebuffer(int index);
 	RenderTarget* getRenderTarget(int index);
+	Font* getFont(int index);
 	
 	// Create buffer functions
-	int createVertexBuffer(std::vector<Vertex>* vertices);
+	int createVertexBuffer(std::vector<Vertex>* vertices, const VertexBufferType vertexBufferType = VertexBufferType::VERTEX_BUFFER_TYPE_STATIC);
 	int createImageBuffer(ImageTexture* imageTexture);
 	int createImageBuffer(const FontAtlas& fontAtlas);
 	int createCubemapBuffer(CubemapFaceData faces);
 	int createIndexBuffer(std::vector<uint32_t>* indices);
 	int createRenderTarget(const bool presentOnScreen = false);
+
+	// Loader functions
+	int loadFont(const std::string& fontPath, int fontSize);
 
 	// Get buffer functions
 	VertexBuffer* getVertexBuffer(int index);
@@ -272,6 +282,9 @@ public:
 	void beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, glm::vec4 clearColor, int renderPassIndex);
 	void endRenderPass(VkCommandBuffer commandBuffer);
 
+	// Update functions
+	void updateViewProjectionBuffer(int frame);
+
 	// Draw functions
 	void drawBuffer(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer);
 	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
@@ -279,6 +292,7 @@ public:
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
 	void drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame);
 	void drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size);
+	void drawString(const std::string& text, int fontIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale);
 
 	~Renderer();
 };

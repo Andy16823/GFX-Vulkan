@@ -39,7 +39,7 @@ public:
 	/// <param name="viewSize"></param>
 	/// <param name=""></param>
 	/// <param name=""></param>
-	Camera2D(glm::vec2 position, glm::vec2 viewSize, const float near, const float far);
+	Camera2D(glm::vec3 position, glm::vec2 viewSize, const float near, const float far);
 
 	/// <summary>
 	/// Destructor for Camera2D.

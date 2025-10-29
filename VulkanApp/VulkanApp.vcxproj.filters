@@ -117,6 +117,9 @@
     <ClCompile Include="Graphics\FontAtlas.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Font.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -225,6 +228,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\FontAtlas.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Font.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

@@ -12,4 +12,7 @@ C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V fullscreen.frag -o fullscreen
 
 C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V triangle.vert -o triangle_vert.spv
 C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V triangle.frag -o triangle_frag.spv
+
+C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V text.vert -o text_vert.spv
+C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V text.frag -o text_frag.spv
 pause
