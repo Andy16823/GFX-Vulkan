@@ -568,11 +568,15 @@ void Renderer::createUniformBuffers()
 
 void Renderer::createDescriptorPool()
 {
+	// Calculate number of uniform buffers needed
+	auto numUniformBuffers = static_cast<uint32_t>(m_uniformBuffers.size());
+	auto numCameras = numUniformBuffers * static_cast<uint32_t>(MAX_CAMERAS);
+
 	// CREATE UNIFORM DESCRIPTOR POOL
 	// Type of descriptors, not descriptor sets
 	VkDescriptorPoolSize vpPoolSize = {};
 	vpPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	vpPoolSize.descriptorCount = static_cast<uint32_t>(m_uniformBuffers.size());
+	vpPoolSize.descriptorCount = static_cast<uint32_t>(m_uniformBuffers.size()) + numCameras;
 
 	// Dynamic uniform buffer pool size
 	//VkDescriptorPoolSize dynamicPoolSize = {};
@@ -584,7 +588,7 @@ void Renderer::createDescriptorPool()
 	// Data to create the descriptor pool
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.maxSets = static_cast<uint32_t>(m_swapChainImages.size());
+	poolInfo.maxSets = static_cast<uint32_t>(m_swapChainImages.size()) + numCameras;
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
 
@@ -1405,6 +1409,17 @@ VkDescriptorSet Renderer::getCubemapDescriptorSet(int index)
 	throw std::runtime_error("failed to get cubemap descriptor set: invalid descriptor set index!");
 }
 
+VkDescriptorSet Renderer::getCameraDescriptorSet(int cameraIndex, uint32_t frame)
+{
+	if (cameraIndex < 0 || cameraIndex >= m_cameraResources.size()) {
+		throw std::runtime_error("failed to get camera descriptor set: invalid camera index!");
+	}
+	if (frame >= m_cameraResources[cameraIndex].descriptorSets.size()) {
+		throw std::runtime_error("failed to get camera descriptor set: invalid frame index!");
+	}
+	return m_cameraResources[cameraIndex].descriptorSets[frame];
+}
+
 VkCommandBuffer Renderer::getCommandBuffer(int index)
 {
 	if (index >= 0 && index < m_commandBuffers.size()) {
@@ -1450,6 +1465,14 @@ Font* Renderer::getFont(int index)
 	throw std::runtime_error("failed to get font: invalid font index!");
 }
 
+int Renderer::getCurrentCameraIndex()
+{
+	if (m_currentCamera < 0) {
+		throw std::runtime_error("failed to get current camera index: no camera is currently set!");
+	}
+	return m_currentCamera;
+}
+
 int Renderer::createIndexBuffer(std::vector<uint32_t>* indices)
 {
 	auto indexBuffer = std::make_unique<IndexBuffer>(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, indices);
@@ -1471,6 +1494,59 @@ int Renderer::createRenderTarget(const bool presentOnScreen)
 
 	m_renderTargets.push_back(std::move(renderTarget));
 	return m_renderTargets.size() - 1;
+}
+
+int Renderer::createCamera()
+{
+	if (m_cameraResources.size() >= MAX_CAMERAS) {
+		throw std::runtime_error("failed to create camera: maximum number of cameras reached!");
+	}
+
+	CameraRessources camera;
+	camera.uniformBuffers.resize(m_commandBuffers.size());
+	camera.descriptorSets.resize(m_commandBuffers.size());
+
+	VkDeviceSize bufferSize = sizeof(UboViewProjection);
+	for (size_t i = 0; i < m_commandBuffers.size(); i++) {
+		camera.uniformBuffers[i] = std::make_unique<UniformBuffer>(
+			m_renderDevice.physicalDevice,
+			m_renderDevice.logicalDevice,
+			bufferSize
+		);
+
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = m_descriptorPool;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &m_descriptorSetLayout;
+
+		if (vkAllocateDescriptorSets(m_renderDevice.logicalDevice, &allocInfo, &camera.descriptorSets[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to allocate camera descriptor set!");
+		}
+
+		VkDescriptorBufferInfo bufferInfo = {};
+		bufferInfo.buffer = camera.uniformBuffers[i]->getUniformBuffer();
+		bufferInfo.offset = 0;
+		bufferInfo.range = bufferSize;
+
+		VkWriteDescriptorSet descriptorWrite = {};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = camera.descriptorSets[i];
+		descriptorWrite.dstBinding = 0;
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pBufferInfo = &bufferInfo;
+		vkUpdateDescriptorSets(m_renderDevice.logicalDevice, 1, &descriptorWrite, 0, nullptr);
+	}
+
+	m_cameraResources.push_back(std::move(camera));
+	int cameraIndex = m_cameraResources.size() - 1;
+
+	std::cout << "[RENDERER] Camera registered at index " << cameraIndex
+		<< " with " << m_swapChainImages.size() << " uniform buffers" << std::endl;
+
+	return cameraIndex;
 }
 
 int Renderer::loadFont(const std::string& fontPath, int fontSize)
@@ -1649,6 +1725,14 @@ void Renderer::bindPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout
 	vkCmdPushConstants(commandBuffer, pipelineLayout, stageFlags, offset, size, pValues);
 }
 
+void Renderer::bindCamera(int cameraIndex, VkCommandBuffer commandBuffer, uint32_t frame)
+{
+	if (cameraIndex < 0 || cameraIndex >= m_cameraResources.size()) {
+		throw std::runtime_error("failed to bind camera: invalid camera index!");
+	}
+	m_currentCamera = cameraIndex;
+}
+
 void Renderer::beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, glm::vec4 clearColor, int renderPassIndex)
 {
 	auto renderPass = m_renderPassManager.getRenderPass(renderPassIndex);
@@ -1679,7 +1763,23 @@ void Renderer::updateViewProjectionBuffer(int frame)
 	updateUniformBuffer(frame);
 }
 
-void Renderer::drawBuffer(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer)
+void Renderer::updateCamera(int cameraIndex, uint32_t frame, const UboViewProjection& vp)
+{
+	if (cameraIndex >= 0 && cameraIndex < m_cameraResources.size()) {
+		auto& camera = m_cameraResources[cameraIndex];
+		auto& buffer = camera.uniformBuffers[frame];
+
+		void* data;
+		vkMapMemory(m_renderDevice.logicalDevice, buffer->getUniformBufferMemory(), 0, sizeof(UboViewProjection), 0, &data);
+		memcpy(data, &vp, sizeof(UboViewProjection));
+		vkUnmapMemory(m_renderDevice.logicalDevice, buffer->getUniformBufferMemory());
+	}
+	else {
+		throw std::runtime_error("failed to update camera: invalid camera index!");
+	}
+}
+
+void Renderer::drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer)
 {
 	// Get the required buffers
 	auto vertexBuffer = this->getVertexBuffer(vertexBufferIndex);
@@ -1695,43 +1795,10 @@ void Renderer::drawBuffer(int vertexBufferIndex, int indexBufferIndex, VkCommand
 	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 }
 
-// TODO change bufferInder for the imagebuffer with the material for the mesh.
-void Renderer::drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame)
-{
-	// Ensure a pipeline is currently bound
-	validateCurrentPipeline();
-
-	auto vertexBuffer = this->getVertexBuffer(mesh->vertexBufferIndex);
-	auto indexBuffer = this->getIndexBuffer(mesh->indexBufferIndex);
-	auto imageBuffer = this->getImageBuffer(bufferIndex);
-
-	VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer() };
-	VkDeviceSize offsets[] = { 0 };
-	uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
-
-	std::array<VkDescriptorSet, 2> descriptorSets = {
-		this->getDescriptorSet(frame),
-		this->getSamplerDescriptorSet(imageBuffer->descriptorIndex)
-	};
-
-	auto commandBuffer = this->getCommandBuffer(frame);
-	auto pipelineLayout = m_currentPipeline->getPipelineLayout();
-
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-		0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
-
-	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &model);
-	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
-	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
-}
-
 void Renderer::drawMesh(Mesh* mesh, Material* material, UboModel model, int frame)
 {
-	// Ensure a pipeline is currently bound
 	validateCurrentPipeline();
 
-	// Get the required buffers and descriptors
 	std::vector<int> textureIndices = material->getTextureIndices();
 	auto vertexBuffer = this->getVertexBuffer(mesh->vertexBufferIndex);
 	auto indexBuffer = this->getIndexBuffer(mesh->indexBufferIndex);
@@ -1741,21 +1808,9 @@ void Renderer::drawMesh(Mesh* mesh, Material* material, UboModel model, int fram
 	VkDeviceSize offsets[] = { 0 };
 	uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
 
-	// Create a vector of descriptor sets to bind
-	//std::vector<VkDescriptorSet> descriptorSets;
-	//descriptorSets.push_back(this->getDescriptorSet(frame));	// ViewProjection descriptor set
-	//for (auto textureIndex : textureIndices) {					// Texture descriptor sets
-	//	auto imageBuffer = this->getImageBuffer(textureIndex);
-	//	descriptorSets.push_back(this->getSamplerDescriptorSet(imageBuffer->descriptorIndex));
-	//}
-
 	// Get the command buffer and pipeline layout
 	auto commandBuffer = this->getCommandBuffer(frame);
 	auto pipelineLayout = m_currentPipeline->getPipelineLayout();
-
-	// Bind the descriptor sets, vertex buffer, index buffer and draw the mesh
-	//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-	//	0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 
 	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &model);
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
@@ -1765,21 +1820,26 @@ void Renderer::drawMesh(Mesh* mesh, Material* material, UboModel model, int fram
 
 void Renderer::drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame)
 {
+	if (m_currentCamera < 0)
+	{
+		throw std::runtime_error("No camera bound for skybox rendering!");
+	}
+
 	auto vertexBuffer = this->getVertexBuffer(vertexBufferIndex);
 	auto indexBuffer = this->getIndexBuffer(indexBufferIndex);
 	auto cubemapBuffer = this->getCubemapBuffer(cubemapBufferIndex);
-	auto commandBuffer = this->getCommandBuffer(frame);
+	auto commandBuffer = this->getCommandBuffer(frame);	// Command buffer TODO: Replace with parameter?
 
 	VkBuffer vertexBuffers[] = { vertexBuffer->getVertexBuffer() };
 	VkDeviceSize offsets[] = { 0 };
 	uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
 
 	std::array<VkDescriptorSet, 2> descriptorSets = {
-		this->getDescriptorSet(frame),
+		this->getCameraDescriptorSet(m_currentCamera, frame),
 		this->getCubemapDescriptorSet(cubemapBuffer->descriptorIndex)
 	};
 
-	// Bind the skybox pipeline and descriptor sets
+
 	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_SKYBOX));
 	auto pipelineLayout = m_currentPipeline->getPipelineLayout();
 
@@ -1801,13 +1861,14 @@ void Renderer::drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex,
 
 void Renderer::drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame)
 {
+	// No camera needed for this operation
 	auto imageDescriptorSet = this->getSamplerDescriptorSet(rendertarget->getOffscreenDescriptorIndex());
 	std::vector<VkDescriptorSet> descriptorSets = {
 		imageDescriptorSet
 	};
 	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT));
 	this->bindDescriptorSets(descriptorSets, frame);
-	this->drawBuffer(
+	this->drawBuffers(
 		rendertarget->getOffscreenQuadVBO(),
 		rendertarget->getOffscreenQuadIBO(),
 		commandBuffer
@@ -1816,6 +1877,11 @@ void Renderer::drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer 
 
 void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size)
 {
+	if (m_currentCamera < 0)
+	{
+		throw std::runtime_error("No camera bound for texture rendering!");
+	}
+
 	// Get the required buffers and descriptors
 	auto descriptorSet = this->getDescriptorSet(frame);
 	auto imageBuffer = this->getImageBuffer(textureBufferIndex);
@@ -1833,17 +1899,22 @@ void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer
 
 	// Bind the pipeline, descriptor sets and draw the font quad
 	std::vector<VkDescriptorSet> descriptorSets = {
-		descriptorSet,
+		this->getCameraDescriptorSet(m_currentCamera, frame),
 		imageDescriptorSet
 	};
 	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
 	this->bindPushConstants(commandBuffer, this->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &fontModel);
 	this->bindDescriptorSets(descriptorSets, frame);
-	this->drawBuffer(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
+	this->drawBuffers(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
 }
 
 void Renderer::drawString(const std::string& text, int fontIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale)
 {
+	if (m_currentCamera < 0)
+	{
+		throw std::runtime_error("No camera bound for font rendering!");
+	}
+
 	if (text.empty()) return;
 
 	auto font = getFont(fontIndex);
@@ -1899,7 +1970,7 @@ void Renderer::drawString(const std::string& text, int fontIndex, VkCommandBuffe
 
 	auto imageBuffer = getImageBuffer(font->getTextureBufferIndex());
 	std::vector<VkDescriptorSet> descriptorSets = {
-		this->getDescriptorSet(frame),
+		this->getCameraDescriptorSet(m_currentCamera, frame),
 		this->getSamplerDescriptorSet(imageBuffer->descriptorIndex)
 	};
 	this->bindDescriptorSets(descriptorSets, frame);
@@ -1945,6 +2016,14 @@ void Renderer::dispose()
 
 	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_descriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_descriptorSetLayout, nullptr);
+
+	// Dispose camera resources
+	for (auto& camera : m_cameraResources) {
+		for (auto& uniformBuffer : camera.uniformBuffers) {
+			uniformBuffer->dispose(m_renderDevice.logicalDevice);
+		}
+	}
+	m_cameraResources.clear();
 
 	// Free uniform buffers
 	for (auto uniformBuffer : m_uniformBuffers) {

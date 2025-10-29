@@ -1,4 +1,6 @@
 #pragma once
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 #include "../Utils.h"

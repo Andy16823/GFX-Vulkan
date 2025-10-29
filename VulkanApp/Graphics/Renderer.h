@@ -30,8 +30,8 @@
 /// Maximum number of objects supported by the renderer
 /// </summary>
 const int MAX_OBJECTS = 1000;
-
-#define DEFAULT_DYNAMIC_BUFFER_SIZE 1200;
+const int DEFAULT_DYNAMIC_BUFFER_SIZE = 1200;
+const int MAX_CAMERAS = 40;
 
 /// <summary>
 /// Render device structure
@@ -47,6 +47,11 @@ struct RenderDevice {
 struct PrimitiveBuffer {
 	int vertexBufferIndex;
 	int indexBufferIndex;
+};
+
+struct CameraRessources {
+	std::vector<std::unique_ptr<UniformBuffer>> uniformBuffers;
+	std::vector<VkDescriptorSet> descriptorSets;
 };
 
 /// <summary>
@@ -98,6 +103,9 @@ private:
 
 	// RENDERER PRIMIVES
 	std::map<PrimitiveType, PrimitiveBuffer> m_rendererPrimitives;
+
+	std::vector<CameraRessources> m_cameraResources;
+	int m_currentCamera = -1;
 
 	// RENDER TARGETS
 	std::vector<std::unique_ptr<RenderTarget>> m_renderTargets;
@@ -240,12 +248,14 @@ public:
 	VkDescriptorSet getSamplerDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSetFromImageBuffer(int imageBufferIndex);
 	VkDescriptorSet getCubemapDescriptorSet(int index);
+	VkDescriptorSet getCameraDescriptorSet(int cameraIndex, uint32_t frame);
 	VkCommandBuffer getCommandBuffer(int index);
 	VkPipelineLayout getPipelineLayout(std::string pipelineName);
 	VkPipelineLayout getCurrentPipelineLayout();
 	VkFramebuffer getSwapchainFramebuffer(int index);
 	RenderTarget* getRenderTarget(int index);
 	Font* getFont(int index);
+	int getCurrentCameraIndex();
 	
 	// Create buffer functions
 	int createVertexBuffer(std::vector<Vertex>* vertices, const VertexBufferType vertexBufferType = VertexBufferType::VERTEX_BUFFER_TYPE_STATIC);
@@ -254,6 +264,7 @@ public:
 	int createCubemapBuffer(CubemapFaceData faces);
 	int createIndexBuffer(std::vector<uint32_t>* indices);
 	int createRenderTarget(const bool presentOnScreen = false);
+	int createCamera();
 
 	// Loader functions
 	int loadFont(const std::string& fontPath, int fontSize);
@@ -272,9 +283,11 @@ public:
 	void createPipeline(std::string name, PipelineCreateInfos infos, std::function<void(Pipeline*, Renderer*)> creationCallback = nullptr);
 	void bindPipeline(VkCommandBuffer commandBuffer, std::string pipelineName);
 
-	// Descriptor & Push constant functions
+	// Bind functions
 	void bindDescriptorSets(std::vector<VkDescriptorSet> descriptorSets, int frame);
 	void bindPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* pValues);
+	void bindCamera(int cameraIndex, VkCommandBuffer commandBuffer, uint32_t frame);
+
 
 	// Beginn / End functions
 	int getMainRenderPass() { return m_mainRenderPassIndex; }
@@ -284,9 +297,11 @@ public:
 
 	// Update functions
 	void updateViewProjectionBuffer(int frame);
+	void updateCamera(int cameraIndex, uint32_t frame, const UboViewProjection& vp);
+
 
 	// Draw functions
-	void drawBuffer(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer);
+	void drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer);
 	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);

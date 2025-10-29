@@ -11,17 +11,14 @@ layout(location = 0) out vec4 outColor;
 layout(set = 1, binding = 0) uniform sampler2D textureSampler;
 
 void main() {
-    // Sample font texture
-    // Wenn du Swizzle verwendest (R -> A), ist das Alpha bereits richtig
-    vec4 sampled = texture(textureSampler, fragTexCoord);
+    // Font-Daten sind im R-Kanal (R8 Format)
+    float alpha = texture(textureSampler, fragTexCoord).r;
     
-    // Nutze den Alpha-Kanal für die Text-Transparenz
-    // Farbe kommt von fragColor (weiß), Alpha von der Font-Textur
-    outColor = texture(textureSampler, fragTexCoord);
-    // outColor = vec4(fragColor, sampled.a);
+    // Weiße Farbe mit Alpha aus der Font-Texture
+    outColor = vec4(fragColor, alpha);  // fragColor = (1,1,1), alpha = font data
     
-    // Verwerfe komplett transparente Pixel
-    if (outColor.a < 0.01) {
+    // Verwerfe transparente Pixel
+    if (alpha < 0.01) {
         discard;
     }
 }
