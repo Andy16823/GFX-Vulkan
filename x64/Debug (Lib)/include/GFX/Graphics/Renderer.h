@@ -16,7 +16,7 @@
 #include "ImageBuffer.h"
 #include "ImageTexture.h"
 #include "CubemapBuffer.h"
-#include "FontTextureBuffer.h"
+#include "FontAtlas.h"
 #include <functional>
 #include "Material.h"
 #include "RenderPass.h"
@@ -29,11 +29,6 @@
 /// Maximum number of objects supported by the renderer
 /// </summary>
 const int MAX_OBJECTS = 1000;
-
-/// <summary>
-/// Maximum number of font textures supported by the renderer
-/// </summary>
-const int MAX_FONT_TEXTURES = 100;
 
 /// <summary>
 /// Render device structure
@@ -58,7 +53,6 @@ enum class PipelineType {
 	PIPELINE_TYPE_GRAPHICS_3D,
 	PIPELINE_TYPE_GRAPHICS_2D,
 	PIPELINE_TYPE_SKYBOX,
-	PIPELINE_TYPE_OFFSCREN_3D_TEST,
 	PIPELINE_TYPE_FONT_RENDERING,
 	PIPELINE_TYPE_RENDER_TARGET_PRESENT
 };
@@ -68,7 +62,6 @@ inline const char* ToString(PipelineType type) {
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D: return "pipeline_3D";
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_2D: return "pipeline_2D";
 	case PipelineType::PIPELINE_TYPE_SKYBOX: return "pipeline_skybox";
-	case PipelineType::PIPELINE_TYPE_OFFSCREN_3D_TEST: return "pipeline_offscreen_3D_test";
 	case PipelineType::PIPELINE_TYPE_FONT_RENDERING: return "pipeline_font_rendering";
 	case PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT: return "pipeline_render_target_present";
 	default: return "unknown";
@@ -156,13 +149,6 @@ private:
 	VkDescriptorSetLayout m_cubemapSetLayout;
 	VkDescriptorPool m_cubemapDescriptorPool;
 
-	// FONT TEXTURE BUFFERS
-	std::vector<std::unique_ptr<FontTextureBuffer>> m_fontTextureBuffers;
-	std::vector<VkDescriptorSet> m_fontTextureDescriptorSets;
-	VkSampler m_fontTextureSampler;
-	VkDescriptorSetLayout m_fontTextureSetLayout;
-	VkDescriptorPool m_fontTextureDescriptorPool;
-	
 	// VERTEX BUFFERS
 	std::vector<std::unique_ptr<VertexBuffer>> m_vertexBuffers;
 	std::vector<std::unique_ptr<IndexBuffer>> m_indexBuffers;
@@ -221,7 +207,6 @@ private:
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	int createTextureDescriptor(VkImageView textureImageView);
 	int createCubemapDescriptor(VkImageView cubemapImageView);
-	int createFontTextureDescriptor(VkImageView fontTextureImageView);
 
 	// Allocate Functions
 	//void allocateDynamicBufferTransferSpace();
@@ -249,7 +234,6 @@ public:
 	VkDescriptorSet getSamplerDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSetFromImageBuffer(int imageBufferIndex);
 	VkDescriptorSet getCubemapDescriptorSet(int index);
-	VkDescriptorSet getFontDescriptorSet(int index);
 	VkCommandBuffer getCommandBuffer(int index);
 	VkPipelineLayout getPipelineLayout(std::string pipelineName);
 	VkPipelineLayout getCurrentPipelineLayout();
@@ -259,8 +243,8 @@ public:
 	// Create buffer functions
 	int createVertexBuffer(std::vector<Vertex>* vertices);
 	int createImageBuffer(ImageTexture* imageTexture);
+	int createImageBuffer(const FontAtlas& fontAtlas);
 	int createCubemapBuffer(CubemapFaceData faces);
-	int createFontBuffer(const FontAtlas& fontAtlas);
 	int createIndexBuffer(std::vector<uint32_t>* indices);
 	int createRenderTarget(const bool presentOnScreen = false);
 
@@ -269,7 +253,6 @@ public:
 	IndexBuffer* getIndexBuffer(int index);
 	ImageBuffer* getImageBuffer(int index);
 	CubemapBuffer* getCubemapBuffer(int index);
-	FontTextureBuffer* getFontBuffer(int index);
 
 	// Create functions
 	VkViewport getSwapchainViewport();
@@ -295,7 +278,6 @@ public:
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
 	void drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame);
-	void drawFontTexture(int fontTextureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size, glm::vec3 rotation, glm::vec3 color);
 	void drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size);
 
 	~Renderer();
