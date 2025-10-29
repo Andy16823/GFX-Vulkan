@@ -58,7 +58,7 @@ int main() {
 
 	renderer.addOnDrawCallback([&scene, &scene2, &camera](Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) {
 		renderer->updateCamera(0, currentFrame, camera->getViewProjection());
-		renderer->bindCamera(0, commandBuffer, currentFrame);	// Bind camera 0
+		renderer->setActiveCamera(0);	// Bind camera 0
 		scene->render(renderer, commandBuffer, currentFrame);
 		scene2->render(renderer, commandBuffer, currentFrame);
 		});

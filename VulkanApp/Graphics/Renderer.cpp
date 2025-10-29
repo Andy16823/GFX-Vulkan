@@ -552,43 +552,21 @@ void Renderer::createSyncObjects()
 	}
 }
 
-void Renderer::createUniformBuffers()
-{
-	VkDeviceSize bufferSize = sizeof(m_uboViewProjection);
-	m_uniformBuffers.resize(m_swapChainImages.size());
-
-	//VkDeviceSize dynamicBufferSize = m_modelUniformAlignment * MAX_OBJECTS;
-	//m_dynamicUniformBuffers.resize(m_swapChainImages.size());
-
-	for (size_t i = 0; i < m_swapChainImages.size(); i++) {
-		m_uniformBuffers[i] = new UniformBuffer(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, bufferSize);
-		//m_dynamicUniformBuffers[i] = new UniformBuffer(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, dynamicBufferSize);
-	}
-}
-
 void Renderer::createDescriptorPool()
 {
 	// Calculate number of uniform buffers needed
-	auto numUniformBuffers = static_cast<uint32_t>(m_uniformBuffers.size());
-	auto numCameras = numUniformBuffers * static_cast<uint32_t>(MAX_CAMERAS);
+	auto numCameras = static_cast<uint32_t>(MAX_CAMERAS);
 
 	// CREATE UNIFORM DESCRIPTOR POOL
-	// Type of descriptors, not descriptor sets
 	VkDescriptorPoolSize vpPoolSize = {};
 	vpPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	vpPoolSize.descriptorCount = static_cast<uint32_t>(m_uniformBuffers.size()) + numCameras;
-
-	// Dynamic uniform buffer pool size
-	//VkDescriptorPoolSize dynamicPoolSize = {};
-	//dynamicPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-	//dynamicPoolSize.descriptorCount = static_cast<uint32_t>(m_dynamicUniformBuffers.size());
-
+	vpPoolSize.descriptorCount = numCameras;
 	std::array<VkDescriptorPoolSize, 1> poolSizes = { vpPoolSize };
 
 	// Data to create the descriptor pool
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.maxSets = static_cast<uint32_t>(m_swapChainImages.size()) + numCameras;
+	poolInfo.maxSets = numCameras;
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
 
@@ -634,62 +612,6 @@ void Renderer::createDescriptorPool()
 	}
 	else {
 		std::cout << "Cubemap descriptor pool created successfully!" << std::endl;
-	}
-}
-
-void Renderer::createDescriptorSets()
-{
-	m_descriptorSets.resize(m_swapChainImages.size());
-
-	std::vector<VkDescriptorSetLayout> layouts(m_swapChainImages.size(), m_descriptorSetLayout);
-
-	VkDescriptorSetAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = m_descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(m_swapChainImages.size());
-	allocInfo.pSetLayouts = layouts.data();
-
-	if (vkAllocateDescriptorSets(m_renderDevice.logicalDevice, &allocInfo, m_descriptorSets.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
-
-	// Update the descriptor set bindings for each swap chain image
-	for (size_t i = 0; i < m_swapChainImages.size(); i++) {
-
-		// VIEW PROJECTION UNIFORM BUFFER
-		VkDescriptorBufferInfo vpBufferInfo = {};
-		vpBufferInfo.buffer = m_uniformBuffers[i]->getUniformBuffer();
-		vpBufferInfo.offset = 0;
-		vpBufferInfo.range = m_uniformBuffers[i]->getBufferSize();
-
-		VkWriteDescriptorSet vpDescriptorWrite = {};
-		vpDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		vpDescriptorWrite.dstSet = m_descriptorSets[i];
-		vpDescriptorWrite.dstBinding = 0;
-		vpDescriptorWrite.dstArrayElement = 0;
-		vpDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		vpDescriptorWrite.descriptorCount = 1;
-		vpDescriptorWrite.pBufferInfo = &vpBufferInfo;
-
-
-		// MODEL UNIFORM BUFFER (DYNAMIC)
-		//VkDescriptorBufferInfo modelBufferInfo = {};
-		//modelBufferInfo.buffer = m_dynamicUniformBuffers[i]->getUniformBuffer();
-		//modelBufferInfo.offset = 0; // Offset will be dynamic
-		//modelBufferInfo.range = m_modelUniformAlignment; // Size of one model not the whole buffer :D
-
-		//VkWriteDescriptorSet modelDescriptorWrite = {};
-		//modelDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		//modelDescriptorWrite.dstSet = m_descriptorSets[i];
-		//modelDescriptorWrite.dstBinding = 1;
-		//modelDescriptorWrite.dstArrayElement = 0;
-		//modelDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-		//modelDescriptorWrite.descriptorCount = 1;
-		//modelDescriptorWrite.pBufferInfo = &modelBufferInfo;
-
-		std::array<VkWriteDescriptorSet, 1> descriptorWrites = { vpDescriptorWrite };
-
-		vkUpdateDescriptorSets(m_renderDevice.logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 }
 
@@ -763,24 +685,6 @@ void Renderer::createRendererPrimitives()
 	quadPrimitive.indexBufferIndex = quadIndexBuffer;
 
 	m_rendererPrimitives[PrimitiveType::PRIMITVE_TYPE_QUAD] = quadPrimitive;
-}
-
-void Renderer::updateUniformBuffer(uint32_t currentImage)
-{
-	// Copy the view projection data to the uniform buffer
-	void* data;
-	vkMapMemory(m_renderDevice.logicalDevice, m_uniformBuffers[currentImage]->getUniformBufferMemory(), 0, m_uniformBuffers[currentImage]->getBufferSize(), 0, &data);
-	memcpy(data, &m_uboViewProjection, sizeof(UboViewProjection));
-	vkUnmapMemory(m_renderDevice.logicalDevice, m_uniformBuffers[currentImage]->getUniformBufferMemory());
-
-	// Copy the model data to the dynamic uniform buffer
-	//for (size_t i = 0; i < m_meshes.size(); i++) {
-	//	Model* thisModel = (Model*)((uint64_t)m_modelTransferSpace + (i * m_modelUniformAlignment));
-	//	*thisModel = m_meshes[i]->getModel();
-	//}
-	//vkMapMemory(m_renderDevice.logicalDevice, m_dynamicUniformBuffers[currentImage]->getUniformBufferMemory(), 0, m_modelUniformAlignment * m_meshes.size(), 0, &data);
-	//memcpy(data, m_modelTransferSpace, m_modelUniformAlignment * m_meshes.size());
-	//vkUnmapMemory(m_renderDevice.logicalDevice, m_dynamicUniformBuffers[currentImage]->getUniformBufferMemory());
 }
 
 void Renderer::recordCommands(uint32_t currentImage)
@@ -1230,16 +1134,9 @@ int Renderer::init(GLFWwindow* window)
 		createCommandPool();
 		createCommandBuffers();
 		createSampler();
-		createUniformBuffers();
 		createDescriptorPool();
-		createDescriptorSets();
 		createSyncObjects();
 		createRendererPrimitives();
-
-
-		m_uboViewProjection.projection = glm::perspective(glm::radians(45.0f), m_swapChainExtent.width / (float)m_swapChainExtent.height, 0.1f, 10.0f);
-		m_uboViewProjection.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		m_uboViewProjection.projection[1][1] *= -1;
 
 		for (auto callback : m_initCallbacks) {
 			callback(this);
@@ -1251,11 +1148,6 @@ int Renderer::init(GLFWwindow* window)
 	}
 
     return 0;
-}
-
-void Renderer::setViewProjection(const UboViewProjection& vp)
-{
-	m_uboViewProjection = vp;
 }
 
 void Renderer::disposeImageTexture(int imageTexture)
@@ -1377,13 +1269,6 @@ VkQueue Renderer::getGraphicsQueue()
 	return m_graphicsQueue;
 }
 
-VkDescriptorSet Renderer::getDescriptorSet(int index)
-{
-	if (index >= 0 && index < m_descriptorSets.size()) {
-		return m_descriptorSets[index];
-	}
-}
-
 VkDescriptorSet Renderer::getSamplerDescriptorSet(int index)
 {
 	if (index >= 0 && index < m_samplerDescriptorSets.size()) {
@@ -1465,12 +1350,12 @@ Font* Renderer::getFont(int index)
 	throw std::runtime_error("failed to get font: invalid font index!");
 }
 
-int Renderer::getCurrentCameraIndex()
+int Renderer::getActiveCamera()
 {
-	if (m_currentCamera < 0) {
+	if (m_activeCamera < 0) {
 		throw std::runtime_error("failed to get current camera index: no camera is currently set!");
 	}
-	return m_currentCamera;
+	return m_activeCamera;
 }
 
 int Renderer::createIndexBuffer(std::vector<uint32_t>* indices)
@@ -1502,7 +1387,7 @@ int Renderer::createCamera()
 		throw std::runtime_error("failed to create camera: maximum number of cameras reached!");
 	}
 
-	CameraRessources camera;
+	CameraResources camera;
 	camera.uniformBuffers.resize(m_commandBuffers.size());
 	camera.descriptorSets.resize(m_commandBuffers.size());
 
@@ -1588,7 +1473,6 @@ void Renderer::draw()
 
 	// Record command buffer for this image
 	recordCommands(imageIndex);
-	updateUniformBuffer(imageIndex);
 
 	// Step 2: Submit the command buffer from the image to the graphics queue
 	VkSubmitInfo submitInfo = {};
@@ -1725,12 +1609,12 @@ void Renderer::bindPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout
 	vkCmdPushConstants(commandBuffer, pipelineLayout, stageFlags, offset, size, pValues);
 }
 
-void Renderer::bindCamera(int cameraIndex, VkCommandBuffer commandBuffer, uint32_t frame)
+void Renderer::setActiveCamera(int cameraIndex)
 {
 	if (cameraIndex < 0 || cameraIndex >= m_cameraResources.size()) {
 		throw std::runtime_error("failed to bind camera: invalid camera index!");
 	}
-	m_currentCamera = cameraIndex;
+	m_activeCamera = cameraIndex;
 }
 
 void Renderer::beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, glm::vec4 clearColor, int renderPassIndex)
@@ -1756,11 +1640,6 @@ void Renderer::beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer fra
 void Renderer::endRenderPass(VkCommandBuffer commandBuffer)
 {
 	vkCmdEndRenderPass(commandBuffer);
-}
-
-void Renderer::updateViewProjectionBuffer(int frame)
-{
-	updateUniformBuffer(frame);
 }
 
 void Renderer::updateCamera(int cameraIndex, uint32_t frame, const UboViewProjection& vp)
@@ -1820,7 +1699,7 @@ void Renderer::drawMesh(Mesh* mesh, Material* material, UboModel model, int fram
 
 void Renderer::drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame)
 {
-	if (m_currentCamera < 0)
+	if (m_activeCamera < 0)
 	{
 		throw std::runtime_error("No camera bound for skybox rendering!");
 	}
@@ -1835,7 +1714,7 @@ void Renderer::drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex,
 	uint32_t indexCount = static_cast<uint32_t>(indexBuffer->getIndexCount());
 
 	std::array<VkDescriptorSet, 2> descriptorSets = {
-		this->getCameraDescriptorSet(m_currentCamera, frame),
+		this->getCameraDescriptorSet(m_activeCamera, frame),
 		this->getCubemapDescriptorSet(cubemapBuffer->descriptorIndex)
 	};
 
@@ -1877,13 +1756,13 @@ void Renderer::drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer 
 
 void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size)
 {
-	if (m_currentCamera < 0)
+	if (m_activeCamera < 0)
 	{
 		throw std::runtime_error("No camera bound for texture rendering!");
 	}
 
 	// Get the required buffers and descriptors
-	auto descriptorSet = this->getDescriptorSet(frame);
+	auto descriptorSet = this->getCameraDescriptorSet(m_activeCamera, frame);
 	auto imageBuffer = this->getImageBuffer(textureBufferIndex);
 	auto imageDescriptorSet = this->getSamplerDescriptorSet(imageBuffer->descriptorIndex);
 
@@ -1899,7 +1778,7 @@ void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer
 
 	// Bind the pipeline, descriptor sets and draw the font quad
 	std::vector<VkDescriptorSet> descriptorSets = {
-		this->getCameraDescriptorSet(m_currentCamera, frame),
+		this->getCameraDescriptorSet(m_activeCamera, frame),
 		imageDescriptorSet
 	};
 	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
@@ -1910,7 +1789,7 @@ void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer
 
 void Renderer::drawString(const std::string& text, int fontIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale)
 {
-	if (m_currentCamera < 0)
+	if (m_activeCamera < 0)
 	{
 		throw std::runtime_error("No camera bound for font rendering!");
 	}
@@ -1970,7 +1849,7 @@ void Renderer::drawString(const std::string& text, int fontIndex, VkCommandBuffe
 
 	auto imageBuffer = getImageBuffer(font->getTextureBufferIndex());
 	std::vector<VkDescriptorSet> descriptorSets = {
-		this->getCameraDescriptorSet(m_currentCamera, frame),
+		this->getCameraDescriptorSet(m_activeCamera, frame),
 		this->getSamplerDescriptorSet(imageBuffer->descriptorIndex)
 	};
 	this->bindDescriptorSets(descriptorSets, frame);
@@ -2024,20 +1903,6 @@ void Renderer::dispose()
 		}
 	}
 	m_cameraResources.clear();
-
-	// Free uniform buffers
-	for (auto uniformBuffer : m_uniformBuffers) {
-		uniformBuffer->dispose(m_renderDevice.logicalDevice);
-		delete uniformBuffer;
-	}
-	m_uniformBuffers.clear();
-
-	// Free dynamic uniform buffers
-	for (auto dynamicUniformBuffer : m_dynamicUniformBuffers) {
-		dynamicUniformBuffer->dispose(m_renderDevice.logicalDevice);
-		delete dynamicUniformBuffer;
-	}
-	m_dynamicUniformBuffers.clear();
 
 	// Free vertex buffers
 	for (auto& vertexBuffer : m_vertexBuffers) {

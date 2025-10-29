@@ -105,7 +105,7 @@ void Model::init(Renderer* renderer)
 /// <param name="currentFrame"></param>
 void Model::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
-	auto currentCamera = renderer->getCurrentCameraIndex();
+	auto currentCamera = renderer->getActiveCamera();
 	VkDescriptorSet descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);	 // Get the descriptor set for the current camera
 	renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D)); // Bind the 3D graphics pipeline
 

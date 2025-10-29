@@ -147,7 +147,7 @@ VertexBuffer::~VertexBuffer()
 
 void VertexBuffer::updateBuffer(VkPhysicalDevice physicalDevice, VkDevice device, std::vector<Vertex>* vertices)
 {
-	std::cout << "[VERTEX BUFFER] Updating dynamic vertex buffer with " << vertices->size() << " vertices." << std::endl;
+	//std::cout << "[VERTEX BUFFER] Updating dynamic vertex buffer with " << vertices->size() << " vertices." << std::endl;
 	// Check if the buffer type is dynamic
 	if (this->type != VertexBufferType::VERTEX_BUFFER_TYPE_DYNAMIC) {
 		throw std::runtime_error("Only dynamic vertex buffers can be updated. Try changing the buffer type to VERTEX_BUFFER_TYPE_DYNAMIC.");

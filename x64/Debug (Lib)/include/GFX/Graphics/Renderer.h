@@ -49,7 +49,7 @@ struct PrimitiveBuffer {
 	int indexBufferIndex;
 };
 
-struct CameraRessources {
+struct CameraResources {
 	std::vector<std::unique_ptr<UniformBuffer>> uniformBuffers;
 	std::vector<VkDescriptorSet> descriptorSets;
 };
@@ -89,9 +89,6 @@ private:
 	GLFWwindow* m_window;
 	int m_currentFrame = 0;
 
-	// CURRENT VIEW PROJECTION
-	UboViewProjection m_uboViewProjection;
-
 	// CORE VULKAN STUFF
 	VkInstance m_instance;
 	RenderDevice m_renderDevice;
@@ -104,8 +101,8 @@ private:
 	// RENDERER PRIMIVES
 	std::map<PrimitiveType, PrimitiveBuffer> m_rendererPrimitives;
 
-	std::vector<CameraRessources> m_cameraResources;
-	int m_currentCamera = -1;
+	std::vector<CameraResources> m_cameraResources;
+	int m_activeCamera = -1;
 
 	// RENDER TARGETS
 	std::vector<std::unique_ptr<RenderTarget>> m_renderTargets;
@@ -140,11 +137,9 @@ private:
 	VkImageView m_depthBufferImageView;
 
 	// UNIFORM BUFFERS & DESCRIPTORS
-	std::vector<UniformBuffer*> m_uniformBuffers;
-	std::vector<UniformBuffer*> m_dynamicUniformBuffers;
+	//std::vector<UniformBuffer*> m_uniformBuffers;
 	VkDescriptorPool m_descriptorPool;
 	VkDescriptorSetLayout m_descriptorSetLayout;
-	std::vector<VkDescriptorSet> m_descriptorSets;
 
 	// TEXTURE STUFF
 	std::vector<std::unique_ptr<ImageBuffer>> m_imageBuffers;
@@ -189,13 +184,9 @@ private:
 	void createCommandPool();
 	void createCommandBuffers();
 	void createSyncObjects();
-	void createUniformBuffers();
 	void createDescriptorPool();
-	void createDescriptorSets();
 	void createSampler();
 	void createRendererPrimitives();
-
-	void updateUniformBuffer(uint32_t currentImage);
 
 	// Record
 	void recordCommands(uint32_t currentImage);
@@ -232,7 +223,6 @@ public:
 	void dispose();
 
 	// Setters
-	void setViewProjection(const UboViewProjection& vp);
 	void disposeImageTexture(int imageTexture);
 
 	// Callbacks
@@ -243,8 +233,7 @@ public:
 
 	// Getters
 	VkDevice getDevice();
-	VkQueue getGraphicsQueue();
-	VkDescriptorSet getDescriptorSet(int index);
+	VkQueue getGraphicsQueue();		
 	VkDescriptorSet getSamplerDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSetFromImageBuffer(int imageBufferIndex);
 	VkDescriptorSet getCubemapDescriptorSet(int index);
@@ -255,7 +244,7 @@ public:
 	VkFramebuffer getSwapchainFramebuffer(int index);
 	RenderTarget* getRenderTarget(int index);
 	Font* getFont(int index);
-	int getCurrentCameraIndex();
+	int getActiveCamera();
 	
 	// Create buffer functions
 	int createVertexBuffer(std::vector<Vertex>* vertices, const VertexBufferType vertexBufferType = VertexBufferType::VERTEX_BUFFER_TYPE_STATIC);
@@ -286,7 +275,7 @@ public:
 	// Bind functions
 	void bindDescriptorSets(std::vector<VkDescriptorSet> descriptorSets, int frame);
 	void bindPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* pValues);
-	void bindCamera(int cameraIndex, VkCommandBuffer commandBuffer, uint32_t frame);
+	void setActiveCamera(int cameraIndex);
 
 
 	// Beginn / End functions
@@ -296,7 +285,6 @@ public:
 	void endRenderPass(VkCommandBuffer commandBuffer);
 
 	// Update functions
-	void updateViewProjectionBuffer(int frame);
 	void updateCamera(int cameraIndex, uint32_t frame, const UboViewProjection& vp);
 
 

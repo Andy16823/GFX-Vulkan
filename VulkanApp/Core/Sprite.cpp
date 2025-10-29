@@ -26,7 +26,7 @@ void Sprite::init(Renderer* renderer)
 
 void Sprite::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
-	int currentCamera = renderer->getCurrentCameraIndex();
+	int currentCamera = renderer->getActiveCamera();
 	auto modelMatrix = this->getModelMatrix();
 	auto descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);
 	auto imageDescriptorSet = renderer->getSamplerDescriptorSetFromImageBuffer(m_textureImage->bufferIndex);
