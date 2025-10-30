@@ -1793,7 +1793,7 @@ void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer
 	this->drawBuffers(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
 }
 
-void Renderer::drawText(const std::string& text, const int fontIndex, const int vertexBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, int textalignment)
+void Renderer::drawText(const std::string& text, const int fontIndex, const int vertexBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, float lineSpacing, int textalignment)
 {
 	if (m_activeCamera < 0)
 	{
@@ -1811,21 +1811,30 @@ void Renderer::drawText(const std::string& text, const int fontIndex, const int 
 	float currentX = position.x;
 	float currentY = position.y;
 
-	auto textmessure = measureText(text, font, scale);
-	if (TextAlignment::ALIGNMENT_BOTTOM & textalignment) {
-		currentY -= textmessure.y;
+	auto textmessure = measureText(text, font, scale, lineSpacing);
+	if (TextAlignment::ALIGNMENT_TOP & textalignment) {
+		currentY -= textmessure.height;
 	}
 	if (TextAlignment::ALIGNMENT_MIDDLE & textalignment) {
-		currentY -= textmessure.y / 2.0f;
+		currentY -= textmessure.height / 2.0f;
 	}
 	if (TextAlignment::ALIGNMENT_CENTER & textalignment) {
-		currentX -= textmessure.x / 2.0f;
+		currentX -= textmessure.width / 2.0f;
 	}
 	if (TextAlignment::ALIGNMENT_RIGHT & textalignment) {
-		currentX -= textmessure.x;
+		currentX -= textmessure.width;
 	}
 
+	float startX = currentX;
+	float lineHeight = textmessure.lineHeight;
+
 	for (char c : text) {
+		if (c == '\n') {
+			currentX = startX;
+			currentY += lineHeight * lineSpacing;
+			continue;
+		}
+
 		if (fontAtlas.characters.find(c) == fontAtlas.characters.end()) continue;
 		const Character& ch = fontAtlas.characters.at(c);
 

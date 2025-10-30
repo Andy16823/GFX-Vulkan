@@ -91,23 +91,57 @@ struct UboViewProjection {
 	glm::mat4 view;
 };
 
-static glm::vec2 measureText(const std::string& text, Font* font, float scale) {
-	float width = 0.0f;
-	float height = 0.0f;
+struct TextMeasurement {
+	float width;
+	float height;
+	float lineHeight;
+	int lines;
+};
+
+static TextMeasurement measureText(const std::string& text, Font* font, float scale, float lineSpacing) {
+
+	TextMeasurement result;
+	result.width = 0.0f;
+	result.height = 0.0f;
+	result.lineHeight = 0.0f;
+	result.lines = 1;
+
+	if (text.empty()) {
+		result.lines = 0;
+		return result;
+	}
+
+	float currentWidth = 0.0f;
 	const FontAtlas& atlas = font->getFontAtlas();
 
 	for (char c : text) {
-		if (atlas.characters.find(c) == atlas.characters.end()) continue;
-
-		const Character& ch = atlas.characters.at(c);
-		width += ch.advance * scale;
-
-		float h = ch.height * scale;
-		if (h > height) {
-			height = h;
+		if (c == '\n') {
+			if (currentWidth > result.width) {
+				result.width = currentWidth;
+			}
+			currentWidth = 0.0f;
+			result.lines++;
+		}
+		else {
+			if (atlas.characters.find(c) == atlas.characters.end()) continue;
+			const Character& ch = atlas.characters.at(c);
+			currentWidth += ch.advance * scale;
+			float h = ch.height * scale;
+			if (h > result.lineHeight) {
+				result.lineHeight = h;
+			}
 		}
 	}
-	return glm::vec2(width, height);
+
+	if (currentWidth > result.width) {
+		result.width = currentWidth;
+	}
+
+	result.height = result.lineHeight * result.lines;
+	if (result.lines > 1) {
+		result.height += result.lineHeight * (lineSpacing - 1.0f) * (result.lines - 1);
+	}
+	return result;
 }
 
 static std::vector<char> readFile(const std::string& filename) 
