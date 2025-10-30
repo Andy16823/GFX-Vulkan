@@ -556,7 +556,8 @@ void Renderer::createSyncObjects()
 void Renderer::createDescriptorPool()
 {
 	// Calculate number of uniform buffers needed
-	auto numCameras = static_cast<uint32_t>(MAX_CAMERAS);
+	auto numSwapChainImages = static_cast<uint32_t>(m_swapChainImages.size());
+	auto numCameras = static_cast<uint32_t>(MAX_CAMERAS) * numSwapChainImages;
 
 	// CREATE UNIFORM DESCRIPTOR POOL
 	VkDescriptorPoolSize vpPoolSize = {};
@@ -1790,7 +1791,7 @@ void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer
 	this->drawBuffers(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
 }
 
-void Renderer::drawString(const std::string& text, int fontIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale)
+void Renderer::drawText(const std::string& text, int fontIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, int textalignment)
 {
 	if (m_activeCamera < 0)
 	{
@@ -1807,6 +1808,20 @@ void Renderer::drawString(const std::string& text, int fontIndex, VkCommandBuffe
 
 	float currentX = position.x;
 	float currentY = position.y;
+
+	auto textmessure = measureText(text, font, scale);
+	if (TextAlignment::ALIGNMENT_BOTTOM & textalignment) {
+		currentY -= textmessure.y;
+	}
+	if (TextAlignment::ALIGNMENT_MIDDLE & textalignment) {
+		currentY -= textmessure.y / 2.0f;
+	}
+	if (TextAlignment::ALIGNMENT_CENTER & textalignment) {
+		currentX -= textmessure.x / 2.0f;
+	}
+	if (TextAlignment::ALIGNMENT_RIGHT & textalignment) {
+		currentX -= textmessure.x;
+	}
 
 	for (char c : text) {
 		if (fontAtlas.characters.find(c) == fontAtlas.characters.end()) continue;

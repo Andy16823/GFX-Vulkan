@@ -31,7 +31,7 @@
 /// </summary>
 const int MAX_OBJECTS = 1000;
 const int DEFAULT_DYNAMIC_BUFFER_SIZE = 1200;
-const int MAX_CAMERAS = 40;
+const int MAX_CAMERAS = 256;
 
 /// <summary>
 /// Render device structure
@@ -49,6 +49,9 @@ struct PrimitiveBuffer {
 	int indexBufferIndex;
 };
 
+/// <summary>
+/// Camera resources for multiple cameras
+/// </summary>
 struct CameraResources {
 	std::vector<std::unique_ptr<UniformBuffer>> uniformBuffers;
 	std::vector<VkDescriptorSet> descriptorSets;
@@ -75,6 +78,18 @@ inline const char* ToString(PipelineType type) {
 	default: return "unknown";
 	}
 }
+
+/// <summary>
+/// Text alignment options
+/// </summary>
+enum TextAlignment {
+	ALIGNMENT_LEFT = 1,
+	ALIGNMENT_CENTER = 2,
+	ALIGNMENT_RIGHT = 4,
+	ALIGNMENT_TOP = 8,
+	ALIGNMENT_MIDDLE = 16,
+	ALIGNMENT_BOTTOM = 32
+};
 
 /// <summary>
 /// Primitive types
@@ -290,12 +305,11 @@ public:
 
 	// Draw functions
 	void drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer);
-	void drawMesh(Mesh* mesh, int bufferIndex, UboModel model, int frame);
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
 	void drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame);
 	void drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size);
-	void drawString(const std::string& text, int fontIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale);
+	void drawText(const std::string& text, int fontIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, int textalignment = TextAlignment::ALIGNMENT_CENTER | TextAlignment::ALIGNMENT_MIDDLE);
 
 	~Renderer();
 };

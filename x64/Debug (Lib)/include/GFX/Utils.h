@@ -10,6 +10,7 @@
 #include <chrono>
 #include <random>
 #include <array>
+#include "Graphics/Font.h"
 
 /// <summary>
 /// Required device extensions
@@ -89,6 +90,25 @@ struct UboViewProjection {
 	glm::mat4 projection;
 	glm::mat4 view;
 };
+
+static glm::vec2 measureText(const std::string& text, Font* font, float scale) {
+	float width = 0.0f;
+	float height = 0.0f;
+	const FontAtlas& atlas = font->getFontAtlas();
+
+	for (char c : text) {
+		if (atlas.characters.find(c) == atlas.characters.end()) continue;
+
+		const Character& ch = atlas.characters.at(c);
+		width += ch.advance * scale;
+
+		float h = ch.height * scale;
+		if (h > height) {
+			height = h;
+		}
+	}
+	return glm::vec2(width, height);
+}
 
 static std::vector<char> readFile(const std::string& filename) 
 {

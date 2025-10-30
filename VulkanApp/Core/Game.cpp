@@ -2,9 +2,14 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include "GFX.h"
+#include <thread>
+#include <chrono>
 
-void Game::run(const std::string name, const glm::i32vec2 windowSize)
+void Game::run(const std::string name, const glm::i32vec2 windowSize, const int targetFPS, const bool useFpsLimit)
 {
+	m_targetFPS = targetFPS;
+	m_enableFPSLimit = useFpsLimit;
+
 	if (!glfwInit()) {
 		throw std::runtime_error("Failed to initialize GLFW!");
 	}
@@ -39,8 +44,11 @@ void Game::run(const std::string name, const glm::i32vec2 windowSize)
 		throw std::runtime_error("Failed to initialize renderer!");
 	}
 
+	const double targetFrameTime = 1.0 / static_cast<double>(m_targetFPS);
+
 	// Main loop
 	while (!glfwWindowShouldClose(this->window)) {
+		auto frameStart = std::chrono::high_resolution_clock::now();
 		glfwPollEvents();
 
 		// Get the frame time and update the game
@@ -50,6 +58,15 @@ void Game::run(const std::string name, const glm::i32vec2 windowSize)
 
 		this->update(deltaTime);
 		m_renderer->draw();
+
+		if (m_enableFPSLimit) {
+			auto frameEnd = std::chrono::high_resolution_clock::now();
+			std::chrono::duration<double> elapsed = frameEnd - frameStart;
+			double sleepTime = targetFrameTime - elapsed.count();
+			if (sleepTime > 0.0) {
+				std::this_thread::sleep_for(std::chrono::duration<double>(sleepTime));
+			}
+		}
 	}
 
 	// Dispose the renderer

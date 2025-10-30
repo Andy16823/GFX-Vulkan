@@ -6,6 +6,27 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4244:         ]
   (Quelldatei „Core/Game.cpp“ wird kompiliert)
   
+  Renderer.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4244:         with
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4244:         [
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4244:             _Rep=__int64
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4244:         ]
+  (Quelldatei „Graphics/Renderer.cpp“ wird kompiliert)
+  
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(533,46): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(876,48): warning C4267: "Argument": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(878,33): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1061,40): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1101,40): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1168,32): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1185,31): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1202,27): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1234,31): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1369,31): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1385,32): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1433,18): warning C4267: "Initialisierung": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1459,30): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
   VulkanApp.vcxproj -> C:\Users\andy1\Documents\GitHub\GFX-Vulkan\x64\Release (Lib)\VulkanApp.lib
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\compile.bat
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\frag.spv

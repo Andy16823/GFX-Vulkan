@@ -19,6 +19,17 @@ private:
 	/// Last frame time in milliseconds.
 	/// </summary>
 	double m_lastFrameTime = 0.0;
+
+	/// <summary>
+	/// The target frames per second (FPS) for the game.
+	/// </summary>
+	int m_targetFPS = 144;
+
+	/// <summary>
+	/// Determines whether to enable FPS limiting.
+	/// </summary>
+	bool m_enableFPSLimit = true;
+
 public:
 	/// <summary>
 	/// GLFW window handle for the game.
@@ -33,7 +44,7 @@ public:
 	/// </summary>
 	/// <param name="name"></param>
 	/// <param name="windowSize"></param>
-	void run(const std::string name, const glm::i32vec2 windowSize);
+	void run(const std::string name, const glm::i32vec2 windowSize, const int targetFPS = 144, const bool useFpsLimit = true);
 
 	/// <summary>
 	/// Stops the game by signaling the window to close.
