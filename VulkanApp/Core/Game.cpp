@@ -44,12 +44,12 @@ void Game::run(const std::string name, const glm::i32vec2 windowSize)
 		glfwPollEvents();
 
 		// Get the frame time and update the game
-		float frametime = glfwGetTime() * 1000; // Convert to milliseconds
-		this->update(frametime);
-		m_renderer->draw();
+		double currentTime = glfwGetTime();
+		float deltaTime = static_cast<float>(currentTime - m_lastFrameTime);
+		m_lastFrameTime = currentTime;
 
-		// Reset the timer
-		glfwSetTime(0.0);
+		this->update(deltaTime);
+		m_renderer->draw();
 	}
 
 	// Dispose the renderer

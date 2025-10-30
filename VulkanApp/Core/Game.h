@@ -14,6 +14,11 @@ private:
 	/// Renderer instance responsible for graphics rendering.
 	/// </summary>
 	std::unique_ptr<Renderer> m_renderer;
+
+	/// <summary>
+	/// Last frame time in milliseconds.
+	/// </summary>
+	double m_lastFrameTime = 0.0;
 public:
 	/// <summary>
 	/// GLFW window handle for the game.
