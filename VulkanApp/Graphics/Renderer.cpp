@@ -3,6 +3,7 @@
 
 void Renderer::createValidationLayers()
 {
+	std::cout << "[GFX]: Setting up validation layers..." << std::endl;
 	m_validationLayers.push_back("VK_LAYER_KHRONOS_validation");
 	m_enableValidationLayers = true;
 }
@@ -1120,7 +1121,9 @@ int Renderer::init(GLFWwindow* window)
 	m_window = window;
 	try {
 		// Create validation layers for the instance
+#ifndef NDEBUG
 		createValidationLayers();
+#endif 
 		createInstance();
 		createSurface();
 		getPhysicalDevice();

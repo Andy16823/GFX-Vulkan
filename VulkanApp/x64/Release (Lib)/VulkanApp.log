@@ -1,40 +1,88 @@
-﻿  Buffer.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Buffer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
-  (Quelldatei „Buffer.cpp“ wird kompiliert)
+﻿  Renderer.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4244:         with
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4244:         [
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4244:             _Rep=__int64
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(503,11): warning C4244:         ]
+  (Quelldatei „Graphics/Renderer.cpp“ wird kompiliert)
   
-  Entity.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
-  (Quelldatei „Entity.cpp“ wird kompiliert)
-  
-  ImageTexture.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Buffer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
-  (Quelldatei „ImageTexture.cpp“ wird kompiliert)
-  
-  IndexBuffer.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Buffer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
-  (Quelldatei „IndexBuffer.cpp“ wird kompiliert)
-  
-  main.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
-  (Quelldatei „main.cpp“ wird kompiliert)
-  
-  Mesh.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Mesh.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
-  (Quelldatei „Mesh.cpp“ wird kompiliert)
-  
-  Sprite.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
-  (Quelldatei „Sprite.cpp“ wird kompiliert)
-  
-  UniformBuffer.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Buffer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
-  (Quelldatei „UniformBuffer.cpp“ wird kompiliert)
-  
-  VertexBuffer.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Buffer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
-  (Quelldatei „VertexBuffer.cpp“ wird kompiliert)
-  
-  Renderer.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Renderer.h(3,10): error C1083: Datei (Include) kann nicht geöffnet werden: "GLFW/glfw3.h": No such file or directory
-  (Quelldatei „Renderer.cpp“ wird kompiliert)
-  
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(533,46): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(875,48): warning C4267: "Argument": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(877,33): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1060,40): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1100,40): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1167,32): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1184,31): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1201,27): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1233,31): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1368,31): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1384,32): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1432,18): warning C4267: "Initialisierung": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1458,30): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
+  VulkanApp.vcxproj -> C:\Users\andy1\Documents\GitHub\GFX-Vulkan\x64\Release (Lib)\VulkanApp.lib
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\compile.bat
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\frag.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\frag_2d.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\fullscreen.frag
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\fullscreen.vert
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\fullscreen_frag.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\fullscreen_vert.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader.frag
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader.vert
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_2d.frag
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_2d.vert
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\skybox.frag
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\skybox.vert
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\skybox_frag.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\skybox_vert.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\text.frag
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\text.vert
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\text_frag.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\text_vert.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\triangle.frag
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\triangle.vert
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\triangle_frag.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\triangle_vert.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\vert.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\vert_2d.spv
+  25 Datei(en) kopiert
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\stb_image.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Components\RotationBehavior.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Component.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Entity.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Game.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\GFX.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Input.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Model.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Scene.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Skybox.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Sprite.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Buffer.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Camera.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Camera2D.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Camera3D.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Cubemap.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\CubemapBuffer.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\DefaultRenderPass.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Font.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\FontAtlas.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\ImageBuffer.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\ImageTexture.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\IndexBuffer.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Material.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Mesh.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\OffscreenRenderPass.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Pipeline.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\PipelineManager.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\RenderPass.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\RenderPassManager.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\RenderTarget.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\UniformBuffer.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\UnlitMaterial.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Math\Transform.h
+  37 Datei(en) kopiert
+  Datei *.hpp nicht gefunden
+  0 Datei(en) kopiert

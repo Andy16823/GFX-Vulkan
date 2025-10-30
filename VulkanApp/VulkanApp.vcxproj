@@ -250,6 +250,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\Users\andy1\source\externals\glfw\include;C:\Users\andy1\source\externals\glm;C:\VulkanSDK\1.4.328.0\Include;C:\Program Files\Assimp\include;C:\Users\andy1\source\externals\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -257,6 +258,18 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>:: Shader-, Header- und Include-Verzeichnisse bereinigen
+rmdir /S /Q "$(OutDir)shaders"
+rmdir /S /Q "$(OutDir)include\GFX"
+
+:: Shader kopieren ins Build-Verzeichnis
+xcopy /E /Y /I "$(ProjectDir)shaders" "$(OutDir)shaders"
+
+:: Header-Dateien kopieren
+xcopy /S /Y /I "$(ProjectDir)*.h" "$(OutDir)include\GFX"
+xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\Font.cpp" />
