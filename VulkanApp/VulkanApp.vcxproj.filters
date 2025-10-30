@@ -51,9 +51,6 @@
     <ClCompile Include="Graphics\Camera3D.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Component.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="Components\RotationBehavior.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -120,6 +117,9 @@
     <ClCompile Include="Graphics\Font.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Math\RayCast.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -161,7 +161,7 @@
     <ClInclude Include="Graphics\Camera3D.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Component.h">
+    <ClInclude Include="Core\Behavior.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Components\RotationBehavior.h">
@@ -231,6 +231,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Font.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\RayCast.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

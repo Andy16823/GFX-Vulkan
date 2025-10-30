@@ -1,7 +1,7 @@
 #pragma once
-#include "../Core/Component.h"
+#include "../Core/Behavior.h"
 
-class RotationBehavior : public Component
+class RotationBehavior : public Behavior
 {
 public:
 	void init(Renderer* renderer) override {}

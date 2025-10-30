@@ -44,8 +44,3 @@ void Scene::destroy(Renderer* renderer)
 		entity->destroy(renderer);
 	}
 }
-
-void Scene::addEntity(std::unique_ptr<Entity> entity)
-{
-	m_entities.push_back(std::move(entity));
-}

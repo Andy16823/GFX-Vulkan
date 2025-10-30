@@ -87,6 +87,11 @@ Model::Model(std::string name, std::string file) : Entity(name)
 	}
 }
 
+void Model::update(float dt)
+{
+	Entity::update(dt);
+}
+
 /// <summary>
 /// Initialize all meshes in the model
 /// </summary>

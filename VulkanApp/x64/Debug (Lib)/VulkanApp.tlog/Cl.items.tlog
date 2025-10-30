@@ -8,7 +8,6 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\CubemapBuffer.cpp;
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Buffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Buffer.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Camera.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Camera.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Camera3D.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Camera3D.obj
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Component.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Component.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Entity.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Entity.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\GFX.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\GFX.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\ImageBuffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\ImageBuffer.obj
@@ -33,3 +32,4 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Math\Transform.cpp;C:\Users
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\RenderTarget.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\RenderTarget.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\OffscreenRenderPass.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\OffscreenRenderPass.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\RenderPassManager.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\RenderPassManager.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Math\RayCast.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\RayCast.obj

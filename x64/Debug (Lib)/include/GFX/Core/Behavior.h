@@ -4,11 +4,11 @@
 #include "../Graphics/Renderer.h"
 class Entity;
 
-class Component
+class Behavior
 {
 public:
 	Entity* parent = nullptr;
-	virtual ~Component() = default;
+	virtual ~Behavior() = default;
 
 	virtual void init(Renderer* renderer) = 0;
 	virtual void update(float dt) = 0;

@@ -15,7 +15,7 @@ public:
     Model(std::string name, std::string file);
 	~Model() = default;
 
-	void update(float dt) override {};
+	void update(float dt) override;;
 	void init(Renderer* renderer);
 	void render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame);
 	void destroy(Renderer* renderer);

@@ -5,7 +5,7 @@
 #include <glm/gtx/quaternion.hpp>  
 #include <glm/gtc/matrix_transform.hpp>  
 #include <glm/mat4x4.hpp>  
-#include "Component.h"
+#include "Behavior.h"
 #include <vector>  
 #include <type_traits>  
 #include "../Math/Transform.h"
@@ -13,7 +13,7 @@
 class Entity
 {
 private:
-	std::vector<std::unique_ptr<Component>> m_components;
+	std::vector<std::unique_ptr<Behavior>> m_behaviors;
 
 public:
 	Transform transform;
@@ -38,17 +38,14 @@ public:
 	virtual void init(Renderer* renderer) = 0;
 	virtual void render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame) = 0;
 	virtual void destroy(Renderer* renderer) = 0;
-
-	// Own components  
-	void addComponent(Component* component);
 	
 	template<typename T>
-	T* addComponent(std::unique_ptr<T> component)
+	T* addBehavior(std::unique_ptr<T> behavior)
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T must be a subclass of Component");
-		component->parent = this;
-		T* raw = component.get();
-		m_components.push_back(std::move(component));
+		static_assert(std::is_base_of<Behavior, T>::value, "T must be a subclass of Component");
+		behavior->parent = this;
+		T* raw = behavior.get();
+		m_behaviors.push_back(std::move(behavior));
 		return raw;
 	}
 
@@ -56,7 +53,7 @@ public:
 	template<typename T>
 	T* findComponent()
 	{
-		for (auto& component : m_components) {
+		for (auto& component : m_behaviors) {
 			if (auto casted = dynamic_cast<T*>(component.get())) {
 				return casted;
 			}

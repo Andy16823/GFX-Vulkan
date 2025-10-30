@@ -282,7 +282,6 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Graphics\Buffer.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\Camera3D.cpp" />
-    <ClCompile Include="Core\Component.cpp" />
     <ClCompile Include="Core\Entity.cpp" />
     <ClCompile Include="Core\GFX.cpp" />
     <ClCompile Include="Graphics\ImageBuffer.cpp" />
@@ -307,6 +306,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Graphics\RenderTarget.cpp" />
     <ClCompile Include="Graphics\OffscreenRenderPass.cpp" />
     <ClCompile Include="Graphics\RenderPassManager.cpp" />
+    <ClCompile Include="Math\RayCast.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Font.h" />
@@ -319,7 +319,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Graphics\Buffer.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Camera3D.h" />
-    <ClInclude Include="Core\Component.h" />
+    <ClInclude Include="Core\Behavior.h" />
     <ClInclude Include="Core\Entity.h" />
     <ClInclude Include="Core\GFX.h" />
     <ClInclude Include="Graphics\ImageBuffer.h" />
@@ -339,6 +339,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Graphics\OffscreenRenderPass.h" />
     <ClInclude Include="Graphics\RenderPassManager.h" />
     <ClInclude Include="Core\Input.h" />
+    <ClInclude Include="Math\RayCast.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
     <ClInclude Include="Graphics\UnlitMaterial.h" />

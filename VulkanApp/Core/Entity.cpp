@@ -50,7 +50,7 @@ UboModel Entity::getModelMatrix()
 
 void Entity::update(float dt)
 {
-	for (auto& component : m_components) {
+	for (auto& component : m_behaviors) {
 		component->update(dt);
 	}
 }

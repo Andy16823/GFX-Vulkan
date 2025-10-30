@@ -1168,6 +1168,12 @@ int Renderer::createVertexBuffer(std::vector<Vertex>* vertices, const VertexBuff
 	return m_vertexBuffers.size() - 1;
 }
 
+int Renderer::createVertexBuffer(const int size, const VertexBufferType vertexBufferType)
+{
+	std::vector<Vertex> vertices(size);
+	return this->createVertexBuffer(&vertices, vertexBufferType);
+}
+
 int Renderer::createImageBuffer(ImageTexture* imageTexture)
 {
 	auto imageBuffer = std::make_unique<ImageBuffer>(
@@ -1448,11 +1454,7 @@ int Renderer::loadFont(const std::string& fontPath, int fontSize)
 	int imageBufferIndex = createImageBuffer(fontAtlas);
 	std::cout << "[FONT]: Texture buffer created with index " << imageBufferIndex << std::endl;
 
-	std::vector<Vertex> emptyVertices;
-	int vertexBufferIndex = createVertexBuffer(&emptyVertices, VertexBufferType::VERTEX_BUFFER_TYPE_DYNAMIC); // Dynamic because we will update it with the quads for each character
-	std::cout << "[FONT]: Vertex buffer created with index " << vertexBufferIndex << std::endl;
-
-	auto font = std::make_unique<Font>(fontPath, fontSize, imageBufferIndex, vertexBufferIndex, fontAtlas);
+	auto font = std::make_unique<Font>(fontPath, fontSize, imageBufferIndex, fontAtlas);
 	m_loadedFonts.push_back(std::move(font));
 	std::cout << "[FONT]: Font loaded: " << fontPath << " with size " << fontSize << std::endl;
 
@@ -1791,7 +1793,7 @@ void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer
 	this->drawBuffers(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
 }
 
-void Renderer::drawText(const std::string& text, int fontIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, int textalignment)
+void Renderer::drawText(const std::string& text, const int fontIndex, const int vertexBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, int textalignment)
 {
 	if (m_activeCamera < 0)
 	{
@@ -1840,13 +1842,11 @@ void Renderer::drawText(const std::string& text, int fontIndex, VkCommandBuffer 
 		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glm::vec3 normal = glm::vec3(0.0f, 0.0f, 1.0f);
 
-		// UV coordinates
 		float u0 = ch.uvX;
 		float v0 = ch.uvY;
 		float u1 = ch.uvX + ch.uvWidth;
 		float v1 = ch.uvY + ch.uvHeight;
 
-		// ✅ V-Koordinaten flippen (vertauschen)
 		vertices.push_back({ {xpos, ypos + h, 0.0f}, color, {u0, v0}, normal });  // v1 -> v0
 		vertices.push_back({ {xpos, ypos, 0.0f}, color, {u0, v1}, normal });      // v0 -> v1
 		vertices.push_back({ {xpos + w, ypos, 0.0f}, color, {u1, v1}, normal });  // v0 -> v1
@@ -1860,7 +1860,7 @@ void Renderer::drawText(const std::string& text, int fontIndex, VkCommandBuffer 
 
 	if (vertices.empty()) return;
 
-	auto vertexBuffer = getVertexBuffer(font->getVertexBufferIndex());
+	auto vertexBuffer = getVertexBuffer(vertexBufferIndex);
 	vertexBuffer->updateBuffer(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, &vertices);
 
 	bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_FONT_RENDERING));

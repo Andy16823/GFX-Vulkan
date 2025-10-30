@@ -11,7 +11,7 @@
 #include "Graphics/Mesh.h"
 #include "Core/Sprite.h"
 #include "Graphics/Camera3D.h"
-#include "Core/Component.h"
+#include "Core/Behavior.h"
 #include "Components/RotationBehavior.h"
 #include "Core/Model.h"
 #include "Core/Scene.h"
@@ -38,11 +38,11 @@ int main() {
 	auto model = GFX::createModel("D:/3D Modele/GFX/Lion2/Lion.gltf", "Lion");
 	model->setPosition(glm::vec3(0.0f, -0.75f, -1.0f));
 	model->rotate(0.0f, 45.0f, 0.0f);
-	scene->addEntity(std::move(model));
+	scene->addEntity<Model>(std::move(model));
 
 	auto sprite = GFX::createSprite("C:/Users/andy1/Downloads/giraffe.jpg", "GiraffeSprite");
 	sprite->setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
-	scene2->addEntity(std::move(sprite));
+	scene2->addEntity<Sprite>(std::move(sprite));
 
 	auto camera = new Camera3D(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec2(800.0f, 600.0f));
 

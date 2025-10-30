@@ -68,4 +68,7 @@ public:
 	}
 	
 	void towards(glm::vec3 target);
+
+	static glm::vec3 worldToNDC(const glm::vec3& localCoords, glm::mat4 projection, glm::mat4 view);
+	static glm::vec3 ndcToWorld(const glm::vec3& ndcCoords, glm::mat4 projection, glm::mat4 view);
 };

@@ -263,6 +263,7 @@ public:
 	
 	// Create buffer functions
 	int createVertexBuffer(std::vector<Vertex>* vertices, const VertexBufferType vertexBufferType = VertexBufferType::VERTEX_BUFFER_TYPE_STATIC);
+	int createVertexBuffer(const int size, const VertexBufferType vertexBufferType = VertexBufferType::VERTEX_BUFFER_TYPE_DYNAMIC);
 	int createImageBuffer(ImageTexture* imageTexture);
 	int createImageBuffer(const FontAtlas& fontAtlas);
 	int createCubemapBuffer(CubemapFaceData faces);
@@ -309,7 +310,7 @@ public:
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
 	void drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame);
 	void drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size);
-	void drawText(const std::string& text, int fontIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, int textalignment = TextAlignment::ALIGNMENT_CENTER | TextAlignment::ALIGNMENT_MIDDLE);
+	void drawText(const std::string& text, const int fontIndex, const int vertexBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, int textalignment = TextAlignment::ALIGNMENT_CENTER | TextAlignment::ALIGNMENT_MIDDLE);
 
 	~Renderer();
 };

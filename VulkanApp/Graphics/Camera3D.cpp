@@ -1,4 +1,4 @@
-#include "Camera3D.h"
+﻿#include "Camera3D.h"
 
 Camera3D::Camera3D(glm::vec3 position, glm::vec2 aspectRatio, float fov, float nearPlane, float farPlane)
 	: Camera()
@@ -74,18 +74,9 @@ glm::vec3 Camera3D::unprojectPosition(const glm::vec3& screenpos, const glm::vec
 	auto view = getViewMatrix();
 	auto proj = getProjectionMatrix();
 
-	float x = (2.0f * screenpos.x) / viewport.x - 1.0f;
-	float y = 1.0f - (2.0f * screenpos.y) / viewport.y;
-	float z = screenpos.z * 2.0f - 1.0f;
-
-	glm::vec4 ndc = glm::vec4(x, y, z, 1.0f);
-	glm::mat4 invVP = glm::inverse(proj * view);
-	glm::vec4 worldPos = invVP * ndc;
-
-	if (worldPos.w != 0.0f) {
-		return glm::vec3(worldPos) / worldPos.w;
-	}
-	return glm::vec3();
+	// GLM's eingebaute unProject Funktion verwenden
+	glm::vec4 viewportVec = glm::vec4(0.0f, 0.0f, viewport.x, viewport.y);
+	return glm::unProject(screenpos, view, proj, viewportVec);
 }
 
 Camera3D::~Camera3D()

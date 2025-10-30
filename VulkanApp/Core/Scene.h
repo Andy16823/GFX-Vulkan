@@ -21,10 +21,18 @@ public:
 	Scene() = default;
 	~Scene() = default;
 
-	void addEntity(std::unique_ptr<Entity> entity);
-
 	bool hasSkybox() const {
 		return skybox != nullptr;
+	}
+
+	template<typename T>
+	T* addEntity(std::unique_ptr<Entity> entity) {
+		T* casted = dynamic_cast<T*>(entity.get());
+		if (casted == nullptr) {
+			throw std::runtime_error("Failed to add entity: entity is not of the correct type!");
+		}
+		m_entities.push_back(std::move(entity));
+		return casted;
 	}
 
 	template<typename T>
