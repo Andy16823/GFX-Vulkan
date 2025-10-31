@@ -1813,11 +1813,15 @@ void Renderer::drawText(const std::string& text, const int fontIndex, const int 
 
 	auto textmessure = measureText(text, font, scale, lineSpacing);
 	if (TextAlignment::ALIGNMENT_TOP & textalignment) {
-		currentY -= textmessure.height;
+		currentY -= textmessure.lineHeight;
 	}
-	if (TextAlignment::ALIGNMENT_MIDDLE & textalignment) {
-		currentY -= textmessure.height / 2.0f;
+	else if (TextAlignment::ALIGNMENT_MIDDLE & textalignment) {
+		currentY += (textmessure.height - textmessure.lineHeight) / 2.0f;
 	}
+	else if (TextAlignment::ALIGNMENT_BOTTOM & textalignment) {
+		currentY += textmessure.height - textmessure.lineHeight;
+	}
+
 	if (TextAlignment::ALIGNMENT_CENTER & textalignment) {
 		currentX -= textmessure.width / 2.0f;
 	}
@@ -1831,7 +1835,7 @@ void Renderer::drawText(const std::string& text, const int fontIndex, const int 
 	for (char c : text) {
 		if (c == '\n') {
 			currentX = startX;
-			currentY += lineHeight * lineSpacing;
+			currentY -= lineHeight * lineSpacing;
 			continue;
 		}
 

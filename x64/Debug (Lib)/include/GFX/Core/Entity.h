@@ -14,6 +14,7 @@ class Entity
 {
 private:
 	std::vector<std::unique_ptr<Behavior>> m_behaviors;
+	std::map<std::string, std::string> m_tags;
 
 public:
 	Transform transform;
@@ -39,6 +40,16 @@ public:
 	virtual void render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame) = 0;
 	virtual void destroy(Renderer* renderer) = 0;
 	
+	void addTag(const std::string& key, const std::string& value)
+	{
+		m_tags[key] = value;
+	}
+
+	bool hasTag(const std::string& key)
+	{
+		return m_tags.find(key) != m_tags.end();
+	}
+
 	template<typename T>
 	T* addBehavior(std::unique_ptr<T> behavior)
 	{
