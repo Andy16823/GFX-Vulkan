@@ -65,6 +65,21 @@ public:
 	/// <param name="renderer"></param>
 	/// <param name="data"></param>
 	/// <param name="instanceIndex"></param>
-	void updateInstanceData(Renderer* renderer, const InstanceData& data, int instanceIndex);
+	void updateInstance(Renderer* renderer, const InstanceData& data, int instanceIndex);
+
+	/// <summary>
+	/// Update a range of instance data
+	/// </summary>
+	/// <param name="renderer"></param>
+	/// <param name="instanceDataArray"></param>
+	/// <param name="offset"></param>
+	void updateInstanceRange(Renderer* renderer, const std::vector<InstanceData>& instanceDataArray, int offset);
+
+	/// <summary>
+	/// Update all instance data at once
+	/// </summary>
+	/// <param name="renderer"></param>
+	/// <param name="instanceDataArray"></param>
+	void updateAllInstances(Renderer* renderer, const std::vector<InstanceData>& instanceDataArray);
 };
 

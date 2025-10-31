@@ -61,7 +61,7 @@ void InstancedModel::destroy(Renderer* renderer)
 	}
 }
 
-void InstancedModel::updateInstanceData(Renderer* renderer, const InstanceData& data, int instanceIndex)
+void InstancedModel::updateInstance(Renderer* renderer, const InstanceData& data, int instanceIndex)
 {
 	if (instanceIndex < 0 || instanceIndex >= instanceCount) {
 		throw std::runtime_error("failed to update instance data: invalid instance index!");
@@ -70,4 +70,24 @@ void InstancedModel::updateInstanceData(Renderer* renderer, const InstanceData& 
 	VkDeviceSize size = sizeof(InstanceData);
 	VkDeviceSize offset = sizeof(InstanceData) * instanceIndex;
 	renderer->updateStorageBuffer(m_storageBufferIndex, &data, size, offset);
+}
+
+void InstancedModel::updateInstanceRange(Renderer* renderer, const std::vector<InstanceData>& instanceDataArray, int offset)
+{
+	int instanceCount = static_cast<int>(instanceDataArray.size());
+	if (offset < 0 || (offset + instanceCount) > this->instanceCount) {
+		throw std::runtime_error("failed to update instance range data: invalid offset or instance count!");
+	}
+	VkDeviceSize size = sizeof(InstanceData) * instanceCount;
+	VkDeviceSize bufferOffset = sizeof(InstanceData) * offset;
+	renderer->updateStorageBuffer(m_storageBufferIndex, instanceDataArray.data(), size, bufferOffset);
+}
+
+void InstancedModel::updateAllInstances(Renderer* renderer, const std::vector<InstanceData>& instanceDataArray)
+{
+	if (instanceDataArray.size() != instanceCount) {
+		throw std::runtime_error("failed to update all instance data: instance data array size does not match instance count!");
+	}
+	VkDeviceSize size = sizeof(InstanceData) * instanceCount;
+	renderer->updateStorageBuffer(m_storageBufferIndex, instanceDataArray.data(), size, 0);
 }
