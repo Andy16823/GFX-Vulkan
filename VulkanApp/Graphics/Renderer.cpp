@@ -410,10 +410,11 @@ void Renderer::createGraphicsPipelines()
 	normalAttr.format = VK_FORMAT_R32G32B32_SFLOAT;
 	normalAttr.offset = offsetof(Vertex, normal);
 
-	// PIPELINE 3D
+	// RENDER PASSES
 	auto renderPass = m_renderPassManager.getRenderPass(m_mainRenderPassIndex);
 	auto offscreenRenderPass = m_renderPassManager.getRenderPass(m_offscreenRenderPassIndex);
 
+	// PIPELINE 3D
 	ShaderSourceCollection shaders3D = { "Shaders/vert.spv", "Shaders/frag.spv" };
 	auto pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D), shaders3D, bindingInfo);
 	pipelinePtr->addVertexAttribute(positionAttr);
@@ -422,6 +423,17 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(normalAttr);
 	std::array<VkDescriptorSetLayout, 3> pipline3DLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DLayouts.data(), static_cast<uint32_t>(pipline3DLayouts.size()), &pushConstantRange, 1);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
+
+	// PIPELINE 3D INSTANCED
+	ShaderSourceCollection shaders3DInstanced = { "Shaders/shader3di_vert.spv", "Shaders/shader3di_frag.spv" };
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D_INSTANCED), shaders3DInstanced, bindingInfo);
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
+	pipelinePtr->addVertexAttribute(texCoordAttr);
+	pipelinePtr->addVertexAttribute(normalAttr);
+	std::array<VkDescriptorSetLayout, 4> pipline3DInstancedLayouts = { m_descriptorSetLayout, m_storageBufferSetLayout, m_samplerSetLayout, m_samplerSetLayout };
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DInstancedLayouts.data(), static_cast<uint32_t>(pipline3DInstancedLayouts.size()), nullptr, 0);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
 	// PIPELINE 2D
@@ -1389,6 +1401,14 @@ VkDescriptorSet Renderer::getCubemapDescriptorSet(int index)
 	throw std::runtime_error("failed to get cubemap descriptor set: invalid descriptor set index!");
 }
 
+VkDescriptorSet Renderer::getStorageBufferDescriptorSet(int index)
+{
+	if (index >= 0 && index < m_storageBufferDescriptorSets.size()) {
+		return m_storageBufferDescriptorSets[index];
+	}
+	throw std::runtime_error("failed to get storage buffer descriptor set: invalid descriptor set index!");
+}
+
 VkDescriptorSet Renderer::getCameraDescriptorSet(int cameraIndex, uint32_t frame)
 {
 	if (cameraIndex < 0 || cameraIndex >= m_cameraResources.size()) {
@@ -1773,7 +1793,7 @@ void Renderer::updateStorageBuffer(int storageBufferIndex, const void* data, VkD
 	storageBuffer->updateBuffer(m_renderDevice.logicalDevice, data, size, offset);
 }
 
-void Renderer::drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer)
+void Renderer::drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer, int instances)
 {
 	// Get the required buffers
 	auto vertexBuffer = this->getVertexBuffer(vertexBufferIndex);
@@ -1786,7 +1806,7 @@ void Renderer::drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkComman
 
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
-	vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+	vkCmdDrawIndexed(commandBuffer, indexCount, instances, 0, 0, 0);
 }
 
 void Renderer::drawMesh(Mesh* mesh, Material* material, UboModel model, int frame)

@@ -14,6 +14,7 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\ImageBuffer.cpp;C:
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\ImageTexture.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\ImageTexture.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\IndexBuffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\IndexBuffer.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Input.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Input.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\InstancedModel.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\InstancedModel.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\main.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\main.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Material.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Material.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Mesh.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Mesh.obj
@@ -34,3 +35,4 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\OffscreenRenderPas
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\RenderPassManager.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\RenderPassManager.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Math\RayCast.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\RayCast.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\StorageBuffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\StorageBuffer.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Assets\ModelLoader.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\ModelLoader.obj

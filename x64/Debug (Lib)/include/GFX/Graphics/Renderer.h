@@ -64,6 +64,7 @@ struct CameraResources {
 /// </summary>
 enum class PipelineType {
 	PIPELINE_TYPE_GRAPHICS_3D,
+	PIPELINE_TYPE_GRAPHICS_3D_INSTANCED,
 	PIPELINE_TYPE_GRAPHICS_2D,
 	PIPELINE_TYPE_SKYBOX,
 	PIPELINE_TYPE_FONT_RENDERING,
@@ -73,6 +74,7 @@ enum class PipelineType {
 inline const char* ToString(PipelineType type) {
 	switch (type) {
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D: return "pipeline_3D";
+	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D_INSTANCED: return "pipeline_3D_instanced";
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_2D: return "pipeline_2D";
 	case PipelineType::PIPELINE_TYPE_SKYBOX: return "pipeline_skybox";
 	case PipelineType::PIPELINE_TYPE_FONT_RENDERING: return "pipeline_font_rendering";
@@ -261,6 +263,7 @@ public:
 	VkDescriptorSet getSamplerDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSetFromImageBuffer(int imageBufferIndex);
 	VkDescriptorSet getCubemapDescriptorSet(int index);
+	VkDescriptorSet getStorageBufferDescriptorSet(int index);
 	VkDescriptorSet getCameraDescriptorSet(int cameraIndex, uint32_t frame);
 	VkCommandBuffer getCommandBuffer(int index);
 	VkPipelineLayout getPipelineLayout(std::string pipelineName);
@@ -316,7 +319,7 @@ public:
 	void updateStorageBuffer(int storageBufferIndex, const void* data, VkDeviceSize size, VkDeviceSize offset = 0);
 
 	// Draw functions
-	void drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer);
+	void drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer, int instances = 1);
 	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
 	void drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame);

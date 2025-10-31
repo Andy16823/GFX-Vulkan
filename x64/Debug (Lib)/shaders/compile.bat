@@ -15,4 +15,7 @@ C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V triangle.frag -o triangle_fra
 
 C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V text.vert -o text_vert.spv
 C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V text.frag -o text_frag.spv
+
+C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V shader3di.vert -o shader3di_vert.spv
+C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V shader3di.frag -o shader3di_frag.spv
 pause

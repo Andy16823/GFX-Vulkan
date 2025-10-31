@@ -288,6 +288,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Graphics\ImageTexture.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.cpp" />
     <ClCompile Include="Core\Input.cpp" />
+    <ClCompile Include="Core\InstancedModel.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Graphics\Material.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
@@ -308,6 +309,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Graphics\RenderPassManager.cpp" />
     <ClCompile Include="Math\RayCast.cpp" />
     <ClCompile Include="Graphics\StorageBuffer.cpp" />
+    <ClCompile Include="Assets\ModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Font.h" />
@@ -340,7 +342,9 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Graphics\OffscreenRenderPass.h" />
     <ClInclude Include="Graphics\RenderPassManager.h" />
     <ClInclude Include="Core\Input.h" />
+    <ClInclude Include="Core\InstancedModel.h" />
     <ClInclude Include="Math\RayCast.h" />
+    <ClInclude Include="Assets\ModelLoader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
     <ClInclude Include="Graphics\UnlitMaterial.h" />
