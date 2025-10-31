@@ -120,6 +120,9 @@
     <ClCompile Include="Math\RayCast.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\StorageBuffer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -234,6 +237,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Math\RayCast.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\StorageBuffer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

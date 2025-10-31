@@ -326,6 +326,26 @@ void Renderer::createDescriptorSetLayout()
 	else {
 		std::cout << "Cubemap descriptor set layout created successfully!" << std::endl;
 	}
+
+	// STORAGE BUFFER DESCRIPTOR SET LAYOUT
+	VkDescriptorSetLayoutBinding storageBufferLayoutBinding = {};
+	storageBufferLayoutBinding.binding = 0;
+	storageBufferLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	storageBufferLayoutBinding.descriptorCount = 1;
+	storageBufferLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+	storageBufferLayoutBinding.pImmutableSamplers = nullptr;
+
+	VkDescriptorSetLayoutCreateInfo storageBufferLayoutInfo = {};
+	storageBufferLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	storageBufferLayoutInfo.bindingCount = 1;
+	storageBufferLayoutInfo.pBindings = &storageBufferLayoutBinding;
+
+	if (vkCreateDescriptorSetLayout(m_renderDevice.logicalDevice, &storageBufferLayoutInfo, nullptr, &m_storageBufferSetLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create storage buffer descriptor set layout!");
+	}
+	else {
+		std::cout << "Storage buffer descriptor set layout created successfully!" << std::endl;
+	}
 }
 
 //void Renderer::createPushConstantRange()
@@ -614,6 +634,24 @@ void Renderer::createDescriptorPool()
 	}
 	else {
 		std::cout << "Cubemap descriptor pool created successfully!" << std::endl;
+	}
+
+	// CREATE STORAGE BUFFER DESCRIPTOR POOL
+	VkDescriptorPoolSize storageBufferPoolSize = {};
+	storageBufferPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	storageBufferPoolSize.descriptorCount = MAX_STORAGE_BUFFERS;
+
+	VkDescriptorPoolCreateInfo storageBufferPoolInfo = {};
+	storageBufferPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	storageBufferPoolInfo.maxSets = MAX_STORAGE_BUFFERS;
+	storageBufferPoolInfo.poolSizeCount = 1;
+	storageBufferPoolInfo.pPoolSizes = &storageBufferPoolSize;
+
+	if (vkCreateDescriptorPool(m_renderDevice.logicalDevice, &storageBufferPoolInfo, nullptr, &m_storageBufferDescriptorPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create storage buffer descriptor pool!");
+	}
+	else {
+		std::cout << "Storage buffer descriptor pool created successfully!" << std::endl;
 	}
 }
 
@@ -1101,6 +1139,45 @@ int Renderer::createCubemapDescriptor(VkImageView cubemapImageView)
 	return m_cubemapDescriptorSets.size() - 1;
 }
 
+int Renderer::createStorageBufferDescriptor(VkBuffer storageBuffer, VkDeviceSize bufferSize)
+{
+	VkDescriptorSetAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = m_storageBufferDescriptorPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = &m_storageBufferSetLayout;
+
+	VkDescriptorSet descriptorSet;
+	if (vkAllocateDescriptorSets(m_renderDevice.logicalDevice, &allocInfo, &descriptorSet) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate storage buffer descriptor set!");
+	}
+
+	// Storage buffer info
+	VkDescriptorBufferInfo bufferInfo = {};
+	bufferInfo.buffer = storageBuffer;
+	bufferInfo.offset = 0;
+	bufferInfo.range = bufferSize;
+
+	// Descriptor Write info
+	VkWriteDescriptorSet descriptorWrite = {};
+	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrite.dstSet = descriptorSet;
+	descriptorWrite.dstBinding = 0;
+	descriptorWrite.dstArrayElement = 0;
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	descriptorWrite.descriptorCount = 1;
+	descriptorWrite.pBufferInfo = &bufferInfo;
+
+	// Update the descriptor set with the buffer info
+	vkUpdateDescriptorSets(m_renderDevice.logicalDevice, 1, &descriptorWrite, 0, nullptr);
+
+	// Store the descriptor set
+	m_storageBufferDescriptorSets.push_back(descriptorSet);
+
+	// Return the index of the descriptor set
+	return m_storageBufferDescriptorSets.size() - 1;
+}
+
 //void Renderer::allocateDynamicBufferTransferSpace()
 //{
 //	// Calculate alignment of model data
@@ -1269,6 +1346,14 @@ CubemapBuffer* Renderer::getCubemapBuffer(int index)
 	throw std::runtime_error("failed to get cubemap buffer: invalid cubemap index!");
 }
 
+StorageBuffer* Renderer::getStorageBuffer(int index)
+{
+	if (index >= 0 && index < m_storageBuffers.size()) {
+		return m_storageBuffers[index].get();
+	}
+	throw std::runtime_error("failed to get storage buffer: invalid storage buffer index!");
+}
+
 VkDevice Renderer::getDevice()
 {
 	return m_renderDevice.logicalDevice;
@@ -1389,6 +1474,24 @@ int Renderer::createRenderTarget(const bool presentOnScreen)
 
 	m_renderTargets.push_back(std::move(renderTarget));
 	return m_renderTargets.size() - 1;
+}
+
+int Renderer::createStorageBuffer(VkDeviceSize size)
+{
+	// Create the storage buffer
+	auto storageBuffer = std::make_unique<StorageBuffer>(
+		m_renderDevice.physicalDevice,
+		m_renderDevice.logicalDevice,
+		size
+	);
+
+	// Create the descriptor set for the storage buffer
+	storageBuffer->descriptorIndex = createStorageBufferDescriptor(storageBuffer->buffer, size);
+	storageBuffer->state = GFX_BUFFER_STATE_INITIALIZED;
+
+	// Store the storage buffer and return the index
+	m_storageBuffers.push_back(std::move(storageBuffer));
+	return m_storageBuffers.size() - 1;
 }
 
 int Renderer::createCamera()
@@ -1664,6 +1767,12 @@ void Renderer::updateCamera(int cameraIndex, uint32_t frame, const UboViewProjec
 	}
 }
 
+void Renderer::updateStorageBuffer(int storageBufferIndex, const void* data, VkDeviceSize size, VkDeviceSize offset /*= 0*/)
+{
+	auto storageBuffer = this->getStorageBuffer(storageBufferIndex);
+	storageBuffer->updateBuffer(m_renderDevice.logicalDevice, data, size, offset);
+}
+
 void Renderer::drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer)
 {
 	// Get the required buffers
@@ -1915,6 +2024,10 @@ void Renderer::dispose()
 	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_cubemapDescriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_cubemapSetLayout, nullptr);
 
+	// DESTROY STORAGE BUFFER DESCRIPTORS
+	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_storageBufferDescriptorPool, nullptr);
+	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_storageBufferSetLayout, nullptr);
+
 	// DESTROY SAMPLER
 	vkDestroySampler(m_renderDevice.logicalDevice, m_cubemapSampler, nullptr);
 	vkDestroySampler(m_renderDevice.logicalDevice, m_textureSampler, nullptr);
@@ -1962,6 +2075,13 @@ void Renderer::dispose()
 		cubemap->dispose(m_renderDevice.logicalDevice);
 	}
 	m_cubemaps.clear();
+
+	// Free storage buffers
+	for (auto& storageBuffer : m_storageBuffers) {
+		if (storageBuffer->state == GFX_BUFFER_STATE_DISPOSED) continue;
+		storageBuffer->dispose(m_renderDevice.logicalDevice);
+	}
+	m_storageBuffers.clear();
 
 	// Free render targets
 	for (auto& renderTarget : m_renderTargets) {

@@ -12,6 +12,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "UniformBuffer.h"
+#include "StorageBuffer.h"
 #include "Mesh.h"
 #include "ImageBuffer.h"
 #include "ImageTexture.h"
@@ -32,6 +33,7 @@
 const int MAX_OBJECTS = 1000;
 const int DEFAULT_DYNAMIC_BUFFER_SIZE = 1200;
 const int MAX_CAMERAS = 256;
+const int MAX_STORAGE_BUFFERS = 256;
 
 /// <summary>
 /// Render device structure
@@ -174,6 +176,12 @@ private:
 	std::vector<std::unique_ptr<VertexBuffer>> m_vertexBuffers;
 	std::vector<std::unique_ptr<IndexBuffer>> m_indexBuffers;
 
+	// STORAGE BUFFERS
+	std::vector<std::unique_ptr<StorageBuffer>> m_storageBuffers;
+	std::vector<VkDescriptorSet> m_storageBufferDescriptorSets;
+	VkDescriptorSetLayout m_storageBufferSetLayout; // done
+	VkDescriptorPool m_storageBufferDescriptorPool; // done
+
 	// OTHER RESOURCES
 	std::vector<std::unique_ptr<Font>> m_loadedFonts;
 
@@ -227,6 +235,7 @@ private:
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	int createTextureDescriptor(VkImageView textureImageView);
 	int createCubemapDescriptor(VkImageView cubemapImageView);
+	int createStorageBufferDescriptor(VkBuffer storageBuffer, VkDeviceSize bufferSize);
 
 	// Allocate Functions
 	//void allocateDynamicBufferTransferSpace();
@@ -269,6 +278,7 @@ public:
 	int createCubemapBuffer(CubemapFaceData faces);
 	int createIndexBuffer(std::vector<uint32_t>* indices);
 	int createRenderTarget(const bool presentOnScreen = false);
+	int createStorageBuffer(VkDeviceSize size);
 	int createCamera();
 
 	// Loader functions
@@ -279,6 +289,7 @@ public:
 	IndexBuffer* getIndexBuffer(int index);
 	ImageBuffer* getImageBuffer(int index);
 	CubemapBuffer* getCubemapBuffer(int index);
+	StorageBuffer* getStorageBuffer(int index);
 
 	// Create functions
 	VkViewport getSwapchainViewport();
@@ -302,7 +313,7 @@ public:
 
 	// Update functions
 	void updateCamera(int cameraIndex, uint32_t frame, const UboViewProjection& vp);
-
+	void updateStorageBuffer(int storageBufferIndex, const void* data, VkDeviceSize size, VkDeviceSize offset = 0);
 
 	// Draw functions
 	void drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer);

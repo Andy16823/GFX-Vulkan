@@ -307,6 +307,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Graphics\OffscreenRenderPass.cpp" />
     <ClCompile Include="Graphics\RenderPassManager.cpp" />
     <ClCompile Include="Math\RayCast.cpp" />
+    <ClCompile Include="Graphics\StorageBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Font.h" />
@@ -346,6 +347,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Math\Transform.h" />
+    <ClInclude Include="Graphics\StorageBuffer.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
