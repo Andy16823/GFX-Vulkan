@@ -47,5 +47,10 @@ void UnlitMaterial::dispose(Renderer* renderer)
 
 std::vector<int> UnlitMaterial::getTextureIndices()
 {
-	return { albedoTexture->bufferIndex, normalTexture->bufferIndex };
+	return { 
+		albedoTexture->bufferIndex, 
+		normalTexture->bufferIndex, 
+		metRoughTexture->bufferIndex, 
+		aoTexture->bufferIndex 
+	};
 }

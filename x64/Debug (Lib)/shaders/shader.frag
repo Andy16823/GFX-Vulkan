@@ -1,12 +1,149 @@
 #version 450
-
-layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec3 color;
 layout(location = 1) in vec2 fragTexCoord;
+layout(location = 2) in vec3 fragNormal;
+layout(location = 3) in vec3 fragWorldPos;
 
-layout(set = 1, binding = 0) uniform sampler2D textureSampler;
-layout(set = 2, binding = 0) uniform sampler2D normalSampler;
+// Camera UBO
+layout(set = 0, binding = 0) uniform UboViewProjection {
+    mat4 projection;
+    mat4 view;
+    vec3 cameraPos;
+} uboViewProjection;
 
-void main() { 
-    fragColor = texture(textureSampler, fragTexCoord);
+layout(set = 1, binding = 0) uniform sampler2D albedoMap;
+layout(set = 2, binding = 0) uniform sampler2D normalMap;
+layout(set = 3, binding = 0) uniform sampler2D metallicRoughnessMap;
+layout(set = 4, binding = 0) uniform sampler2D aoMap;
+
+
+layout(location = 0) out vec4 outColor;
+
+// ═══════════════════════════════════════════════════════════════
+// PBR CONSTANTS
+// ═══════════════════════════════════════════════════════════════
+const float PI = 3.14159265359;
+
+// DIRECTIONAL LIGHT (Hard-coded sun)
+const vec3 LIGHT_DIRECTION = normalize(vec3(-0.5, -1.0, -0.3));
+const vec3 LIGHT_COLOR = vec3(1.0, 0.95, 0.9);
+const float LIGHT_INTENSITY = 3.0;
+
+// ═══════════════════════════════════════════════════════════════
+// PBR FUNCTIONS
+// ═══════════════════════════════════════════════════════════════
+// Normal Distribution Function (GGX/Trowbridge-Reitz)
+float DistributionGGX(vec3 N, vec3 H, float roughness) {
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+
+    float nom = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+
+    return nom / max(denom, 0.0000001);
+}
+
+// Geometry Function (Schlick-GGX)
+float GeometrySchlickGGX(float NdotV, float roughness) {
+    float r = (roughness + 1.0);
+    float k = (r * r) / 8.0;
+
+    float nom = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return nom / max(denom, 0.0000001);
+}
+
+// Smith's method
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+
+    return ggx1 * ggx2;
+}
+
+// Fresnel-Schlick approximation
+vec3 fresnelSchlick(float cosTheta, vec3 F0) {
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MAIN PBR LIGHTING
+// ═══════════════════════════════════════════════════════════════
+void main() {
+    // Sample material properties
+    vec3 albedo = pow(texture(albedoMap, fragTexCoord).rgb, vec3(2.2));  // sRGB to linear
+    
+    // Sample combined metallic-roughness texture
+    vec3 metallicRoughnessAO = texture(metallicRoughnessMap, fragTexCoord).rgb;
+    float roughness = metallicRoughnessAO.g;  // Green channel
+    float metallic = metallicRoughnessAO.b;   // Blue channel
+    
+    // Sample ambient occlusion
+    float ao = texture(aoMap, fragTexCoord).r;
+    
+    // Get normal from vertex shader (normal mapping später)
+    vec3 N = normalize(fragNormal);
+    
+    // Calculate view direction
+    vec3 V = normalize(uboViewProjection.cameraPos - fragWorldPos);
+    
+    // Light direction (negative because pointing TO light)
+    vec3 L = -LIGHT_DIRECTION;
+    vec3 H = normalize(V + L);
+    
+    // Calculate radiance
+    vec3 radiance = LIGHT_COLOR * LIGHT_INTENSITY;
+    
+    // Calculate F0 (base reflectivity)
+    vec3 F0 = vec3(0.04);  // Dielectric default (4%)
+    F0 = mix(F0, albedo, metallic);  // Metals use albedo as F0
+    
+    // ═══════════════════════════════════════════════════════════════
+    // COOK-TORRANCE BRDF
+    // ═══════════════════════════════════════════════════════════════
+    
+    // Calculate specular reflection
+    float NDF = DistributionGGX(N, H, roughness);
+    float G = GeometrySmith(N, V, L, roughness);
+    vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+    
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+    vec3 specular = numerator / denominator;
+    
+    // Energy conservation
+    vec3 kS = F;  // Specular contribution
+    vec3 kD = vec3(1.0) - kS;  // Diffuse contribution
+    kD *= 1.0 - metallic;  // Metals have no diffuse
+    
+    // Lambert diffuse
+    float NdotL = max(dot(N, L), 0.0);
+    vec3 diffuse = kD * albedo / PI;
+    
+    // Combine direct lighting
+    vec3 Lo = (diffuse + specular) * radiance * NdotL;
+    
+    // Ambient lighting (simple approximation)
+    vec3 ambient = vec3(0.03) * albedo * ao;
+    
+    // Final color
+    vec3 finalColor = ambient + Lo;
+    
+    // ═══════════════════════════════════════════════════════════════
+    // TONE MAPPING & GAMMA CORRECTION
+    // ═══════════════════════════════════════════════════════════════
+    
+    // HDR tone mapping (Reinhard)
+    finalColor = finalColor / (finalColor + vec3(1.0));
+    
+    // Gamma correction (linear to sRGB)
+    finalColor = pow(finalColor, vec3(1.0 / 2.2));
+    
+    outColor = vec4(finalColor, 1.0);
 }

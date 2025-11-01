@@ -89,6 +89,8 @@ struct UboModel {
 struct UboViewProjection {
 	glm::mat4 projection;
 	glm::mat4 view;
+	glm::vec3 cameraPos;
+	float padding; // Padding to make the size a multiple of 16 bytes
 };
 
 struct TextMeasurement {

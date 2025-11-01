@@ -53,6 +53,7 @@ UboViewProjection Camera2D::getViewProjection()
 	UboViewProjection viewProj = {};
 	viewProj.projection = getProjectionMatrix();
 	viewProj.view = getViewMatrix();
+	viewProj.cameraPos = this->transform.position;
 	return viewProj;
 }
 

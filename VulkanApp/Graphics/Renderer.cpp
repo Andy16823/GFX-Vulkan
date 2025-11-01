@@ -263,7 +263,7 @@ void Renderer::createDescriptorSetLayout()
 	vpLayoutBinding.binding = 0;
 	vpLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	vpLayoutBinding.descriptorCount = 1;
-	vpLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	vpLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 	vpLayoutBinding.pImmutableSamplers = nullptr;
 
 	/*VkDescriptorSetLayoutBinding modelLayoutBinding = {};
@@ -414,25 +414,38 @@ void Renderer::createGraphicsPipelines()
 	auto renderPass = m_renderPassManager.getRenderPass(m_mainRenderPassIndex);
 	auto offscreenRenderPass = m_renderPassManager.getRenderPass(m_offscreenRenderPassIndex);
 
-	// PIPELINE 3D
+	// PIPELINE 3D PBR
 	ShaderSourceCollection shaders3D = { "Shaders/vert.spv", "Shaders/frag.spv" };
 	auto pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D), shaders3D, bindingInfo);
 	pipelinePtr->addVertexAttribute(positionAttr);
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->addVertexAttribute(normalAttr);
-	std::array<VkDescriptorSetLayout, 3> pipline3DLayouts = { m_descriptorSetLayout, m_samplerSetLayout, m_samplerSetLayout };
+	std::array<VkDescriptorSetLayout, 5> pipline3DLayouts = { 
+		m_descriptorSetLayout, 		// CameraUBO
+		m_samplerSetLayout,			// Albedo map
+		m_samplerSetLayout,			// Normal map
+		m_samplerSetLayout,			// MetallicRoughness map
+		m_samplerSetLayout			// AO map
+	};
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DLayouts.data(), static_cast<uint32_t>(pipline3DLayouts.size()), &pushConstantRange, 1);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
-	// PIPELINE 3D INSTANCED
+	// PIPELINE 3D INSTANCED PBR
 	ShaderSourceCollection shaders3DInstanced = { "Shaders/shader3di_vert.spv", "Shaders/shader3di_frag.spv" };
 	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D_INSTANCED), shaders3DInstanced, bindingInfo);
 	pipelinePtr->addVertexAttribute(positionAttr);
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->addVertexAttribute(normalAttr);
-	std::array<VkDescriptorSetLayout, 4> pipline3DInstancedLayouts = { m_descriptorSetLayout, m_storageBufferSetLayout, m_samplerSetLayout, m_samplerSetLayout };
+	std::array<VkDescriptorSetLayout, 6> pipline3DInstancedLayouts = { 
+		m_descriptorSetLayout,			// CameraUBO
+		m_storageBufferSetLayout,		// Instance data
+		m_samplerSetLayout, 			// Albedo map
+		m_samplerSetLayout,				// Normal map
+		m_samplerSetLayout,				// MetallicRoughness map
+		m_samplerSetLayout				// AO map
+	};
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DInstancedLayouts.data(), static_cast<uint32_t>(pipline3DInstancedLayouts.size()), nullptr, 0);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 

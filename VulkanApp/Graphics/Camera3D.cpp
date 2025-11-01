@@ -30,6 +30,7 @@ UboViewProjection Camera3D::getViewProjection()
 	UboViewProjection ubo = {};
 	ubo.view = getViewMatrix();
 	ubo.projection = getProjectionMatrix();
+	ubo.cameraPos = this->transform.position;
 	return ubo;
 }
 
