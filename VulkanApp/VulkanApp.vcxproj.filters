@@ -129,6 +129,12 @@
     <ClCompile Include="Core\InstancedModel.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Core\ChunkedScene3D.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Scene3D.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -252,6 +258,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Core\InstancedModel.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ChunkedScene3D.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Scene3D.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

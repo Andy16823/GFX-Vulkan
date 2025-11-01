@@ -13,11 +13,6 @@ GLFWwindow* GFX::createWindow(std::string wName, const int width, const int heig
 	return window;
 }
 
-std::unique_ptr<Scene> GFX::createScene()
-{
-	return std::make_unique<Scene>();
-}
-
 std::unique_ptr<Sprite> GFX::createSprite(const std::string& texturePath, const std::string& name)
 {
 	return std::make_unique<Sprite>(name, texturePath);

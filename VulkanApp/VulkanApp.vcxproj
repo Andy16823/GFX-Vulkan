@@ -272,6 +272,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Core\ChunkedScene3D.cpp" />
     <ClCompile Include="Graphics\Font.cpp" />
     <ClCompile Include="Graphics\FontAtlas.cpp" />
     <ClCompile Include="Graphics\Camera2D.cpp" />
@@ -310,8 +311,10 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Math\RayCast.cpp" />
     <ClCompile Include="Graphics\StorageBuffer.cpp" />
     <ClCompile Include="Assets\ModelLoader.cpp" />
+    <ClCompile Include="Core\Scene3D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\ChunkedScene3D.h" />
     <ClInclude Include="Graphics\Font.h" />
     <ClInclude Include="Graphics\FontAtlas.h" />
     <ClInclude Include="Graphics\Camera2D.h" />
@@ -345,6 +348,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Core\InstancedModel.h" />
     <ClInclude Include="Math\RayCast.h" />
     <ClInclude Include="Assets\ModelLoader.h" />
+    <ClInclude Include="Core\Scene3D.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
     <ClInclude Include="Graphics\UnlitMaterial.h" />

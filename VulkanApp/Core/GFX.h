@@ -20,12 +20,6 @@ public:
 	static GLFWwindow* createWindow(std::string wName = "GFX C++", const int width = 800, const int height = 600);
 
 	/// <summary>
-	/// Factory method to create a scene
-	/// </summary>
-	/// <returns></returns>
-	static std::unique_ptr<Scene> createScene();
-
-	/// <summary>
 	/// Factory method to create a sprite
 	/// </summary>
 	/// <param name="texturePath"></param>

@@ -14,7 +14,7 @@
 #include "Core/Behavior.h"
 #include "Components/RotationBehavior.h"
 #include "Core/Model.h"
-#include "Core/Scene.h"
+#include "Core/Scene3D.h"
 
 GLFWwindow* window;
 Renderer renderer;
@@ -22,8 +22,8 @@ Renderer renderer;
 int main() {
 	window = GFX::createWindow("Vulkan App", 800, 600);
 
-	auto scene = GFX::createScene();
-	auto scene2 = GFX::createScene();
+	auto scene = std::unique_ptr<Scene3D>();
+	auto scene2 = std::unique_ptr<Scene3D>();
 
 	std::vector<std::string> cubemapFaces = {
 		"C:/Users/andy1/Documents/Cubemaps/Test/px.png", // +X (right)
