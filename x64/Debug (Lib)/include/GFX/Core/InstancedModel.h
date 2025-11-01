@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include <string>
 #include "../Graphics/Mesh.h"
+#include "../Assets/StaticMeshesRsc.h"
 
 
 /// <summary>
@@ -21,9 +22,9 @@ class InstancedModel : public Entity
 {
 private:
 	/// <summary>
-	/// The meshes in the model
+	/// The Pointer to the mesh resource containing the meshes for this model
 	/// </summary>
-	std::vector<std::unique_ptr<Mesh>> m_meshes;
+	StaticMeshesRsc* m_meshResource;
 
 	/// <summary>
 	/// Index of the storage buffer for instance data
@@ -31,7 +32,7 @@ private:
 	int m_storageBufferIndex = -1;
 
 public:
-	InstancedModel(const std::string name, const std::string file, const int instances);
+	InstancedModel(const std::string& name, StaticMeshesRsc* ressource, int instances);
 	~InstancedModel() = default;
 
 	/// <summary>

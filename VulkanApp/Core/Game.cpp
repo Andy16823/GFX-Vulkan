@@ -7,6 +7,7 @@
 
 void Game::run(const std::string name, const glm::i32vec2 windowSize, const int targetFPS, const bool useFpsLimit)
 {
+	assetManager = std::make_unique<AssetManager>();
 	m_targetFPS = targetFPS;
 	m_enableFPSLimit = useFpsLimit;
 
@@ -22,6 +23,8 @@ void Game::run(const std::string name, const glm::i32vec2 windowSize, const int 
 	m_renderer->addOnInitCallback(
 		[this](Renderer* renderer)
 		{
+			// Initialize the asset manager and the game
+			this->assetManager->init(renderer);
 			this->init(renderer);
 		}
 	);
@@ -35,6 +38,7 @@ void Game::run(const std::string name, const glm::i32vec2 windowSize, const int 
 		[this](Renderer* renderer)
 		{
 			this->dispose(renderer);
+			this->assetManager->dispose(renderer);
 		}
 	);
 

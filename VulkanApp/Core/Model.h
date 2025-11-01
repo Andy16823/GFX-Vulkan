@@ -1,18 +1,20 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <memory>
 #include "Entity.h"
 #include "../Utils.h"
 #include "../Graphics/Mesh.h"
+#include "../Assets/StaticMeshesRsc.h"
 
 class Model :
     public Entity
 {
 private:
-	std::vector<std::unique_ptr<Mesh>> m_meshes;
+	StaticMeshesRsc* m_meshResource;
 
 public:
-    Model(std::string name, std::string file);
+    Model(std::string name, StaticMeshesRsc* ressource);
 	~Model() = default;
 
 	void update(float dt) override;;

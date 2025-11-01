@@ -3,6 +3,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include "../Graphics/Renderer.h"
+#include "../Assets/AssetManager.h"
 
 /// <summary>
 /// Abstract base class for a game application.
@@ -35,6 +36,11 @@ public:
 	/// GLFW window handle for the game.
 	/// </summary>
 	GLFWwindow* window;
+
+	/// <summary>
+	/// Asset manager for loading and managing game assets.
+	/// </summary>
+	std::unique_ptr<AssetManager> assetManager;
 
 	Game() = default;
 	~Game() = default;

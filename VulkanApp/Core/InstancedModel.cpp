@@ -3,27 +3,27 @@
 #include "InstancedModel.h"
 #include "../Assets/ModelLoader.h"
 
-InstancedModel::InstancedModel(const std::string name, const std::string file, const int instances) : Entity(name)
+InstancedModel::InstancedModel(const std::string& name, StaticMeshesRsc* ressource, int instances) : Entity(name)
 {
-	m_meshes = ModelLoader::loadModelFromFile(file);
+	m_meshResource = ressource;
 	this->instanceCount = instances;
 }
 
 void InstancedModel::init(Renderer* renderer)
 {
-	// Calculate the size of the storage buffer and create it
 	VkDeviceSize bufferSize = sizeof(InstanceData) * instanceCount;
 	m_storageBufferIndex = renderer->createStorageBuffer(bufferSize);
-
-	for (auto& mesh : m_meshes) {
-		mesh.get()->init(renderer);
-	}
 }
 
 void InstancedModel::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
+	// Ensure the mesh resource is valid
+	if (!m_meshResource) {
+		throw std::runtime_error("failed to render instanced model: mesh resource is null!");
+	}
+
 	// Early out if there are no instances or no meshes
-	if (instanceCount == 0 || m_meshes.empty()) {
+	if (instanceCount == 0 || m_meshResource->meshes.empty()) {
 		return;
 	}
 
@@ -35,7 +35,7 @@ void InstancedModel::render(Renderer* renderer, VkCommandBuffer commandBuffer, i
 	renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D_INSTANCED));
 
 	// Iterate through all meshes and render them
-	for (auto& mesh : m_meshes) {
+	for (auto& mesh : m_meshResource->meshes) {
 		std::vector<VkDescriptorSet> descriptorSets;
 		descriptorSets.push_back(cameraDescriptorSet); // Add the per-frame UBO descriptor set first
 		descriptorSets.push_back(storageBufferDescriptorSet); // Add the storage buffer descriptor set second
@@ -56,9 +56,7 @@ void InstancedModel::render(Renderer* renderer, VkCommandBuffer commandBuffer, i
 
 void InstancedModel::destroy(Renderer* renderer)
 {
-	for (auto& mesh : m_meshes) {
-		mesh.get()->dispose(renderer);
-	}
+	// Nothing needed here as the renderer handles buffer cleanup and the asset manager handles mesh cleanup
 }
 
 void InstancedModel::updateInstance(Renderer* renderer, const InstanceData& data, int instanceIndex)

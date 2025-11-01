@@ -12,13 +12,3 @@ GLFWwindow* GFX::createWindow(std::string wName, const int width, const int heig
 	auto window = glfwCreateWindow(width, height, wName.c_str(), nullptr, nullptr);
 	return window;
 }
-
-std::unique_ptr<Sprite> GFX::createSprite(const std::string& texturePath, const std::string& name)
-{
-	return std::make_unique<Sprite>(name, texturePath);
-}
-
-std::unique_ptr<Model> GFX::createModel(const std::string& modelPath, const std::string& name)
-{
-	return std::make_unique<Model>(name, modelPath);
-}
