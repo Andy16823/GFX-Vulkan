@@ -9,10 +9,27 @@ InstancedModel::InstancedModel(const std::string& name, StaticMeshesRsc* ressour
 	this->instanceCount = instances;
 }
 
+InstancedModel::InstancedModel(const std::string& name, StaticMeshesRsc* ressource, const std::vector<InstanceData>& startValues, int instances)
+	: Entity(name)
+{
+	m_meshResource = ressource;
+	this->instanceCount = instances;
+	if (startValues.size() > instances) {
+		throw std::runtime_error("failed to create instanced model: start values size exceeds instance count!");
+	}
+	m_instanceStartValues = startValues;
+}
+
 void InstancedModel::init(Renderer* renderer)
 {
 	VkDeviceSize bufferSize = sizeof(InstanceData) * instanceCount;
 	m_storageBufferIndex = renderer->createStorageBuffer(bufferSize);
+
+	// If start values are provided, initialize the buffer with them
+	if (!m_instanceStartValues.empty()) {
+		this->updateInstanceRange(renderer, m_instanceStartValues, 0);
+		m_instanceStartValues.clear(); // Clear to free memory
+	}
 }
 
 void InstancedModel::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)

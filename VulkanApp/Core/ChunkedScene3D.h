@@ -37,6 +37,11 @@ private:
 	/// The current active chunk
 	/// </summary>
 	ChunkIndex m_currentChunk = { 0, 0, 0 };
+
+	/// <summary>
+	/// The neighboring chunks of the current active chunk
+	/// </summary>
+	std::vector<ChunkIndex> m_neighboringChunks;
 public:
 	/// <summary>
 	/// The skybox of the scene

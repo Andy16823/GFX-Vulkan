@@ -41,8 +41,7 @@ void ChunkedScene3D::update(float deltaTime)
 	}
 
 	// Update the neighboring chunks
-	auto neighbors = this->getChunkNeighbors(m_currentChunk);
-	for (const auto& neighborIndex : neighbors)
+	for (const auto& neighborIndex : m_neighboringChunks)
 	{
 		auto neighborsIt = m_chunks.find(neighborIndex);
 		if (neighborsIt != m_chunks.end()) {
@@ -84,8 +83,7 @@ void ChunkedScene3D::render(Renderer* renderer, VkCommandBuffer commandBuffer, u
 	}
 
 	// Render neighboring chunk entities
-	auto neighbors = this->getChunkNeighbors(m_currentChunk);
-	for (const auto& neighborIndex : neighbors) {
+	for (const auto& neighborIndex : m_neighboringChunks) {
 		auto neighborsIt = m_chunks.find(neighborIndex);
 		if (neighborsIt != m_chunks.end()) {
 			const auto& neighborEntities = neighborsIt->second;
@@ -149,7 +147,12 @@ void ChunkedScene3D::addEntityToChunk(std::unique_ptr<Entity> entity)
 
 void ChunkedScene3D::setActiveChunk(const glm::vec3& position)
 {
-	m_currentChunk = this->getChunkForPosition(position);
+	auto chunkIndex = this->getChunkForPosition(position);
+	if (chunkIndex == m_currentChunk) {
+		return;
+	}
+	m_currentChunk = chunkIndex;
+	m_neighboringChunks = this->getChunkNeighbors(m_currentChunk);
 }
 
 std::vector<ChunkIndex> ChunkedScene3D::getChunkNeighbors(const ChunkIndex& chunkIndex)

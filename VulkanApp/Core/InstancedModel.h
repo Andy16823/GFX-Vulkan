@@ -31,8 +31,14 @@ private:
 	/// </summary>
 	int m_storageBufferIndex = -1;
 
+	/// <summary>
+	/// Starting values for instances
+	/// </summary>
+	std::vector<InstanceData> m_instanceStartValues;
+
 public:
 	InstancedModel(const std::string& name, StaticMeshesRsc* ressource, int instances);
+	InstancedModel(const std::string& name, StaticMeshesRsc* ressource, const std::vector<InstanceData>& startValues, int instances);
 	~InstancedModel() = default;
 
 	/// <summary>
