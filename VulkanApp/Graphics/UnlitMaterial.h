@@ -13,6 +13,9 @@ private:
 public:
 	std::unique_ptr<ImageTexture> albedoTexture;
 	std::unique_ptr<ImageTexture> normalTexture;
+	std::unique_ptr<ImageTexture> metRoughTexture;
+	std::unique_ptr<ImageTexture> aoTexture;
+
 
 	UnlitMaterial() = default;
 	~UnlitMaterial() = default;
@@ -21,5 +24,8 @@ public:
 	std::vector<int> getTextureIndices();
 
 	void setAlbedoTexture(std::unique_ptr<ImageTexture> texture) { albedoTexture = std::move(texture); }
+	void setNormalTexture(std::unique_ptr<ImageTexture> texture) { normalTexture = std::move(texture); }
+	void setMetRoughTexture(std::unique_ptr<ImageTexture> texture) { metRoughTexture = std::move(texture); }
+	void setAOTexture(std::unique_ptr<ImageTexture> texture) { aoTexture = std::move(texture); }
 };
 

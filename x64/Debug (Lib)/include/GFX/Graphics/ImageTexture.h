@@ -16,6 +16,7 @@ public:
 	int bufferIndex = -1;
 
 	ImageTexture(std::string file);
+	ImageTexture(int width, int height, const std::vector<uint8_t>& pixelData);
 	~ImageTexture();
 	void freeImageData();
 };

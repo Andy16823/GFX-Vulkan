@@ -98,6 +98,20 @@ struct TextMeasurement {
 	int lines;
 };
 
+static std::vector<uint8_t> createTextureData(int width, int height, const glm::vec4& color) {
+	std::vector<uint8_t> data(width * height * 4);
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			int index = (y * width + x) * 4;
+			data[index] = static_cast<uint8_t>(color.r * 255);
+			data[index + 1] = static_cast<uint8_t>(color.g * 255);
+			data[index + 2] = static_cast<uint8_t>(color.b * 255);
+			data[index + 3] = static_cast<uint8_t>(color.a * 255);
+		}
+	}
+	return data;
+}
+
 static TextMeasurement measureText(const std::string& text, Font* font, float scale, float lineSpacing) {
 
 	TextMeasurement result;

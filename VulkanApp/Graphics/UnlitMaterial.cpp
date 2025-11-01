@@ -19,6 +19,25 @@ void UnlitMaterial::init(Renderer* renderer)
 		// It's okay if there's no normal texture, just log a warning
 		std::cout << "Warning: UnlitMaterial has no normal texture!" << std::endl;
 	}
+
+	if (metRoughTexture) {
+		metRoughTexture->bufferIndex = renderer->createImageBuffer(metRoughTexture.get());
+		metRoughTexture->freeImageData(); // Free image data after uploading to GPU
+	}
+	else
+	{
+		// It's okay if there's no metRough texture, just log a warning
+		std::cout << "Warning: UnlitMaterial has no metRough texture!" << std::endl;
+	}
+
+	if (aoTexture) {
+		aoTexture->bufferIndex = renderer->createImageBuffer(aoTexture.get());
+		aoTexture->freeImageData(); // Free image data after uploading to GPU
+	}
+	else {
+		// It's okay if there's no ao texture, just log a warning
+		std::cout << "Warning: UnlitMaterial has no ao texture!" << std::endl;
+	}
 }
 
 void UnlitMaterial::dispose(Renderer* renderer)

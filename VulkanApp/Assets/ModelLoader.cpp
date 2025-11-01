@@ -2,8 +2,10 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/pbrmaterial.h>
 #include "../Graphics/UnlitMaterial.h"
 #include <iostream>
+#include "../Utils.h"
 
 std::vector<std::unique_ptr<Mesh>> ModelLoader::loadModelFromFile(const std::string& file)
 {
@@ -64,12 +66,15 @@ std::vector<std::unique_ptr<Mesh>> ModelLoader::loadModelFromFile(const std::str
 				std::string fullPath = std::string(texturePath.C_Str());
 				std::string directory = file.substr(0, file.find_last_of('/'));
 				fullPath = directory + "/" + fullPath;
-
 				auto texture = std::make_unique<ImageTexture>(fullPath);
 				material->setAlbedoTexture(std::move(texture));
+				std::cout << "[MODEL LOADER] Loaded albedo texture." << std::endl;
 			}
 			else {
-				throw std::runtime_error("Model material does not have a diffuse texture!");
+				std::cout << "[MODEL LOADER] Warning: Model material has no albedo texture! Using blank white texture instead." << std::endl;
+				auto blankAlbedoTextureData = createTextureData(1, 1, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				auto texture = std::make_unique<ImageTexture>(1, 1, blankAlbedoTextureData);
+				material->setAlbedoTexture(std::move(texture));
 			}
 
 			if (aiMaterial->GetTexture(aiTextureType_NORMALS, 0, &texturePath) == AI_SUCCESS) {
@@ -77,11 +82,44 @@ std::vector<std::unique_ptr<Mesh>> ModelLoader::loadModelFromFile(const std::str
 				std::string directory = file.substr(0, file.find_last_of('/'));
 				fullPath = directory + "/" + fullPath;
 				auto texture = std::make_unique<ImageTexture>(fullPath);
-				material->normalTexture = std::move(texture);
+				material->setNormalTexture(std::move(texture));
+				std::cout << "[MODEL LOADER] Loaded normal texture." << std::endl;
 			}
 			else {
-				// It's okay if there's no normal texture, just log a warning
-				std::cout << "Warning: Model material has no normal texture!" << std::endl;
+				std::cout << "[MODEL LOADER] Warning: Model material has no normal texture! Using default normal map instead." << std::endl;
+				auto defaultNormalTextureData = createTextureData(1, 1, glm::vec4(0.5f, 0.5f, 1.0f, 1.0f));
+				auto texture = std::make_unique<ImageTexture>(1, 1, defaultNormalTextureData);
+				material->setNormalTexture(std::move(texture));
+			}
+
+			if (aiMaterial->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &texturePath)) {
+				std::string fullPath = std::string(texturePath.C_Str());
+				std::string directory = file.substr(0, file.find_last_of('/'));
+				fullPath = directory + "/" + fullPath;
+				auto texture = std::make_unique<ImageTexture>(fullPath);
+				material->setMetRoughTexture(std::move(texture));
+				std::cout << "[MODEL LOADER] Loaded metallic-roughness texture." << std::endl;
+			}
+			else {
+				std::cout << "[MODEL LOADER] Warning: Model material has no metallic-roughness texture! Using default texture instead." << std::endl;
+				auto defaultMetRoughTextureData = createTextureData(1, 1, glm::vec4(0.0f, 0.5f, 0.5f, 1.0f)); // Green = Roughness 0.5, Blue = Metallic 0.5
+				auto texture = std::make_unique<ImageTexture>(1, 1, defaultMetRoughTextureData);
+				material->setMetRoughTexture(std::move(texture));
+			}
+
+			if (aiMaterial->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath)) {
+				std::string fullPath = std::string(texturePath.C_Str());
+				std::string directory = file.substr(0, file.find_last_of('/'));
+				fullPath = directory + "/" + fullPath;
+				auto texture = std::make_unique<ImageTexture>(fullPath);
+				material->setAOTexture(std::move(texture));
+				std::cout << "[MODEL LOADER] Loaded ambient occlusion texture." << std::endl;
+			}
+			else {
+				std::cout << "[MODEL LOADER] Warning: Model material has no ambient occlusion texture! Using default white texture instead." << std::endl;
+				auto defaultAOTextureData = createTextureData(1, 1, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				auto texture = std::make_unique<ImageTexture>(1, 1, defaultAOTextureData);
+				material->setAOTexture(std::move(texture));
 			}
 		}
 
