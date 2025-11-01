@@ -27,13 +27,11 @@
 #include "RenderTarget.h"
 #include "Font.h"
 
-/// <summary>
-/// Maximum number of objects supported by the renderer
-/// </summary>
-const int MAX_OBJECTS = 1000;
-const int DEFAULT_DYNAMIC_BUFFER_SIZE = 1200;
-const int MAX_CAMERAS = 256;
-const int MAX_STORAGE_BUFFERS = 256;
+struct RenderConfig {
+	size_t maxObjects = 1000;
+	size_t maxCameras = 256;
+	size_t maxStorageBuffers = 256;
+};
 
 /// <summary>
 /// Render device structure
@@ -107,6 +105,8 @@ class Renderer
 private:
 	GLFWwindow* m_window;
 	int m_currentFrame = 0;
+
+	RenderConfig m_renderConfig;
 
 	// CORE VULKAN STUFF
 	VkInstance m_instance;
@@ -272,6 +272,9 @@ public:
 	RenderTarget* getRenderTarget(int index);
 	Font* getFont(int index);
 	int getActiveCamera();
+
+	// Setters
+	void setConfig(RenderConfig config);
 	
 	// Create buffer functions
 	int createVertexBuffer(std::vector<Vertex>* vertices, const VertexBufferType vertexBufferType = VertexBufferType::VERTEX_BUFFER_TYPE_STATIC);

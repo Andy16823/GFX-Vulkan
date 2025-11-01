@@ -92,7 +92,7 @@ VkBuffer VertexBuffer::createDynamicVertexBuffer(VkPhysicalDevice physicalDevice
 	// Set default buffer size to avoid frequent reallocations
 	m_capacity = vertices->size();
 	if (m_capacity == 0) {
-		m_capacity = DEFAULT_DYNAMIC_BUFFER_SIZE;
+		m_capacity = 1200; // Default capacity
 	}
 
 	// Create the vertex buffer with host visible memory

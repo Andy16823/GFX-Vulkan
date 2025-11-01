@@ -589,7 +589,7 @@ void Renderer::createDescriptorPool()
 {
 	// Calculate number of uniform buffers needed
 	auto numSwapChainImages = static_cast<uint32_t>(m_swapChainImages.size());
-	auto numCameras = static_cast<uint32_t>(MAX_CAMERAS) * numSwapChainImages;
+	auto numCameras = static_cast<uint32_t>(m_renderConfig.maxCameras) * numSwapChainImages;
 
 	// CREATE UNIFORM DESCRIPTOR POOL
 	VkDescriptorPoolSize vpPoolSize = {};
@@ -615,11 +615,11 @@ void Renderer::createDescriptorPool()
 	// CREATE SAMPLER DESCRIPTOR POOL
 	VkDescriptorPoolSize samplerPoolSize = {};
 	samplerPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerPoolSize.descriptorCount = MAX_OBJECTS; // TODO: NEED TO CHANGE WITH SOMETHING REGISTER TEXTURE BEFORE LOADING
+	samplerPoolSize.descriptorCount = static_cast<uint32_t>(m_renderConfig.maxObjects); // TODO: NEED TO CHANGE WITH SOMETHING REGISTER TEXTURE BEFORE LOADING
 
 	VkDescriptorPoolCreateInfo samplerPoolInfo = {};
 	samplerPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	samplerPoolInfo.maxSets = MAX_OBJECTS; // TODO: NEED TO CHANGE WITH SOMETHING REGISTER TEXTURE BEFORE LOADING
+	samplerPoolInfo.maxSets = static_cast<uint32_t>(m_renderConfig.maxObjects); // TODO: NEED TO CHANGE WITH SOMETHING REGISTER TEXTURE BEFORE LOADING
 	samplerPoolInfo.poolSizeCount = 1;
 	samplerPoolInfo.pPoolSizes = &samplerPoolSize;
 
@@ -651,11 +651,11 @@ void Renderer::createDescriptorPool()
 	// CREATE STORAGE BUFFER DESCRIPTOR POOL
 	VkDescriptorPoolSize storageBufferPoolSize = {};
 	storageBufferPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-	storageBufferPoolSize.descriptorCount = MAX_STORAGE_BUFFERS;
+	storageBufferPoolSize.descriptorCount = m_renderConfig.maxStorageBuffers;
 
 	VkDescriptorPoolCreateInfo storageBufferPoolInfo = {};
 	storageBufferPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	storageBufferPoolInfo.maxSets = MAX_STORAGE_BUFFERS;
+	storageBufferPoolInfo.maxSets = m_renderConfig.maxStorageBuffers;
 	storageBufferPoolInfo.poolSizeCount = 1;
 	storageBufferPoolInfo.pPoolSizes = &storageBufferPoolSize;
 
@@ -1473,6 +1473,11 @@ int Renderer::getActiveCamera()
 	return m_activeCamera;
 }
 
+void Renderer::setConfig(RenderConfig config)
+{
+	m_renderConfig = config;
+}
+
 int Renderer::createIndexBuffer(std::vector<uint32_t>* indices)
 {
 	auto indexBuffer = std::make_unique<IndexBuffer>(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, m_graphicsQueue, m_commandPool, indices);
@@ -1516,7 +1521,7 @@ int Renderer::createStorageBuffer(VkDeviceSize size)
 
 int Renderer::createCamera()
 {
-	if (m_cameraResources.size() >= MAX_CAMERAS) {
+	if (m_cameraResources.size() >= m_renderConfig.maxCameras) {
 		throw std::runtime_error("failed to create camera: maximum number of cameras reached!");
 	}
 
