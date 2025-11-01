@@ -299,7 +299,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Core\Scene.cpp" />
     <ClCompile Include="Core\Sprite.cpp" />
     <ClCompile Include="Graphics\UniformBuffer.cpp" />
-    <ClCompile Include="Graphics\UnlitMaterial.cpp" />
+    <ClCompile Include="Graphics\PBRMaterial.cpp" />
     <ClCompile Include="Graphics\VertexBuffer.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Graphics\Pipeline.cpp" />
@@ -356,7 +356,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Assets\StaticMeshesRsc.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
-    <ClInclude Include="Graphics\UnlitMaterial.h" />
+    <ClInclude Include="Graphics\PBRMaterial.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Math\Transform.h" />

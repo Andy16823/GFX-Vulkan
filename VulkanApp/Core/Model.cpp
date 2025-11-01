@@ -2,7 +2,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "../Graphics/UnlitMaterial.h"
+#include "../Graphics/PBRMaterial.h"
 #include "../Assets/ModelLoader.h"
 
 

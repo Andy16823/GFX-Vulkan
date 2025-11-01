@@ -3,7 +3,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/pbrmaterial.h>
-#include "../Graphics/UnlitMaterial.h"
+#include "../Graphics/PBRMaterial.h"
 #include <iostream>
 #include "../Utils.h"
 
@@ -24,7 +24,7 @@ std::vector<std::unique_ptr<Mesh>> ModelLoader::loadModelFromFile(const std::str
 	for (size_t i = 0; i < scene->mNumMeshes; i++) {
 		auto aiMesh = scene->mMeshes[i];
 		Mesh* mesh = new Mesh();
-		UnlitMaterial* material = new UnlitMaterial();
+		PBRMaterial* material = new PBRMaterial();
 
 		// Process vertices
 		std::vector<Vertex> vertices;

@@ -63,7 +63,7 @@
     <ClCompile Include="Graphics\Material.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\UnlitMaterial.cpp">
+    <ClCompile Include="Graphics\PBRMaterial.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="Core\GFX.cpp">
@@ -197,7 +197,7 @@
     <ClInclude Include="Graphics\Material.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\UnlitMaterial.h">
+    <ClInclude Include="Graphics\PBRMaterial.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Core\GFX.h">

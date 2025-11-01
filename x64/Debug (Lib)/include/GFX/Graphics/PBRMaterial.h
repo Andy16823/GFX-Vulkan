@@ -5,7 +5,7 @@
 /// Unlit material class
 /// The UnlitMaterial class is a simple material that only has an albedo texture
 /// </summary>
-class UnlitMaterial :
+class PBRMaterial :
 	public Material
 {
 private:
@@ -17,8 +17,8 @@ public:
 	std::unique_ptr<ImageTexture> aoTexture;
 
 
-	UnlitMaterial() = default;
-	~UnlitMaterial() = default;
+	PBRMaterial() = default;
+	~PBRMaterial() = default;
 	void init(Renderer* renderer);
 	void dispose(Renderer* renderer);
 	std::vector<int> getTextureIndices();
