@@ -27,6 +27,9 @@
 #include "RenderTarget.h"
 #include "Font.h"
 
+/// <summary>
+/// Renderer configuration structure
+/// </summary>
 struct RenderConfig {
 	size_t maxObjects = 1000;
 	size_t maxCameras = 256;

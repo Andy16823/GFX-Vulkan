@@ -8,6 +8,7 @@ layout(location = 3) in vec4 fragExtras;
 
 // Texture sampler
 layout(set = 2, binding = 0) uniform sampler2D textureSampler;
+layout(set = 3, binding = 0) uniform sampler2D normalSampler;
 
 // Fragment Output
 layout(location = 0) out vec4 fragColor;
