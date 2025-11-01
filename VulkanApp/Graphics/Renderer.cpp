@@ -1591,8 +1591,12 @@ void Renderer::draw()
 
 	// Setp 1: Get the next image from the swap chain
 	uint32_t imageIndex;
-	vkAcquireNextImageKHR(m_renderDevice.logicalDevice, m_swapChain, std::numeric_limits<uint64_t>::max(), m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
-	
+	VkResult acquireResult = vkAcquireNextImageKHR(m_renderDevice.logicalDevice, m_swapChain, std::numeric_limits<uint64_t>::max(), m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
+	if (acquireResult != VK_SUCCESS && acquireResult != VK_SUBOPTIMAL_KHR) {
+		std::cerr << "[WARNING] Failed to acquire image, skipping frame. Result: " << acquireResult << std::endl;
+		return;
+	}
+
 	// Check if a previous frame is using this image (i.e. there is its fence to wait on)
 	if (m_imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
 		vkWaitForFences(m_renderDevice.logicalDevice, 1, &m_imagesInFlight[imageIndex], VK_TRUE, std::numeric_limits<uint64_t>::max());
@@ -1630,10 +1634,19 @@ void Renderer::draw()
 	presentInfo.pSwapchains = &m_swapChain;										// Swap chains to present images to
 	presentInfo.pImageIndices = &imageIndex;									// Indices of the images in the swap chains to present
 
-	if (vkQueuePresentKHR(m_presentQueue, &presentInfo) != VK_SUCCESS) {
-		throw std::runtime_error("failed to present swap chain image!");
+	VkResult presentResult = vkQueuePresentKHR(m_presentQueue, &presentInfo);
+	if (presentResult != VK_SUCCESS) {
+		if (presentResult == VK_ERROR_OUT_OF_DATE_KHR) {
+			std::cerr << "[WARNING] Swapchain out of date (window resized?)" << std::endl;
+		}
+		else if (presentResult == VK_SUBOPTIMAL_KHR) {
+			std::cerr << "[WARNING] Swapchain suboptimal" << std::endl;
+		}
+		else {
+			std::cerr << "[ERROR] Present failed with error: " << presentResult << std::endl;
+			throw std::runtime_error("Failed to present!");
+		}
 	}
-
 	m_currentFrame = (m_currentFrame + 1) % m_numFramesInFlight;
 }
 

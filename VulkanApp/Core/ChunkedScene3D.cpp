@@ -1,5 +1,11 @@
 #include "ChunkedScene3D.h"
 
+ChunkedScene3D::ChunkedScene3D(glm::vec3 initialPosition) : Scene()
+{
+	m_currentChunk = this->getChunkForPosition(initialPosition);
+	m_neighboringChunks = this->getChunkNeighbors(m_currentChunk);
+}
+
 void ChunkedScene3D::init(Renderer* renderer)
 {
 	// Call base init to create render target

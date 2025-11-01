@@ -48,7 +48,16 @@ public:
 	/// </summary>
 	std::unique_ptr<Skybox> skybox;
 
+	/// <summary>
+	/// Chunk size in world units
+	/// </summary>
 	float chunkSize = 100.0f;
+
+	/// <summary>
+	/// Creates a new chunked 3D scene with an initial position
+	/// </summary>
+	/// <param name="initialPosition"></param>
+	ChunkedScene3D(glm::vec3 initialPosition);
 
 	void init(Renderer* renderer) override;
 	void update(float deltaTime) override;
