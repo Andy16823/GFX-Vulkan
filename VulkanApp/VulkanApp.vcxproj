@@ -292,7 +292,6 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Core\Input.cpp" />
     <ClCompile Include="Core\InstancedModel.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Graphics\Material.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Core\Model.cpp" />
     <ClCompile Include="Components\RotationBehavior.cpp" />

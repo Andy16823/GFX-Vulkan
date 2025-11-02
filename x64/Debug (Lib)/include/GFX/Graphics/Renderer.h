@@ -309,7 +309,11 @@ public:
 	void bindPipeline(VkCommandBuffer commandBuffer, std::string pipelineName);
 
 	// Bind functions
-	void bindDescriptorSets(std::vector<VkDescriptorSet> descriptorSets, int frame);
+	void bindDescriptorSet(VkDescriptorSet descriptorSet, int firstSet, int frame);
+	void bindDescriptorSets(const std::vector<VkDescriptorSet>& descriptorSets, int frame);
+	void bindDescriptorSets(const std::vector<VkDescriptorSet>& descriptorSets, int firstSet, int frame);
+	template<typename C>
+	void bindDescriptorSets(const C& descriptorSets, int firstSet, int frame);
 	void bindPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* pValues);
 	void setActiveCamera(int cameraIndex);
 
@@ -326,7 +330,6 @@ public:
 
 	// Draw functions
 	void drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer, int instances = 1);
-	void drawMesh(Mesh* mesh, Material* material, UboModel model, int frame);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
 	void drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame);
 	void drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size);
@@ -334,4 +337,23 @@ public:
 
 	~Renderer();
 };
+
+template<typename C>
+void Renderer::bindDescriptorSets(const C& descriptorSets, int firstSet, int frame)
+{
+	validateCurrentPipeline();
+	VkCommandBuffer commandBuffer = this->getCommandBuffer(frame);
+	VkPipelineLayout pipelineLayout = m_currentPipeline->getPipelineLayout();
+
+	vkCmdBindDescriptorSets(
+		commandBuffer,
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		pipelineLayout,
+		static_cast<uint32_t>(firstSet),
+		static_cast<uint32_t>(descriptorSets.size()),
+		descriptorSets.data(),
+		0,
+		nullptr
+	);
+}
 

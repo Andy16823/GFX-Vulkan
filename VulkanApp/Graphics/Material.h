@@ -21,6 +21,6 @@ public:
 	std::vector<std::unique_ptr<ImageTexture>> textures;
 	virtual void init(Renderer* renderer) = 0;
 	virtual void dispose(Renderer* renderer) = 0;
-	virtual std::vector<int> getTextureIndices() = 0;
+	virtual void bindMaterial(Renderer* renderer, VkCommandBuffer commandBuffer, int firstSet, int frame) = 0;
 };
 

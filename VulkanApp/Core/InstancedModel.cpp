@@ -47,26 +47,23 @@ void InstancedModel::render(Renderer* renderer, VkCommandBuffer commandBuffer, i
 	// Get the required buffers wich all meshes share
 	auto storageBuffer = renderer->getStorageBuffer(m_storageBufferIndex);
 	auto camera = renderer->getActiveCamera();
-	VkDescriptorSet cameraDescriptorSet = renderer->getCameraDescriptorSet(camera, currentFrame);
-	VkDescriptorSet storageBufferDescriptorSet = renderer->getStorageBufferDescriptorSet(storageBuffer->descriptorIndex);
+
+	// Bind the instanced graphics pipeline
 	renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D_INSTANCED));
 
-	// Iterate through all meshes and render them
-	for (auto& mesh : m_meshResource->meshes) {
-		std::vector<VkDescriptorSet> descriptorSets;
-		descriptorSets.push_back(cameraDescriptorSet); // Add the per-frame UBO descriptor set first
-		descriptorSets.push_back(storageBufferDescriptorSet); // Add the storage buffer descriptor set second
+	// Bind the common descriptor sets (camera UBO and storage buffer)
+	VkDescriptorSet cameraDescriptorSet = renderer->getCameraDescriptorSet(camera, currentFrame);
+	VkDescriptorSet storageBufferDescriptorSet = renderer->getStorageBufferDescriptorSet(storageBuffer->descriptorIndex);
+	std::array<VkDescriptorSet, 2> baseDescriptorSets = {
+		cameraDescriptorSet,
+		storageBufferDescriptorSet
+	};
+	renderer->bindDescriptorSets(baseDescriptorSets, 0, currentFrame);
 
-		// Get the texture descriptor sets from the material
+	// Render each mesh with its associated material
+	for (auto& mesh : m_meshResource->meshes) {
 		auto material = mesh->material.get();
-		auto textureBufferIndices = material->getTextureIndices();
-		for (size_t i = 0; i < textureBufferIndices.size(); i++) {
-			int imageBufferIndex = textureBufferIndices[i];
-			auto imageBuffer = renderer->getImageBuffer(imageBufferIndex);
-			VkDescriptorSet textureDescriptorSet = renderer->getSamplerDescriptorSet(imageBuffer->descriptorIndex);
-			descriptorSets.push_back(textureDescriptorSet);
-		}
-		renderer->bindDescriptorSets(descriptorSets, currentFrame);
+		material->bindMaterial(renderer, commandBuffer, 2, currentFrame); // Bind material starting from set 2
 		renderer->drawBuffers(mesh->vertexBufferIndex, mesh->indexBufferIndex, commandBuffer, instanceCount);
 	}
 }

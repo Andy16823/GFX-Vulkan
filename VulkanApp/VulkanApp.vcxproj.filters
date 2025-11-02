@@ -60,9 +60,6 @@
     <ClCompile Include="Core\Model.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Material.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\PBRMaterial.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>

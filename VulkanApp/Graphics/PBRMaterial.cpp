@@ -45,12 +45,18 @@ void PBRMaterial::dispose(Renderer* renderer)
 	// No need to do anything here since the renderer will dispose the image buffer itself
 }
 
-std::vector<int> PBRMaterial::getTextureIndices()
+void PBRMaterial::bindMaterial(Renderer* renderer, VkCommandBuffer commandBuffer, int firstSet, int frame)
 {
-	return { 
-		albedoTexture->bufferIndex, 
-		normalTexture->bufferIndex, 
-		metRoughTexture->bufferIndex, 
-		aoTexture->bufferIndex 
+	VkDescriptorSet albedoSet = renderer->getSamplerDescriptorSetFromImageBuffer(albedoTexture->bufferIndex);
+	VkDescriptorSet normalSet = renderer->getSamplerDescriptorSetFromImageBuffer(normalTexture->bufferIndex);
+	VkDescriptorSet metRoughSet = renderer->getSamplerDescriptorSetFromImageBuffer(metRoughTexture->bufferIndex);
+	VkDescriptorSet aoSet = renderer->getSamplerDescriptorSetFromImageBuffer(aoTexture->bufferIndex);
+
+	std::array<VkDescriptorSet, 4> descriptorSets = {
+		albedoSet,
+		normalSet,
+		metRoughSet,
+		aoSet
 	};
+	renderer->bindDescriptorSets(descriptorSets, firstSet, frame);
 }

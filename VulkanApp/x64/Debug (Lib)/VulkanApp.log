@@ -6,25 +6,6 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:         ]
   (Quelldatei „Core/Model.cpp“ wird kompiliert)
   
-  PBRMaterial.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:         ]
-  (Quelldatei „Graphics/PBRMaterial.cpp“ wird kompiliert)
-  
-  ModelLoader.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:         ]
-  (Quelldatei „Assets/ModelLoader.cpp“ wird kompiliert)
-  
-  pbrmaterial.h is deprecated. Please update to PBR materials in materials.h and glTF-specific items in GltfMaterial.h
-  Code wird generiert...
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Assets\ModelLoader.cpp(132,1): warning C4715: "ModelLoader::loadModelFromFile": Nicht alle Codepfade geben einen Wert zurück.
   VulkanApp.vcxproj -> C:\Users\andy1\Documents\GitHub\GFX-Vulkan\x64\Debug (Lib)\VulkanApp.lib
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\compile.bat
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\frag.spv

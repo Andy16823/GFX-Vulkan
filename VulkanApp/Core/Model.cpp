@@ -33,25 +33,17 @@ void Model::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t cu
 	if (!m_meshResource) {
 		throw std::runtime_error("failed to render model: mesh resource is null!");
 	}
-
-	// Render the model with the meshes from the resource
+	auto modelMatrix = this->getModelMatrix();
 	auto currentCamera = renderer->getActiveCamera();
-	VkDescriptorSet descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);	 // Get the descriptor set for the current camera
-	renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D)); // Bind the 3D graphics pipeline
-
+	VkDescriptorSet descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);
+	renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D)); 
+	renderer->bindPushConstants(commandBuffer, renderer->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &modelMatrix);
+	renderer->bindDescriptorSet(descriptorSet, 0, currentFrame);
+	
 	for (const auto& mesh : m_meshResource->meshes) {
-		std::vector<VkDescriptorSet> desriptorSets;
-		desriptorSets.push_back(descriptorSet); // Add the per-frame UBO descriptor set first
-		auto textureBufferIndices = mesh->material->getTextureIndices(); // Get the indices to the buffers from the material textures
-		for (size_t i = 0; i < textureBufferIndices.size(); i++) {
-			int textureBufferIndex = textureBufferIndices[i];
-			VkDescriptorSet textureDescriptorSet = renderer->getSamplerDescriptorSetFromImageBuffer(textureBufferIndex);
-			desriptorSets.push_back(textureDescriptorSet);
-		}
-
-		// Bind pipeline, descriptor sets and draw the mesh
-		renderer->bindDescriptorSets(desriptorSets, currentFrame);
-		renderer->drawMesh(mesh.get(), mesh->material.get(), this->getModelMatrix(), currentFrame);
+		auto material = mesh->material.get();
+		material->bindMaterial(renderer, commandBuffer, 1, currentFrame); // Bind material descriptor sets starting from set 1
+		renderer->drawBuffers(mesh->vertexBufferIndex, mesh->indexBufferIndex, commandBuffer);
 	}
 }
 
