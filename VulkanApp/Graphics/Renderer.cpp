@@ -1577,7 +1577,8 @@ int Renderer::createCamera()
 		camera.uniformBuffers[i] = std::make_unique<UniformBuffer>(
 			m_renderDevice.physicalDevice,
 			m_renderDevice.logicalDevice,
-			bufferSize
+			bufferSize,
+			true
 		);
 
 		VkDescriptorSetAllocateInfo allocInfo = {};
@@ -1858,10 +1859,7 @@ void Renderer::updateCamera(int cameraIndex, uint32_t frame, const UboViewProjec
 		auto& camera = m_cameraResources[cameraIndex];
 		auto& buffer = camera.uniformBuffers[frame];
 
-		void* data;
-		vkMapMemory(m_renderDevice.logicalDevice, buffer->getUniformBufferMemory(), 0, sizeof(UboViewProjection), 0, &data);
-		memcpy(data, &vp, sizeof(UboViewProjection));
-		vkUnmapMemory(m_renderDevice.logicalDevice, buffer->getUniformBufferMemory());
+		buffer->updateBufferData(m_renderDevice.logicalDevice, (void*)&vp, sizeof(UboViewProjection), 0);
 	}
 	else {
 		throw std::runtime_error("failed to update camera: invalid camera index!");
