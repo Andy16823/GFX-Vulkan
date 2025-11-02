@@ -449,6 +449,35 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DInstancedLayouts.data(), static_cast<uint32_t>(pipline3DInstancedLayouts.size()), nullptr, 0);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
+	// PIPELINE 3D UNLIT
+	ShaderSourceCollection shaders3DUnlit = { "Shaders/shader_unlit3D_vert.spv", "Shaders/shader_unlit3D_frag.spv" };
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D_UNLIT), shaders3DUnlit, bindingInfo);
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
+	pipelinePtr->addVertexAttribute(texCoordAttr);
+	pipelinePtr->addVertexAttribute(normalAttr);
+	std::array<VkDescriptorSetLayout, 2> pipeline3DUnlitLayouts = { 
+		m_descriptorSetLayout, 
+		m_samplerSetLayout 
+	};
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipeline3DUnlitLayouts.data(), static_cast<uint32_t>(pipeline3DUnlitLayouts.size()), &pushConstantRange, 1);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
+
+	// PIPELINE 3D UNLIT INSTANCED
+	ShaderSourceCollection shaders3DUnlitInstanced = { "Shaders/shader_unlit3Di_vert.spv", "Shaders/shader_unlit3Di_frag.spv" };
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D_UNLIT_INSTANCED), shaders3DUnlitInstanced, bindingInfo);
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
+	pipelinePtr->addVertexAttribute(texCoordAttr);
+	pipelinePtr->addVertexAttribute(normalAttr);
+	std::array<VkDescriptorSetLayout, 3> pipeline3DUnlitInstancedLayouts = {
+		m_descriptorSetLayout,
+		m_storageBufferSetLayout,
+		m_samplerSetLayout
+	};
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipeline3DUnlitInstancedLayouts.data(), static_cast<uint32_t>(pipeline3DUnlitInstancedLayouts.size()), nullptr, 0);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
+
 	// PIPELINE 2D
 	ShaderSourceCollection shaders2D = { "Shaders/vert_2d.spv", "Shaders/frag_2d.spv" };
 	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D), shaders2D, bindingInfo);

@@ -66,16 +66,25 @@ struct CameraResources {
 enum class PipelineType {
 	PIPELINE_TYPE_GRAPHICS_3D,
 	PIPELINE_TYPE_GRAPHICS_3D_INSTANCED,
+	PIPELINE_TYPE_GRAPHICS_3D_UNLIT,
+	PIPELINE_TYPE_GRAPHICS_3D_UNLIT_INSTANCED,
 	PIPELINE_TYPE_GRAPHICS_2D,
 	PIPELINE_TYPE_SKYBOX,
 	PIPELINE_TYPE_FONT_RENDERING,
 	PIPELINE_TYPE_RENDER_TARGET_PRESENT
 };
 
+/// <summary>
+/// Convert PipelineType to string
+/// </summary>
+/// <param name="type"></param>
+/// <returns></returns>
 inline const char* ToString(PipelineType type) {
 	switch (type) {
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D: return "pipeline_3D";
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D_INSTANCED: return "pipeline_3D_instanced";
+	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D_UNLIT: return "pipeline_3D_unlit";
+	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D_UNLIT_INSTANCED: return "pipeline_3D_unlit_instanced";
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_2D: return "pipeline_2D";
 	case PipelineType::PIPELINE_TYPE_SKYBOX: return "pipeline_skybox";
 	case PipelineType::PIPELINE_TYPE_FONT_RENDERING: return "pipeline_font_rendering";

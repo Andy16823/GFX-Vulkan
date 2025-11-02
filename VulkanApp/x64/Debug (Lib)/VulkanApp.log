@@ -1,12 +1,4 @@
-﻿  Model.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4244:         ]
-  (Quelldatei „Core/Model.cpp“ wird kompiliert)
-  
-  VulkanApp.vcxproj -> C:\Users\andy1\Documents\GitHub\GFX-Vulkan\x64\Debug (Lib)\VulkanApp.lib
+﻿  VulkanApp.vcxproj -> C:\Users\andy1\Documents\GitHub\GFX-Vulkan\x64\Debug (Lib)\VulkanApp.lib
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\compile.bat
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\frag.spv
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\frag_2d.spv
@@ -22,6 +14,14 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader3di_vert.spv
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_2d.frag
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_2d.vert
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_unlit3D.frag
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_unlit3D.vert
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_unlit3Di.frag
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_unlit3Di.vert
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_unlit3Di_frag.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_unlit3Di_vert.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_unlit3D_frag.spv
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\shader_unlit3D_vert.spv
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\skybox.frag
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\skybox.vert
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\skybox_frag.spv
@@ -36,7 +36,7 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\triangle_vert.spv
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\vert.spv
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\vert_2d.spv
-  29 Datei(en) kopiert
+  37 Datei(en) kopiert
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\stb_image.h
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Assets\AssetManager.h
@@ -80,9 +80,10 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(573,11): warning C4
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\RenderTarget.h
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\StorageBuffer.h
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\UniformBuffer.h
+  C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\UnlitMaterial.h
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.h
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Math\RayCast.h
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Math\Transform.h
-  46 Datei(en) kopiert
+  47 Datei(en) kopiert
   Datei *.hpp nicht gefunden
   0 Datei(en) kopiert

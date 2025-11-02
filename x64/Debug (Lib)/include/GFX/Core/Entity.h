@@ -115,7 +115,12 @@ public:
 	/// <summary>
 	/// The unique ID of the entity
 	/// </summary>
-	std::string UniqueId;
+	std::string uuId;
+
+	/// <summary>
+	/// The pipeline type used to render the entity
+	/// </summary>
+	std::string pipelineType;
 
 	Entity(std::string name);
 	virtual ~Entity() = default;

@@ -5,6 +5,7 @@
 
 InstancedModel::InstancedModel(const std::string& name, StaticMeshesRsc* ressource, int instances) : Entity(name)
 {
+	this->pipelineType = ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D_INSTANCED);
 	m_meshResource = ressource;
 	this->instanceCount = instances;
 }
@@ -12,6 +13,7 @@ InstancedModel::InstancedModel(const std::string& name, StaticMeshesRsc* ressour
 InstancedModel::InstancedModel(const std::string& name, StaticMeshesRsc* ressource, const std::vector<InstanceData>& startValues, int instances)
 	: Entity(name)
 {
+	this->pipelineType = ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D_INSTANCED);
 	m_meshResource = ressource;
 	this->instanceCount = instances;
 	if (startValues.size() > instances) {
@@ -34,6 +36,10 @@ void InstancedModel::init(Renderer* renderer)
 
 void InstancedModel::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
+	if (this->pipelineType.empty()) {
+		throw std::runtime_error("failed to render instanced model: pipeline type is not set!");
+	}
+
 	// Ensure the mesh resource is valid
 	if (!m_meshResource) {
 		throw std::runtime_error("failed to render instanced model: mesh resource is null!");
@@ -49,7 +55,7 @@ void InstancedModel::render(Renderer* renderer, VkCommandBuffer commandBuffer, i
 	auto camera = renderer->getActiveCamera();
 
 	// Bind the instanced graphics pipeline
-	renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D_INSTANCED));
+	renderer->bindPipeline(commandBuffer, this->pipelineType);
 
 	// Bind the common descriptor sets (camera UBO and storage buffer)
 	VkDescriptorSet cameraDescriptorSet = renderer->getCameraDescriptorSet(camera, currentFrame);

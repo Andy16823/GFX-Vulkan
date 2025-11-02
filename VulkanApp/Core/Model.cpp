@@ -9,6 +9,7 @@
 Model::Model(std::string name, StaticMeshesRsc* ressource) 
 	: Entity(name)
 {
+	this->pipelineType = ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D);
 	m_meshResource = ressource;
 }
 
@@ -30,13 +31,19 @@ void Model::init(Renderer* renderer)
 /// <param name="currentFrame"></param>
 void Model::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
+	if (this->pipelineType.empty()) {
+		throw std::runtime_error("failed to render model: pipeline type is not set!");
+	}
+
+	// Ensure the mesh resource is valid
 	if (!m_meshResource) {
 		throw std::runtime_error("failed to render model: mesh resource is null!");
 	}
+
 	auto modelMatrix = this->getModelMatrix();
 	auto currentCamera = renderer->getActiveCamera();
 	VkDescriptorSet descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);
-	renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D)); 
+	renderer->bindPipeline(commandBuffer, this->pipelineType); 
 	renderer->bindPushConstants(commandBuffer, renderer->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &modelMatrix);
 	renderer->bindDescriptorSet(descriptorSet, 0, currentFrame);
 	

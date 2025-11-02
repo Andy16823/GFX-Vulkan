@@ -138,6 +138,9 @@
     <ClCompile Include="Assets\StaticMeshesRsc.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\UnlitMaterial.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -276,6 +279,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Assets\StaticMeshesRsc.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UnlitMaterial.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

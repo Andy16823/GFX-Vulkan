@@ -3,6 +3,7 @@
 
 Sprite::Sprite(std::string name, std::string file) : Entity(name)
 {
+	this->pipelineType = ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D);
 	m_textureImage = std::make_unique<ImageTexture>(file);
 	m_mesh = std::make_unique<Mesh>();
 }
@@ -26,6 +27,10 @@ void Sprite::init(Renderer* renderer)
 
 void Sprite::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
+	if (this->pipelineType.empty()) {
+		throw std::runtime_error("failed to render sprite: pipeline type is not set!");
+	}
+
 	int currentCamera = renderer->getActiveCamera();
 	auto modelMatrix = this->getModelMatrix();
 	auto descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);
@@ -35,7 +40,7 @@ void Sprite::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t c
 		descriptorSet,
 		imageDescriptorSet
 	};
-	renderer->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
+	renderer->bindPipeline(commandBuffer, this->pipelineType);
 	renderer->bindPushConstants(
 		commandBuffer,
 		renderer->getCurrentPipelineLayout(),

@@ -11,12 +11,6 @@ public:
 	virtual ~AssetRessource() = default;
 
 	/// <summary>
-	/// Load the asset from a file
-	/// </summary>
-	/// <param name="path"></param>
-	virtual void loadFromFile(const std::string& path) = 0;
-
-	/// <summary>
 	/// Initialize the asset for rendering
 	/// </summary>
 	/// <param name="renderer"></param>

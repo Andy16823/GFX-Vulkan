@@ -313,6 +313,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Assets\ModelLoader.cpp" />
     <ClCompile Include="Core\Scene3D.cpp" />
     <ClCompile Include="Assets\StaticMeshesRsc.cpp" />
+    <ClCompile Include="Graphics\UnlitMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Assets\AssetRessource.h" />
@@ -360,6 +361,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Math\Transform.h" />
     <ClInclude Include="Graphics\StorageBuffer.h" />
+    <ClInclude Include="Graphics\UnlitMaterial.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

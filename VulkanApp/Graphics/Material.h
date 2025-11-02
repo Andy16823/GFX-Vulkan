@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "ImageTexture.h"
+#include <string>
 
 /// <summary>
 /// Forward declaration of Renderer class

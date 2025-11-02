@@ -77,6 +77,5 @@ public:
 	/// </summary>
 	/// <param name="texture"></param>
 	void setAOTexture(std::unique_ptr<ImageTexture> texture) { aoTexture = std::move(texture); }
-	
 };
 

@@ -4,7 +4,7 @@
 Entity::Entity(std::string name)
 {
 	this->name = name;
-	this->UniqueId = generateUUID();
+	this->uuId = generateUUID();
 }
 
 void Entity::setPosition(glm::vec3 position)
