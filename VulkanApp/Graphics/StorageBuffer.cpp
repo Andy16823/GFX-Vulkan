@@ -18,7 +18,15 @@ StorageBuffer::StorageBuffer(VkPhysicalDevice physicalDevice, VkDevice device, V
 	bufferSize = static_cast<uint32_t>(size);
 
 	// Map the buffer memory for persistent access
-	vkMapMemory(device, bufferMemory, 0, size, 0, &m_mappedMemory);
+	VkResult result = vkMapMemory(device, bufferMemory, 0, size, 0, &m_mappedMemory);
+
+	// Check for mapping errors
+	if (result != VK_SUCCESS) {
+		vkDestroyBuffer(device, buffer, nullptr);
+		vkFreeMemory(device, bufferMemory, nullptr);
+		m_mappedMemory = nullptr;
+		throw std::runtime_error("Failed to map storage buffer memory.");
+	}
 
 	// Debug output
 	std::cout << "[STORAGE BUFFER] Storage buffer created with size: "

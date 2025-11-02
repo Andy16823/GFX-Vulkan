@@ -20,7 +20,15 @@ void UniformBuffer::createUniformBuffer(VkPhysicalDevice physicalDevice, VkDevic
 		&m_uniformBufferMemory);
 
 	// Map the buffer memory
-	vkMapMemory(device, m_uniformBufferMemory, 0, bufferSize, 0, &m_mappedMemory);
+	VkResult result = vkMapMemory(device, m_uniformBufferMemory, 0, bufferSize, 0, &m_mappedMemory);
+
+	// Check for mapping errors
+	if (result != VK_SUCCESS) {
+		vkDestroyBuffer(device, m_uniformBuffer, nullptr);
+		vkFreeMemory(device, m_uniformBufferMemory, nullptr);
+		m_mappedMemory = nullptr;
+		throw std::runtime_error("Failed to map uniform buffer memory.");
+	}
 
 	// Set the state to initialized
 	this->state = GFX_BUFFER_STATE_INITIALIZED;

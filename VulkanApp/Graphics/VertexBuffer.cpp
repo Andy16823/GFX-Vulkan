@@ -40,7 +40,15 @@ void VertexBuffer::resizeBuffer(VkPhysicalDevice physicalDevice, VkDevice device
 		&m_vertexBufferMemory);
 
 	// Remap the buffer memory persistently
-	vkMapMemory(device, m_vertexBufferMemory, 0, bufferSize, 0, &m_mappedMemory);
+	VkResult result = vkMapMemory(device, m_vertexBufferMemory, 0, bufferSize, 0, &m_mappedMemory);
+
+	// Check for mapping errors
+	if (result != VK_SUCCESS) {
+		vkDestroyBuffer(device, m_vertexBuffer, nullptr);
+		vkFreeMemory(device, m_vertexBufferMemory, nullptr);
+		m_mappedMemory = nullptr;
+		throw std::runtime_error("Failed to map dynamic vertex buffer memory after resizing.");
+	}
 
 	// Show debug message
 	std::cout << "[VERTEX BUFFER] Dynamic vertex buffer resized to " << bufferSize << " bytes." << std::endl;
@@ -127,7 +135,15 @@ VkBuffer VertexBuffer::createDynamicVertexBuffer(VkPhysicalDevice physicalDevice
 		&m_vertexBufferMemory);
 
 	// Map the buffer memory persistently
-	vkMapMemory(device, m_vertexBufferMemory, 0, bufferSize, 0, &m_mappedMemory);
+	VkResult result = vkMapMemory(device, m_vertexBufferMemory, 0, bufferSize, 0, &m_mappedMemory);
+	
+	// Check for mapping errors
+	if (result != VK_SUCCESS) {
+		vkDestroyBuffer(device, m_vertexBuffer, nullptr);
+		vkFreeMemory(device, m_vertexBufferMemory, nullptr);
+		m_mappedMemory = nullptr;
+		throw std::runtime_error("Failed to map dynamic vertex buffer memory.");
+	}
 
 	// If initial vertices are provided, copy them to the buffer
 	if (!vertices->empty()) {
