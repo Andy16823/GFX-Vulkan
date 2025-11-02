@@ -4,15 +4,32 @@
 
 void VertexBuffer::resizeBuffer(VkPhysicalDevice physicalDevice, VkDevice device, std::vector<Vertex>* vertices)
 {
-	m_capacity = vertices->size();
+	// Check if the buffer type is dynamic
+	if (this->type != VertexBufferType::VERTEX_BUFFER_TYPE_DYNAMIC) {
+		throw std::runtime_error("Only dynamic vertex buffers can be resized.");
+	}
 	std::cout << "[VERTEX BUFFER] Resizing dynamic vertex buffer to capacity: " << m_capacity << " vertices." << std::endl;
 
+	// Wait for the device to be idle before resizing
+	vkDeviceWaitIdle(device);
+
+	// Set new capacity
+	m_capacity = vertices->size();
+
+	// Unmap memory if already mapped
+	if (m_mappedMemory) {
+		vkUnmapMemory(device, m_vertexBufferMemory);
+		m_mappedMemory = nullptr;
+	}
+
+	// Destroy the old buffer
 	if (m_vertexBuffer != VK_NULL_HANDLE)
 	{
 		vkDestroyBuffer(device, m_vertexBuffer, nullptr);
 		vkFreeMemory(device, m_vertexBufferMemory, nullptr);
 	}
 
+	// Create new buffer
 	VkDeviceSize bufferSize = sizeof(Vertex) * m_capacity;
 	createBuffer(physicalDevice,
 		device,
@@ -22,6 +39,10 @@ void VertexBuffer::resizeBuffer(VkPhysicalDevice physicalDevice, VkDevice device
 		&m_vertexBuffer,
 		&m_vertexBufferMemory);
 
+	// Remap the buffer memory persistently
+	vkMapMemory(device, m_vertexBufferMemory, 0, bufferSize, 0, &m_mappedMemory);
+
+	// Show debug message
 	std::cout << "[VERTEX BUFFER] Dynamic vertex buffer resized to " << bufferSize << " bytes." << std::endl;
 }
 
@@ -105,14 +126,13 @@ VkBuffer VertexBuffer::createDynamicVertexBuffer(VkPhysicalDevice physicalDevice
 		&m_vertexBuffer,
 		&m_vertexBufferMemory);
 
-	// Copy vertex data to the buffer NUR wenn nicht leer!
-	if (!vertices->empty()) {
-		VkDeviceSize dataSize = sizeof(Vertex) * vertices->size();  // <-- Tatsächliche Datenmenge
+	// Map the buffer memory persistently
+	vkMapMemory(device, m_vertexBufferMemory, 0, bufferSize, 0, &m_mappedMemory);
 
-		void* data;
-		vkMapMemory(device, m_vertexBufferMemory, 0, dataSize, 0, &data);
-		memcpy(data, vertices->data(), (size_t)dataSize);
-		vkUnmapMemory(device, m_vertexBufferMemory);
+	// If initial vertices are provided, copy them to the buffer
+	if (!vertices->empty()) {
+		memcpy(m_mappedMemory, vertices->data(), sizeof(Vertex) * vertices->size());
+		m_vertexCount = vertices->size();
 	}
 
 	// Set the state to initialized
@@ -147,7 +167,6 @@ VertexBuffer::~VertexBuffer()
 
 void VertexBuffer::updateBuffer(VkPhysicalDevice physicalDevice, VkDevice device, std::vector<Vertex>* vertices)
 {
-	//std::cout << "[VERTEX BUFFER] Updating dynamic vertex buffer with " << vertices->size() << " vertices." << std::endl;
 	// Check if the buffer type is dynamic
 	if (this->type != VertexBufferType::VERTEX_BUFFER_TYPE_DYNAMIC) {
 		throw std::runtime_error("Only dynamic vertex buffers can be updated. Try changing the buffer type to VERTEX_BUFFER_TYPE_DYNAMIC.");
@@ -173,13 +192,8 @@ void VertexBuffer::updateBuffer(VkPhysicalDevice physicalDevice, VkDevice device
 	}
 
 	// Copy vertex data to the buffer
-	// WICHTIG: Nutze die TATSÄCHLICHE Datenmenge, nicht die Kapazität!
-	VkDeviceSize dataSize = sizeof(Vertex) * vertices->size();  // <-- HIER!
-
-	void* data;
-	vkMapMemory(device, m_vertexBufferMemory, 0, dataSize, 0, &data);
-	memcpy(data, vertices->data(), (size_t)dataSize);
-	vkUnmapMemory(device, m_vertexBufferMemory);
+	VkDeviceSize dataSize = sizeof(Vertex) * vertices->size();
+	memcpy(m_mappedMemory, vertices->data(), (size_t)dataSize);
 
 	// Update real vertex count
 	m_vertexCount = vertices->size();
@@ -197,6 +211,14 @@ VkBuffer VertexBuffer::getVertexBuffer()
 
 void VertexBuffer::dispose(VkDevice device)
 {
+	// Unmap memory if dynamic buffer
+	if (this->type == VertexBufferType::VERTEX_BUFFER_TYPE_DYNAMIC)
+	{
+		vkUnmapMemory(device, m_vertexBufferMemory);
+		m_mappedMemory = nullptr;
+	}
+
+	// Destroy the buffer and free memory
 	vkDestroyBuffer(device, m_vertexBuffer, nullptr);
 	vkFreeMemory(device, m_vertexBufferMemory, nullptr);
 	this->state = GFX_BUFFER_STATE_DISPOSED;
