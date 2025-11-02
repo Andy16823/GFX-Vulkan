@@ -1543,13 +1543,14 @@ int Renderer::createRenderTarget(const bool presentOnScreen)
 	return m_renderTargets.size() - 1;
 }
 
-int Renderer::createStorageBuffer(VkDeviceSize size)
+int Renderer::createStorageBuffer(VkDeviceSize size, bool persistent)
 {
 	// Create the storage buffer
 	auto storageBuffer = std::make_unique<StorageBuffer>(
 		m_renderDevice.physicalDevice,
 		m_renderDevice.logicalDevice,
-		size
+		size,
+		persistent
 	);
 
 	// Create the descriptor set for the storage buffer
