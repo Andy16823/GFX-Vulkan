@@ -28,6 +28,9 @@ StorageBuffer::StorageBuffer(VkPhysicalDevice physicalDevice, VkDevice device, V
 		throw std::runtime_error("Failed to map storage buffer memory.");
 	}
 
+	// Set the state to initialized
+	this->state = GFX_BUFFER_STATE_INITIALIZED;
+
 	// Debug output
 	std::cout << "[STORAGE BUFFER] Storage buffer created with size: "
 		<< bufferSize << " bytes." << std::endl;

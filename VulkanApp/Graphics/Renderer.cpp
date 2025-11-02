@@ -1554,7 +1554,6 @@ int Renderer::createStorageBuffer(VkDeviceSize size)
 
 	// Create the descriptor set for the storage buffer
 	storageBuffer->descriptorIndex = createStorageBufferDescriptor(storageBuffer->buffer, size);
-	storageBuffer->state = GFX_BUFFER_STATE_INITIALIZED;
 
 	// Store the storage buffer and return the index
 	m_storageBuffers.push_back(std::move(storageBuffer));
