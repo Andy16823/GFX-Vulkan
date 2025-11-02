@@ -167,10 +167,9 @@ private:
 	VkDeviceMemory m_depthBufferImageMemory;
 	VkImageView m_depthBufferImageView;
 
-	// UNIFORM BUFFERS & DESCRIPTORS
-	//std::vector<UniformBuffer*> m_uniformBuffers;
-	VkDescriptorPool m_descriptorPool;
-	VkDescriptorSetLayout m_descriptorSetLayout;
+	// Camera Uniform Buffers
+	VkDescriptorPool m_cameraDescriptorPool;
+	VkDescriptorSetLayout m_cameraDescriptorSetLayout;
 
 	// TEXTURE STUFF
 	std::vector<std::unique_ptr<ImageBuffer>> m_imageBuffers;

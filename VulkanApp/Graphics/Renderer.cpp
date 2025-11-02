@@ -280,7 +280,7 @@ void Renderer::createDescriptorSetLayout()
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 	layoutInfo.pBindings = bindings.data();
 
-	if (vkCreateDescriptorSetLayout(m_renderDevice.logicalDevice, &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS) {
+	if (vkCreateDescriptorSetLayout(m_renderDevice.logicalDevice, &layoutInfo, nullptr, &m_cameraDescriptorSetLayout) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create uniform descriptor set layout!");
 	}
 	else {
@@ -422,7 +422,7 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->addVertexAttribute(normalAttr);
 	std::array<VkDescriptorSetLayout, 5> pipline3DLayouts = { 
-		m_descriptorSetLayout, 		// CameraUBO
+		m_cameraDescriptorSetLayout, 		// CameraUBO
 		m_samplerSetLayout,			// Albedo map
 		m_samplerSetLayout,			// Normal map
 		m_samplerSetLayout,			// MetallicRoughness map
@@ -439,7 +439,7 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->addVertexAttribute(normalAttr);
 	std::array<VkDescriptorSetLayout, 6> pipline3DInstancedLayouts = { 
-		m_descriptorSetLayout,			// CameraUBO
+		m_cameraDescriptorSetLayout,			// CameraUBO
 		m_storageBufferSetLayout,		// Instance data
 		m_samplerSetLayout, 			// Albedo map
 		m_samplerSetLayout,				// Normal map
@@ -457,7 +457,7 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->addVertexAttribute(normalAttr);
 	std::array<VkDescriptorSetLayout, 2> pipeline3DUnlitLayouts = { 
-		m_descriptorSetLayout, 
+		m_cameraDescriptorSetLayout, 
 		m_samplerSetLayout 
 	};
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipeline3DUnlitLayouts.data(), static_cast<uint32_t>(pipeline3DUnlitLayouts.size()), &pushConstantRange, 1);
@@ -471,7 +471,7 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->addVertexAttribute(normalAttr);
 	std::array<VkDescriptorSetLayout, 3> pipeline3DUnlitInstancedLayouts = {
-		m_descriptorSetLayout,
+		m_cameraDescriptorSetLayout,
 		m_storageBufferSetLayout,
 		m_samplerSetLayout
 	};
@@ -484,7 +484,7 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(positionAttr);
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
-	std::array<VkDescriptorSetLayout, 2> pipline2DLayouts = { m_descriptorSetLayout, m_samplerSetLayout };
+	std::array<VkDescriptorSetLayout, 2> pipline2DLayouts = { m_cameraDescriptorSetLayout, m_samplerSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline2DLayouts.data(), static_cast<uint32_t>(pipline2DLayouts.size()), &pushConstantRange, 1);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
@@ -494,7 +494,7 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->depthWriteEnable = VK_FALSE; // Disable depth writing for skybox
 	pipelinePtr->depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; // Change depth comparison to less or equal
 	pipelinePtr->addVertexAttribute(positionAttr);
-	std::array<VkDescriptorSetLayout, 2> skyboxDescriptorSetLayouts = { m_descriptorSetLayout, m_cubemapSetLayout };
+	std::array<VkDescriptorSetLayout, 2> skyboxDescriptorSetLayouts = { m_cameraDescriptorSetLayout, m_cubemapSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, skyboxDescriptorSetLayouts.data(), static_cast<uint32_t>(skyboxDescriptorSetLayouts.size()), nullptr, 0);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
@@ -506,7 +506,7 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->addVertexAttribute(normalAttr);
-	std::array<VkDescriptorSetLayout, 2> fontPipelineLayouts = { m_descriptorSetLayout, m_samplerSetLayout };
+	std::array<VkDescriptorSetLayout, 2> fontPipelineLayouts = { m_cameraDescriptorSetLayout, m_samplerSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, fontPipelineLayouts.data(), static_cast<uint32_t>(fontPipelineLayouts.size()), &pushConstantRange, 1);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
@@ -647,7 +647,7 @@ void Renderer::createDescriptorPool()
 	poolInfo.pPoolSizes = poolSizes.data();
 
 	// Create the descriptor pool
-	if (vkCreateDescriptorPool(m_renderDevice.logicalDevice, &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS) {
+	if (vkCreateDescriptorPool(m_renderDevice.logicalDevice, &poolInfo, nullptr, &m_cameraDescriptorPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create uniform descriptor pool!");
 	}
 	else {
@@ -1580,9 +1580,9 @@ int Renderer::createCamera()
 
 		VkDescriptorSetAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = m_descriptorPool;
+		allocInfo.descriptorPool = m_cameraDescriptorPool;
 		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &m_descriptorSetLayout;
+		allocInfo.pSetLayouts = &m_cameraDescriptorSetLayout;
 
 		if (vkAllocateDescriptorSets(m_renderDevice.logicalDevice, &allocInfo, &camera.descriptorSets[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate camera descriptor set!");
@@ -2110,8 +2110,8 @@ void Renderer::dispose()
 	vkDestroyImage(m_renderDevice.logicalDevice, m_depthBufferImage, nullptr);
 	vkFreeMemory(m_renderDevice.logicalDevice, m_depthBufferImageMemory, nullptr);
 
-	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_descriptorPool, nullptr);
-	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_descriptorSetLayout, nullptr);
+	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_cameraDescriptorPool, nullptr);
+	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_cameraDescriptorSetLayout, nullptr);
 
 	// Dispose camera resources
 	for (auto& camera : m_cameraResources) {
