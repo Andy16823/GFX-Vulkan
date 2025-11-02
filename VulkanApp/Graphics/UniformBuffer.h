@@ -25,11 +25,6 @@ private:
 	VkDeviceSize m_bufferSize;
 
 	/// <summary>
-	/// Determines if the buffer is persistently mapped
-	/// </summary>
-	bool m_persistentlyMapped = false;
-
-	/// <summary>
 	/// The mapped memory pointer if persistently mapped
 	/// </summary>
 	void* m_mappedMemory = nullptr;
@@ -40,9 +35,9 @@ private:
 	/// <param name="physicalDevice"></param>
 	/// <param name="device"></param>
 	/// <param name="bufferSize"></param>
-	void createUniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, bool persistent);
+	void createUniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize);
 public:
-	UniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, bool persistent);
+	UniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize);
 	~UniformBuffer();
 	VkBuffer getUniformBuffer() { return m_uniformBuffer; }
 

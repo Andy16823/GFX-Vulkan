@@ -2,7 +2,7 @@
 #include "../Utils.h"
 #include <iostream>
 
-StorageBuffer::StorageBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize size, bool persistent)
+StorageBuffer::StorageBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize size)
 {
 	// Create the storage buffer
 	createBuffer(
@@ -14,18 +14,15 @@ StorageBuffer::StorageBuffer(VkPhysicalDevice physicalDevice, VkDevice device, V
 		&buffer,
 		&bufferMemory);
 
+	// Get the buffer size
 	bufferSize = static_cast<uint32_t>(size);
 
-	if (persistent) {
-		// Map the buffer memory persistently
-		vkMapMemory(device, bufferMemory, 0, size, 0, &m_mappedMemory);
-		m_persistentlyMapped = true;
-		std::cout << "[STORAGE BUFFER] Storage buffer persistently mapped." << std::endl;
-	}
-	else {
-		std::cout << "[STORAGE BUFFER] Storage buffer created with size: "
-			<< bufferSize << " bytes." << std::endl;
-	}
+	// Map the buffer memory for persistent access
+	vkMapMemory(device, bufferMemory, 0, size, 0, &m_mappedMemory);
+
+	// Debug output
+	std::cout << "[STORAGE BUFFER] Storage buffer created with size: "
+		<< bufferSize << " bytes." << std::endl;
 }
 
 void StorageBuffer::updateBuffer(VkDevice device, const void* data, VkDeviceSize size, VkDeviceSize offset /*= 0*/)
@@ -36,28 +33,16 @@ void StorageBuffer::updateBuffer(VkDevice device, const void* data, VkDeviceSize
 		throw std::runtime_error("Data size exceeds storage buffer capacity.");
 	}
 
-	// If persistently mapped, use the mapped memory
-	if (m_persistentlyMapped) {
-		char* mappedData = static_cast<char*>(m_mappedMemory) + offset;
-		memcpy(mappedData, data, static_cast<size_t>(dataSize));
-		return;
-	}
-
-	// Map the buffer memory and copy the data
-	void* mappedData;
-	vkMapMemory(device, bufferMemory, offset, dataSize, 0, &mappedData);
+	// Copy the data to the mapped memory
+	char* mappedData = static_cast<char*>(m_mappedMemory) + offset;
 	memcpy(mappedData, data, static_cast<size_t>(dataSize));
-	vkUnmapMemory(device, bufferMemory);
 }
 
 void StorageBuffer::dispose(VkDevice device)
 {
-	// Unmap memory if persistently mapped
-	if (m_persistentlyMapped) {
-		vkUnmapMemory(device, bufferMemory);
-		m_persistentlyMapped = false;
-		m_mappedMemory = nullptr;
-	}
+	// Unmap memory
+	vkUnmapMemory(device, bufferMemory);
+	m_mappedMemory = nullptr;
 
 	// Destroy the buffer and free memory
 	vkDestroyBuffer(device, buffer, nullptr);
@@ -65,4 +50,3 @@ void StorageBuffer::dispose(VkDevice device)
 	this->state = GFX_BUFFER_STATE_DISPOSED;
 	std::cout << "[STORAGE BUFFER] Storage buffer disposed." << std::endl;
 }
-

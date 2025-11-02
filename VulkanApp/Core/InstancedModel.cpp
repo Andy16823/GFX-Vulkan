@@ -25,7 +25,7 @@ InstancedModel::InstancedModel(const std::string& name, StaticMeshesRsc* ressour
 void InstancedModel::init(Renderer* renderer)
 {
 	VkDeviceSize bufferSize = sizeof(InstanceData) * instanceCount;
-	m_storageBufferIndex = renderer->createStorageBuffer(bufferSize, true);
+	m_storageBufferIndex = renderer->createStorageBuffer(bufferSize);
 
 	// If start values are provided, initialize the buffer with them
 	if (!m_instanceStartValues.empty()) {

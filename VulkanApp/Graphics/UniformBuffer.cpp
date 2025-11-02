@@ -2,7 +2,7 @@
 #include "../Utils.h"
 #include <stdexcept>
 
-void UniformBuffer::createUniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, bool persistent)
+void UniformBuffer::createUniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize)
 {
 	// Check if the buffer is already created or disposed
 	if (this->state != GFX_BUFFER_STATE_NONE)
@@ -19,20 +19,17 @@ void UniformBuffer::createUniformBuffer(VkPhysicalDevice physicalDevice, VkDevic
 		&m_uniformBuffer,
 		&m_uniformBufferMemory);
 
-	// Map the memory if persistent
-	if (persistent) {
-		vkMapMemory(device, m_uniformBufferMemory, 0, bufferSize, 0, &m_mappedMemory);
-	}
+	// Map the buffer memory
+	vkMapMemory(device, m_uniformBufferMemory, 0, bufferSize, 0, &m_mappedMemory);
 
 	// Set the state to initialized
 	this->state = GFX_BUFFER_STATE_INITIALIZED;
 }
 
-UniformBuffer::UniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, bool persistent)
+UniformBuffer::UniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize)
 {
-	m_persistentlyMapped = persistent;
 	m_bufferSize = bufferSize;
-	createUniformBuffer(physicalDevice, device ,bufferSize, persistent);
+	createUniformBuffer(physicalDevice, device ,bufferSize);
 }
 
 UniformBuffer::~UniformBuffer()
@@ -52,27 +49,15 @@ void UniformBuffer::updateBufferData(VkDevice device, void* data, VkDeviceSize s
 		throw std::runtime_error("Uniform buffer overflow.");
 	}
 
-	// If persistently mapped, use the mapped memory
-	if (m_persistentlyMapped) {
-		char* mappedData = static_cast<char*>(m_mappedMemory) + offset;
-		memcpy(mappedData, data, static_cast<size_t>(size));
-	}
-	else {
-		void* mappedData;
-		vkMapMemory(device, m_uniformBufferMemory, offset, size, 0, &mappedData);
-		memcpy(mappedData, data, static_cast<size_t>(size));
-		vkUnmapMemory(device, m_uniformBufferMemory);
-	}
+	// Copy the memory
+	char* mappedData = static_cast<char*>(m_mappedMemory) + offset;
+	memcpy(mappedData, data, static_cast<size_t>(size));
 }
 
 void UniformBuffer::dispose(VkDevice device)
 {
-	// Check if buffer is persistently mapped and unmap if necessary
-	if (m_persistentlyMapped && m_mappedMemory != nullptr) {
-		vkUnmapMemory(device, m_uniformBufferMemory);
-		m_mappedMemory = nullptr;
-	}
-
+	vkUnmapMemory(device, m_uniformBufferMemory);
+	m_mappedMemory = nullptr;
 	vkDestroyBuffer(device, m_uniformBuffer, nullptr);
 	vkFreeMemory(device, m_uniformBufferMemory, nullptr);
 	this->state = GFX_BUFFER_STATE_DISPOSED;

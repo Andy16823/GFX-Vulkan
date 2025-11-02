@@ -1543,14 +1543,13 @@ int Renderer::createRenderTarget(const bool presentOnScreen)
 	return m_renderTargets.size() - 1;
 }
 
-int Renderer::createStorageBuffer(VkDeviceSize size, bool persistent)
+int Renderer::createStorageBuffer(VkDeviceSize size)
 {
 	// Create the storage buffer
 	auto storageBuffer = std::make_unique<StorageBuffer>(
 		m_renderDevice.physicalDevice,
 		m_renderDevice.logicalDevice,
-		size,
-		persistent
+		size
 	);
 
 	// Create the descriptor set for the storage buffer
@@ -1577,8 +1576,7 @@ int Renderer::createCamera()
 		camera.uniformBuffers[i] = std::make_unique<UniformBuffer>(
 			m_renderDevice.physicalDevice,
 			m_renderDevice.logicalDevice,
-			bufferSize,
-			true
+			bufferSize
 		);
 
 		VkDescriptorSetAllocateInfo allocInfo = {};

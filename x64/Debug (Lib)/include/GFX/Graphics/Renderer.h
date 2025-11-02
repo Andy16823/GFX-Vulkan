@@ -296,7 +296,7 @@ public:
 	int createCubemapBuffer(CubemapFaceData faces);
 	int createIndexBuffer(std::vector<uint32_t>* indices);
 	int createRenderTarget(const bool presentOnScreen = false);
-	int createStorageBuffer(VkDeviceSize size, bool persistent = false);
+	int createStorageBuffer(VkDeviceSize size);
 	int createCamera();
 
 	// Loader functions
