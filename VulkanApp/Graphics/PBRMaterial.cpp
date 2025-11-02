@@ -54,12 +54,14 @@ void PBRMaterial::bindMaterial(Renderer* renderer, VkCommandBuffer commandBuffer
 	VkDescriptorSet normalSet = renderer->getSamplerDescriptorSetFromImageBuffer(normalTexture->bufferIndex);
 	VkDescriptorSet metRoughSet = renderer->getSamplerDescriptorSetFromImageBuffer(metRoughTexture->bufferIndex);
 	VkDescriptorSet aoSet = renderer->getSamplerDescriptorSetFromImageBuffer(aoTexture->bufferIndex);
+	VkDescriptorSet uniformSet = renderer->getUniformBufferDescriptorSet(m_uniformBufferIndex);
 
-	std::array<VkDescriptorSet, 4> descriptorSets = {
+	std::array<VkDescriptorSet, 5> descriptorSets = {
 		albedoSet,
 		normalSet,
 		metRoughSet,
-		aoSet
+		aoSet,
+		uniformSet
 	};
 	renderer->bindDescriptorSets(descriptorSets, firstSet, frame);
 }

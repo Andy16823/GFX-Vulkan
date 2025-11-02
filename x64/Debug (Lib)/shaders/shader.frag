@@ -1,8 +1,23 @@
 #version 450
+////////////////////////////////////////////////////////////////////
+// Sets:
+// 0: Camera UBO
+// 1: Albedo Map
+// 2: Normal Map
+// 3: Metallic-Roughness Map
+// 4: AO Map
+// 5: PBR Material Properties UBO
+// 6: (Unused)
+////////////////////////////////////////////////////////////////////
+
 layout(location = 0) in vec3 color;
 layout(location = 1) in vec2 fragTexCoord;
 layout(location = 2) in vec3 fragNormal;
 layout(location = 3) in vec3 fragWorldPos;
+
+layout(set = 5, binding = 0) uniform PBRMaterialProperties {
+    vec4 albedoColor;
+} materialProps;
 
 // Camera UBO
 layout(set = 0, binding = 0) uniform UboViewProjection {
@@ -76,8 +91,9 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
 // MAIN PBR LIGHTING
 // ═══════════════════════════════════════════════════════════════
 void main() {
-    // Sample material properties
-    vec3 albedo = pow(texture(albedoMap, fragTexCoord).rgb, vec3(2.2));  // sRGB to linear
+    vec4 albedoTextureColor = texture(albedoMap, fragTexCoord);
+    vec4 albedoColor = materialProps.albedoColor * albedoTextureColor;
+    vec3 albedo = pow(albedoColor.rgb, vec3(2.2));  // sRGB to linear
     
     // Sample combined metallic-roughness texture
     vec3 metallicRoughnessAO = texture(metallicRoughnessMap, fragTexCoord).rgb;

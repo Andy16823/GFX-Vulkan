@@ -441,12 +441,13 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->addVertexAttribute(normalAttr);
-	std::array<VkDescriptorSetLayout, 5> pipline3DLayouts = { 
+	std::array<VkDescriptorSetLayout, 6> pipline3DLayouts = { 
 		m_cameraDescriptorSetLayout, 		// CameraUBO
 		m_samplerSetLayout,			// Albedo map
 		m_samplerSetLayout,			// Normal map
 		m_samplerSetLayout,			// MetallicRoughness map
-		m_samplerSetLayout			// AO map
+		m_samplerSetLayout,			// AO map
+		m_uniformBufferSetLayout	// Material properties
 	};
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DLayouts.data(), static_cast<uint32_t>(pipline3DLayouts.size()), &pushConstantRange, 1);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
@@ -458,13 +459,14 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->addVertexAttribute(normalAttr);
-	std::array<VkDescriptorSetLayout, 6> pipline3DInstancedLayouts = { 
+	std::array<VkDescriptorSetLayout, 7> pipline3DInstancedLayouts = { 
 		m_cameraDescriptorSetLayout,			// CameraUBO
 		m_storageBufferSetLayout,		// Instance data
 		m_samplerSetLayout, 			// Albedo map
 		m_samplerSetLayout,				// Normal map
 		m_samplerSetLayout,				// MetallicRoughness map
-		m_samplerSetLayout				// AO map
+		m_samplerSetLayout,				// AO map
+		m_uniformBufferSetLayout		// Material properties
 	};
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DInstancedLayouts.data(), static_cast<uint32_t>(pipline3DInstancedLayouts.size()), nullptr, 0);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
@@ -2196,6 +2198,10 @@ void Renderer::dispose()
 	for (auto callback : m_disposeCallbacks) {
 		callback(this);
 	}
+
+	// DESTROY UNIFORM BUFFER DESCRIPTORS
+	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_uniformBufferDescriptorPool, nullptr);
+	vkDestroyDescriptorSetLayout(m_renderDevice.logicalDevice, m_uniformBufferSetLayout, nullptr);
 
 	// DESTROY TEXTURE DESCRIPTORS
 	vkDestroyDescriptorPool(m_renderDevice.logicalDevice, m_samplerDescriptorPool, nullptr);

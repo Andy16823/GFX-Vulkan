@@ -1,4 +1,15 @@
 #version 450
+//////////////////////////////////////////////////////////////////
+// Sets:
+// 0: Camera UBO
+// 1: Instance data (storage buffer)
+// 2: Albedo Map
+// 3: Normal Map
+// 4: Metallic-Roughness Map
+// 5: AO Map
+// 6: PBR Material Properties UBO
+// 7: (Unused)
+//////////////////////////////////////////////////////////////////
 
 // Fragment input from vertex shader
 layout(location = 0) in vec3 color;
@@ -6,6 +17,10 @@ layout(location = 1) in vec2 fragTexCoord;
 layout(location = 2) in vec3 fragNormal;
 layout(location = 3) in vec4 fragExtras;
 layout(location = 4) in vec3 fragWorldPos;
+
+layout(set = 6, binding = 0) uniform PBRMaterialProperties {
+    vec4 albedoColor;
+} materialProps;
 
 // Camera UBO
 layout(set = 0, binding = 0) uniform UboViewProjection {
@@ -87,8 +102,10 @@ void main() {
         discard;
     }
 
-    // ✅ Sample material properties
-    vec3 albedo = pow(texture(albedoMap, fragTexCoord).rgb, vec3(2.2));  // sRGB to linear
+    // Sample material properties
+    vec4 albedoTextureColor = texture(albedoMap, fragTexCoord);
+    vec4 albedoColor = materialProps.albedoColor * albedoTextureColor;
+    vec3 albedo = pow(albedoColor.rgb, vec3(2.2));  // sRGB to linear
     
     // ✅ Sample combined metallic-roughness texture
     vec3 metallicRoughnessAO = texture(metallicRoughnessMap, fragTexCoord).rgb;
