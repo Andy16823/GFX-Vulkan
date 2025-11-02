@@ -37,11 +37,17 @@ private:
 	/// <param name="bufferSize"></param>
 	void createUniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize);
 public:
+
+	/// <summary>
+	/// The descriptor index for this uniform buffer
+	/// </summary>
+	int descriptorIndex = -1;
+
 	UniformBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize);
 	~UniformBuffer();
 	VkBuffer getUniformBuffer() { return m_uniformBuffer; }
 
-	void updateBufferData(VkDevice device, void* data, VkDeviceSize size, VkDeviceSize offset = 0);
+	void updateBufferData(VkDevice device, const void* data, VkDeviceSize size, VkDeviceSize offset = 0);
 	void dispose(VkDevice device);
 };
 

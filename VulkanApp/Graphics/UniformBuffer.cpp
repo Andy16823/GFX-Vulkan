@@ -45,7 +45,7 @@ UniformBuffer::~UniformBuffer()
 
 }
 
-void UniformBuffer::updateBufferData(VkDevice device, void* data, VkDeviceSize size, VkDeviceSize offset /*= 0*/)
+void UniformBuffer::updateBufferData(VkDevice device, const void* data, VkDeviceSize size, VkDeviceSize offset /*= 0*/)
 {
 	// Validate the buffer state and size
 	if (this->state != GFX_BUFFER_STATE_INITIALIZED) {

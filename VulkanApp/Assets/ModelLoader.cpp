@@ -7,6 +7,17 @@ std::unique_ptr<PBRMaterial> ModelLoader::loadPBRMaterial(const aiMaterial* aiMa
 {
 	auto material = std::make_unique<PBRMaterial>();
 	
+	aiColor4D color;
+	if (aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
+		material->properties.albedoColor = glm::vec4(color.r, color.g, color.b, color.a);
+		std::cout << "[MODEL LOADER] Loaded albedo color: ("
+			<< color.r << ", " << color.g << ", " << color.b << ", " << color.a << ")" << std::endl;
+	}
+	else {
+		material->properties.albedoColor = glm::vec4(1.0f);
+		std::cout << "[MODEL LOADER] Warning: Model material has no albedo color! Using default white color instead." << std::endl;
+	}
+
 	// Load Albedo Texture
 	aiString texturePath;
 	if (aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS) {

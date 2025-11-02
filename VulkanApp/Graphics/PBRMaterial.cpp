@@ -3,6 +3,9 @@
 
 void PBRMaterial::init(Renderer* renderer)
 {
+	m_uniformBufferIndex = renderer->createUniformBuffer(sizeof(PBRMaterialProperties));
+	renderer->updateUniformBuffer(m_uniformBufferIndex, &properties, sizeof(PBRMaterialProperties));
+
 	if (albedoTexture) {
 		albedoTexture->bufferIndex = renderer->createImageBuffer(albedoTexture.get());
 		albedoTexture->freeImageData(); // Free image data after uploading to GPU

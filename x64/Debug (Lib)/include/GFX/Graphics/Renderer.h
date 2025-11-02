@@ -34,6 +34,7 @@ struct RenderConfig {
 	size_t maxObjects = 1000;
 	size_t maxCameras = 256;
 	size_t maxStorageBuffers = 256;
+	size_t maxUniformBuffers = 2048;
 };
 
 /// <summary>
@@ -171,6 +172,13 @@ private:
 	VkDescriptorPool m_cameraDescriptorPool;
 	VkDescriptorSetLayout m_cameraDescriptorSetLayout;
 
+	// Uniform Buffers
+	std::vector<std::unique_ptr<UniformBuffer>> m_uniformBuffers; // done
+	std::vector<VkDescriptorSet> m_uniformBufferDescriptorSets; 
+	VkDescriptorSetLayout m_uniformBufferSetLayout; // done
+	VkDescriptorPool m_uniformBufferDescriptorPool; // done
+
+
 	// TEXTURE STUFF
 	std::vector<std::unique_ptr<ImageBuffer>> m_imageBuffers;
 	std::vector<VkDescriptorSet> m_samplerDescriptorSets;
@@ -246,6 +254,7 @@ private:
 
 	// Create functions
 	VkShaderModule createShaderModule(const std::vector<char>& code);
+	int createUniformBufferDescriptor(VkBuffer uniformBuffer, VkDeviceSize bufferSize);
 	int createTextureDescriptor(VkImageView textureImageView);
 	int createCubemapDescriptor(VkImageView cubemapImageView);
 	int createStorageBufferDescriptor(VkBuffer storageBuffer, VkDeviceSize bufferSize);
@@ -270,7 +279,8 @@ public:
 
 	// Getters
 	VkDevice getDevice();
-	VkQueue getGraphicsQueue();		
+	VkQueue getGraphicsQueue();	
+	VkDescriptorSet getUniformBufferDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSet(int index);
 	VkDescriptorSet getSamplerDescriptorSetFromImageBuffer(int imageBufferIndex);
 	VkDescriptorSet getCubemapDescriptorSet(int index);
@@ -290,6 +300,7 @@ public:
 	// Create buffer functions
 	int createVertexBuffer(std::vector<Vertex>* vertices, const VertexBufferType vertexBufferType = VertexBufferType::VERTEX_BUFFER_TYPE_STATIC);
 	int createVertexBuffer(const int size, const VertexBufferType vertexBufferType = VertexBufferType::VERTEX_BUFFER_TYPE_DYNAMIC);
+	int createUniformBuffer(const VkDeviceSize bufferSize);
 	int createImageBuffer(ImageTexture* imageTexture);
 	int createImageBuffer(const FontAtlas& fontAtlas);
 	int createCubemapBuffer(CubemapFaceData faces);
@@ -304,6 +315,7 @@ public:
 	// Get buffer functions
 	VertexBuffer* getVertexBuffer(int index);
 	IndexBuffer* getIndexBuffer(int index);
+	UniformBuffer* getUniformBuffer(int index);
 	ImageBuffer* getImageBuffer(int index);
 	CubemapBuffer* getCubemapBuffer(int index);
 	StorageBuffer* getStorageBuffer(int index);
@@ -334,6 +346,7 @@ public:
 
 	// Update functions
 	void updateCamera(int cameraIndex, uint32_t frame, const UboViewProjection& vp);
+	void updateUniformBuffer(int uniformBufferIndex, const void* data, VkDeviceSize size, VkDeviceSize offset = 0);
 	void updateStorageBuffer(int storageBufferIndex, const void* data, VkDeviceSize size, VkDeviceSize offset = 0);
 
 	// Draw functions

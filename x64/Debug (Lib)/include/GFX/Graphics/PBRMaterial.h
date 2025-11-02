@@ -1,5 +1,11 @@
 #pragma once
 #include "Material.h"
+#include <glm/glm.hpp>
+
+struct PBRMaterialProperties
+{
+	glm::vec4 albedoColor = glm::vec4(1.0f);
+};
 
 /// <summary>
 /// Physically Based Rendering Material
@@ -7,6 +13,7 @@
 class PBRMaterial :	public Material
 {
 private:
+	int m_uniformBufferIndex = -1;
 
 public:
 	/// <summary>
@@ -28,6 +35,11 @@ public:
 	/// Ambient Occlusion texture
 	/// </summary>
 	std::unique_ptr<ImageTexture> aoTexture;
+
+	/// <summary>
+	/// PBR Material Properties for shader use
+	/// </summary>
+	PBRMaterialProperties properties;
 
 
 	PBRMaterial() = default;

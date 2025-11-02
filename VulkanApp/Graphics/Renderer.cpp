@@ -287,6 +287,26 @@ void Renderer::createDescriptorSetLayout()
 		std::cout << "Descriptor set layout created successfully!" << std::endl;
 	}
 
+	// GENERAL UNIFORM BUFFER DESCRIPTOR SET LAYOUT
+	VkDescriptorSetLayoutBinding uniformBufferLayoutBinding = {};
+	uniformBufferLayoutBinding.binding = 0;
+	uniformBufferLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uniformBufferLayoutBinding.descriptorCount = 1;
+	uniformBufferLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+	uniformBufferLayoutBinding.pImmutableSamplers = nullptr;
+
+	VkDescriptorSetLayoutCreateInfo uniformBufferLayoutInfo = {};
+	uniformBufferLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	uniformBufferLayoutInfo.bindingCount = 1;
+	uniformBufferLayoutInfo.pBindings = &uniformBufferLayoutBinding;
+
+	if (vkCreateDescriptorSetLayout(m_renderDevice.logicalDevice, &uniformBufferLayoutInfo, nullptr, &m_uniformBufferSetLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create uniform buffer descriptor set layout!");
+	}
+	else {
+		std::cout << "Uniform buffer descriptor set layout created successfully!" << std::endl;
+	}
+
 	// SAMPLER DESCRIPTOR SET LAYOUT
 	VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
 	samplerLayoutBinding.binding = 0;
@@ -633,7 +653,7 @@ void Renderer::createDescriptorPool()
 	auto numSwapChainImages = static_cast<uint32_t>(m_swapChainImages.size());
 	auto numCameras = static_cast<uint32_t>(m_renderConfig.maxCameras) * numSwapChainImages;
 
-	// CREATE UNIFORM DESCRIPTOR POOL
+	// CREATE CAMERA DESCRIPTOR POOL
 	VkDescriptorPoolSize vpPoolSize = {};
 	vpPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	vpPoolSize.descriptorCount = numCameras;
@@ -652,6 +672,25 @@ void Renderer::createDescriptorPool()
 	}
 	else {
 		std::cout << "Descriptor pool created successfully!" << std::endl;
+	}
+
+	// CREATE GENERAL UNIFORM DESCRIPTOR POOL
+	VkDescriptorPoolSize generalPoolSize = {};
+	generalPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	generalPoolSize.descriptorCount = static_cast<uint32_t>(m_renderConfig.maxUniformBuffers);
+	std::array<VkDescriptorPoolSize, 1> generalPoolSizes = { generalPoolSize };
+
+	VkDescriptorPoolCreateInfo generalPoolInfo = {};
+	generalPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	generalPoolInfo.maxSets = static_cast<uint32_t>(m_renderConfig.maxUniformBuffers);
+	generalPoolInfo.poolSizeCount = static_cast<uint32_t>(generalPoolSizes.size());
+	generalPoolInfo.pPoolSizes = generalPoolSizes.data();
+
+	if (vkCreateDescriptorPool(m_renderDevice.logicalDevice, &generalPoolInfo, nullptr, &m_uniformBufferDescriptorPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create general uniform descriptor pool!");
+	}
+	else {
+		std::cout << "General uniform descriptor pool created successfully!" << std::endl;
 	}
 
 	// CREATE SAMPLER DESCRIPTOR POOL
@@ -1113,6 +1152,45 @@ VkShaderModule Renderer::createShaderModule(const std::vector<char>& code)
 	}
 }
 
+int Renderer::createUniformBufferDescriptor(VkBuffer uniformBuffer, VkDeviceSize bufferSize)
+{
+	VkDescriptorSetAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = m_uniformBufferDescriptorPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = &m_uniformBufferSetLayout;
+
+	VkDescriptorSet descriptorSet;
+	if (vkAllocateDescriptorSets(m_renderDevice.logicalDevice, &allocInfo, &descriptorSet) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate uniform buffer descriptor set!");
+	}
+
+	// Uniform buffer info
+	VkDescriptorBufferInfo bufferInfo = {};
+	bufferInfo.buffer = uniformBuffer;
+	bufferInfo.offset = 0;
+	bufferInfo.range = bufferSize;
+
+	// Connect the buffer to the descriptor set
+	VkWriteDescriptorSet descriptorWrite = {};
+	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrite.dstSet = descriptorSet;
+	descriptorWrite.dstBinding = 0;
+	descriptorWrite.dstArrayElement = 0;
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorWrite.descriptorCount = 1;
+	descriptorWrite.pBufferInfo = &bufferInfo;
+
+	// Update the descriptor set with the buffer info
+	vkUpdateDescriptorSets(m_renderDevice.logicalDevice, 1, &descriptorWrite, 0, nullptr);
+
+	// Store the descriptor set
+	m_uniformBufferDescriptorSets.push_back(descriptorSet);
+
+	// Return the index of the descriptor set
+	return m_uniformBufferDescriptorSets.size() - 1;
+}
+
 int Renderer::createTextureDescriptor(VkImageView textureImageView)
 {
 	// Allocate descriptor set from the sampler descriptor pool
@@ -1305,6 +1383,14 @@ int Renderer::createVertexBuffer(const int size, const VertexBufferType vertexBu
 	return this->createVertexBuffer(&vertices, vertexBufferType);
 }
 
+int Renderer::createUniformBuffer(const VkDeviceSize bufferSize)
+{
+	auto uniformBuffer = std::make_unique<UniformBuffer>(m_renderDevice.physicalDevice, m_renderDevice.logicalDevice, bufferSize);
+	uniformBuffer->descriptorIndex = createUniformBufferDescriptor(uniformBuffer->getUniformBuffer(), bufferSize);
+	m_uniformBuffers.push_back(std::move(uniformBuffer));
+	return m_uniformBuffers.size() - 1;
+}
+
 int Renderer::createImageBuffer(ImageTexture* imageTexture)
 {
 	auto imageBuffer = std::make_unique<ImageBuffer>(
@@ -1384,6 +1470,14 @@ IndexBuffer* Renderer::getIndexBuffer(int index)
 		return m_indexBuffers[index].get();
 	}
 }
+
+UniformBuffer* Renderer::getUniformBuffer(int index)
+{
+	if (index >= 0 && index < m_uniformBuffers.size()) {
+		return m_uniformBuffers[index].get();
+	}
+}
+
 // TODO Add 0 exception
 ImageBuffer* Renderer::getImageBuffer(int index)
 {
@@ -1416,6 +1510,14 @@ VkDevice Renderer::getDevice()
 VkQueue Renderer::getGraphicsQueue()
 {
 	return m_graphicsQueue;
+}
+
+VkDescriptorSet Renderer::getUniformBufferDescriptorSet(int index)
+{
+	if (index >= 0 && index < m_uniformBufferDescriptorSets.size()) {
+		return m_uniformBufferDescriptorSets[index];
+	}
+	throw std::runtime_error("failed to get uniform buffer descriptor set: invalid descriptor set index!");
 }
 
 VkDescriptorSet Renderer::getSamplerDescriptorSet(int index)
@@ -1863,6 +1965,12 @@ void Renderer::updateCamera(int cameraIndex, uint32_t frame, const UboViewProjec
 	}
 }
 
+void Renderer::updateUniformBuffer(int uniformBufferIndex, const void* data, VkDeviceSize size, VkDeviceSize offset /*= 0*/)
+{
+	auto uniformBuffer = this->getUniformBuffer(uniformBufferIndex);
+	uniformBuffer->updateBufferData(m_renderDevice.logicalDevice, data, size, offset);
+}
+
 void Renderer::updateStorageBuffer(int storageBufferIndex, const void* data, VkDeviceSize size, VkDeviceSize offset /*= 0*/)
 {
 	auto storageBuffer = this->getStorageBuffer(storageBufferIndex);
@@ -2134,6 +2242,13 @@ void Renderer::dispose()
 		indexBuffer->dispose(m_renderDevice.logicalDevice);
 	}
 	m_indexBuffers.clear();
+
+	// Free uniform buffers
+	for (auto& uniformBuffer : m_uniformBuffers) {
+		if (uniformBuffer->state == GFX_BUFFER_STATE_DISPOSED) continue;
+		uniformBuffer->dispose(m_renderDevice.logicalDevice);
+	}
+	m_uniformBuffers.clear();
 
 	// Free image textures
 	for (auto& imageTexture : m_imageBuffers) {
