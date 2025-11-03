@@ -22,42 +22,47 @@ InstancedModel::InstancedModel(const std::string& name, StaticMeshesRsc* ressour
 	m_instanceStartValues = startValues;
 }
 
-void InstancedModel::init(Renderer* renderer)
+void InstancedModel::init(Scene* scene, Renderer* renderer)
 {
+	// Calculate the size of the storage buffer and create it
 	VkDeviceSize bufferSize = sizeof(InstanceData) * instanceCount;
 	m_storageBufferIndex = renderer->createStorageBuffer(bufferSize);
 
-	// If start values are provided, initialize the buffer with them
+	// Update the initial instance data if provided
 	if (!m_instanceStartValues.empty()) {
 		this->updateInstanceRange(renderer, m_instanceStartValues, 0);
 		m_instanceStartValues.clear();
 	}
 }
 
-void InstancedModel::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
+void InstancedModel::render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
+	// Early out if pipeline type is not set
 	if (this->pipelineType.empty()) {
 		throw std::runtime_error("failed to render instanced model: pipeline type is not set!");
 	}
 
-	// Ensure the mesh resource is valid
+	// Validate the mesh resource
 	if (!m_meshResource) {
 		throw std::runtime_error("failed to render instanced model: mesh resource is null!");
 	}
 
-	// Early out if there are no instances or no meshes
+	// Early out if no instances or no meshes
 	if (instanceCount == 0 || m_meshResource->meshes.empty()) {
 		return;
 	}
 
-	// Get the required buffers wich all meshes share
+	// Get the storage buffer for the instance data and the active camera
 	auto storageBuffer = renderer->getStorageBuffer(m_storageBufferIndex);
 	auto camera = renderer->getActiveCamera();
 
-	// Bind the instanced graphics pipeline
+	// Bind the pipeline to render with
 	renderer->bindPipeline(commandBuffer, this->pipelineType);
 
-	// Bind the common descriptor sets (camera UBO and storage buffer)
+	// Bind the scene descriptor sets (e.g. lights)
+	scene->bindSceneDescriptorSets(renderer, commandBuffer, currentFrame, this->pipelineType);
+
+	// Bind the model related push constants
 	VkDescriptorSet cameraDescriptorSet = renderer->getCameraDescriptorSet(camera, currentFrame);
 	VkDescriptorSet storageBufferDescriptorSet = renderer->getStorageBufferDescriptorSet(storageBuffer->descriptorIndex);
 	std::array<VkDescriptorSet, 2> baseDescriptorSets = {
@@ -66,15 +71,19 @@ void InstancedModel::render(Renderer* renderer, VkCommandBuffer commandBuffer, i
 	};
 	renderer->bindDescriptorSets(baseDescriptorSets, 0, currentFrame);
 
-	// Render each mesh with its associated material
+	// Render each mesh in the model
 	for (auto& mesh : m_meshResource->meshes) {
 		auto material = mesh->material.get();
-		material->bindMaterial(renderer, commandBuffer, 2, currentFrame); // Bind material starting from set 2
+
+		// Bind the material related descriptor sets
+		material->bindMaterial(renderer, commandBuffer, 2, currentFrame);
+
+		// Draw the mesh with instancing
 		renderer->drawBuffers(mesh->vertexBufferIndex, mesh->indexBufferIndex, commandBuffer, instanceCount);
 	}
 }
 
-void InstancedModel::destroy(Renderer* renderer)
+void InstancedModel::destroy(Scene* scene, Renderer* renderer)
 {
 	// Nothing needed here as the renderer handles buffer cleanup and the asset manager handles mesh cleanup
 }

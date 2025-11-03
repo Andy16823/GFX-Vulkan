@@ -1,13 +1,14 @@
 #pragma once
 #include "../Core/Behavior.h"
+#include "../Core/Scene.h"
 
 class RotationBehavior : public Behavior
 {
 public:
-	void init(Renderer* renderer) override {}
-	void update(float dt) override;
-	void destroy(Renderer* renderer) override {}
-	void render(Renderer* renderer) override {}
+	void init(Scene* scene, Renderer* renderer) override {}
+	void update(Scene* scene, float dt) override;
+	void destroy(Scene* scene, Renderer* renderer) override {}
+	void render(Scene* scene, Renderer* renderer) override {}
 	std::string getIdentifier() override { return "RotationBehavior"; }
 };
 

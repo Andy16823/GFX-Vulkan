@@ -441,13 +441,14 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->addVertexAttribute(normalAttr);
-	std::array<VkDescriptorSetLayout, 6> pipline3DLayouts = { 
-		m_cameraDescriptorSetLayout, 		// CameraUBO
-		m_samplerSetLayout,			// Albedo map
-		m_samplerSetLayout,			// Normal map
-		m_samplerSetLayout,			// MetallicRoughness map
-		m_samplerSetLayout,			// AO map
-		m_uniformBufferSetLayout	// Material properties
+	std::array<VkDescriptorSetLayout, 7> pipline3DLayouts = { 
+		m_cameraDescriptorSetLayout,	// CameraUBO
+		m_samplerSetLayout,				// Albedo map
+		m_samplerSetLayout,				// Normal map
+		m_samplerSetLayout,				// MetallicRoughness map
+		m_samplerSetLayout,				// AO map
+		m_uniformBufferSetLayout,		// Material properties
+		m_uniformBufferSetLayout		// Directional Light properties
 	};
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DLayouts.data(), static_cast<uint32_t>(pipline3DLayouts.size()), &pushConstantRange, 1);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
@@ -459,14 +460,15 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(colorAttr);
 	pipelinePtr->addVertexAttribute(texCoordAttr);
 	pipelinePtr->addVertexAttribute(normalAttr);
-	std::array<VkDescriptorSetLayout, 7> pipline3DInstancedLayouts = { 
-		m_cameraDescriptorSetLayout,			// CameraUBO
+	std::array<VkDescriptorSetLayout, 8> pipline3DInstancedLayouts = { 
+		m_cameraDescriptorSetLayout,	// CameraUBO
 		m_storageBufferSetLayout,		// Instance data
 		m_samplerSetLayout, 			// Albedo map
 		m_samplerSetLayout,				// Normal map
 		m_samplerSetLayout,				// MetallicRoughness map
 		m_samplerSetLayout,				// AO map
-		m_uniformBufferSetLayout		// Material properties
+		m_uniformBufferSetLayout,		// Material properties
+		m_uniformBufferSetLayout		// Directional Light properties
 	};
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline3DInstancedLayouts.data(), static_cast<uint32_t>(pipline3DInstancedLayouts.size()), nullptr, 0);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
@@ -1619,6 +1621,11 @@ int Renderer::getActiveCamera()
 	return m_activeCamera;
 }
 
+size_t Renderer::numSwapChainImages()
+{
+	return m_swapChainImages.size();
+}
+
 void Renderer::setConfig(RenderConfig config)
 {
 	m_renderConfig = config;
@@ -1874,11 +1881,42 @@ void Renderer::bindPipeline(VkCommandBuffer commandBuffer, std::string pipelineN
 	m_currentPipeline = pipelinePtr;
 }
 
+Pipeline* Renderer::getPipeline(const std::string& pipelineName)
+{
+	auto pipelinePtr = m_pipelineManager->getPipeline(pipelineName);
+	if (pipelinePtr == nullptr) {
+		throw std::runtime_error("failed to get graphics pipeline!");
+	}
+	return pipelinePtr;
+}
+
 void Renderer::bindDescriptorSet(VkDescriptorSet descriptorSet, int firstSet, int frame)
 {
 	validateCurrentPipeline();
 	VkCommandBuffer commandBuffer = this->getCommandBuffer(frame);
 	VkPipelineLayout pipelineLayout = m_currentPipeline->getPipelineLayout();
+
+	vkCmdBindDescriptorSets(
+		commandBuffer,
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		pipelineLayout,
+		static_cast<uint32_t>(firstSet),
+		1,
+		&descriptorSet,
+		0,
+		nullptr
+	);
+}
+
+void Renderer::bindDescriptorSet(Pipeline* pipeline, VkDescriptorSet descriptorSet, int firstSet, int frame)
+{
+	if (pipeline == nullptr)
+	{
+		throw std::runtime_error("failed to bind descriptor set: pipeline is null!");
+	}
+
+	VkCommandBuffer commandBuffer = this->getCommandBuffer(frame);
+	VkPipelineLayout pipelineLayout = pipeline->getPipelineLayout();
 
 	vkCmdBindDescriptorSets(
 		commandBuffer,
@@ -1903,6 +1941,26 @@ void Renderer::bindDescriptorSets(const std::vector<VkDescriptorSet>& descriptor
 
 	VkCommandBuffer commandBuffer = this->getCommandBuffer(frame);
 	VkPipelineLayout pipelineLayout = m_currentPipeline->getPipelineLayout();
+
+	vkCmdBindDescriptorSets(
+		commandBuffer,
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		pipelineLayout,
+		static_cast<uint32_t>(firstSet),
+		static_cast<uint32_t>(descriptorSets.size()),
+		descriptorSets.data(),
+		0,
+		nullptr
+	);
+}
+
+void Renderer::bindDescriptorSets(Pipeline* pipeline, const std::vector<VkDescriptorSet>& descriptorSets, int firstSet, int frame)
+{
+	if (pipeline == nullptr) {
+		throw std::runtime_error("failed to bind descriptor sets: pipeline is null!");
+	}
+	VkCommandBuffer commandBuffer = this->getCommandBuffer(frame);
+	VkPipelineLayout pipelineLayout = pipeline->getPipelineLayout();
 
 	vkCmdBindDescriptorSets(
 		commandBuffer,

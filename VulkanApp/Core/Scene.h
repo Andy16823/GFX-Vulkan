@@ -39,6 +39,16 @@ public:
 	virtual void render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) = 0;
 
 	/// <summary>
+	/// Bind the scene descriptor sets to the current pipeline layout
+	/// Get called from entities when rendering
+	/// </summary>
+	/// <param name="renderer"></param>
+	/// <param name="commandBuffer"></param>
+	/// <param name="currentFrame"></param>
+	/// <param name="currentPipeline"></param>
+	virtual void bindSceneDescriptorSets(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame, const std::string& currentPipeline) = 0;
+
+	/// <summary>
 	/// destroy the scene
 	/// </summary>
 	/// <param name="renderer"></param>

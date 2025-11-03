@@ -1,5 +1,6 @@
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Assets\AssetManager.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\AssetManager.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\ChunkedScene3D.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\ChunkedScene3D.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\DirectionalLight.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\DirectionalLight.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Font.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Font.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\FontAtlas.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\FontAtlas.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Camera2D.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Camera2D.obj

@@ -141,6 +141,9 @@
     <ClCompile Include="Graphics\UnlitMaterial.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\DirectionalLight.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -282,6 +285,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\UnlitMaterial.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Light.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DirectionalLight.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

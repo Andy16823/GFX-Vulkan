@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "Entity.h"
 #include "Skybox.h"
+#include "../Graphics/DirectionalLight.h"
 
 class Scene3D 
 	: public Scene
@@ -17,6 +18,14 @@ public:
 	/// The skybox of the scene
 	/// </summary>
 	std::unique_ptr<Skybox> skybox;
+
+	/// <summary>
+	/// The directional light (Sun) of the scene
+	/// </summary>
+	std::unique_ptr<DirectionalLight> directionalLight;
+
+	Scene3D();
+	~Scene3D() = default;
 
 	/// <summary>
 	/// Checks if the scene has a skybox
@@ -167,5 +176,15 @@ public:
 	/// </summary>
 	/// <param name="renderer"></param>
 	void destroy(Renderer* renderer) override;
+
+	/// <summary>
+	/// Bind the scene descriptor sets (e.g. lights) for the current pipeline
+	/// </summary>
+	/// <param name="renderer"></param>
+	/// <param name="commandBuffer"></param>
+	/// <param name="currentFrame"></param>
+	/// <param name="currentPipeline"></param>
+	void bindSceneDescriptorSets(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame, const std::string& currentPipeline) override;
+
 };
 

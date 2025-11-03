@@ -8,12 +8,12 @@ Sprite::Sprite(std::string name, std::string file) : Entity(name)
 	m_mesh = std::make_unique<Mesh>();
 }
 
-void Sprite::update(float dt)
+void Sprite::update(Scene* scene, float dt)
 {
-	Entity::update(dt);
+	Entity::update(scene, dt);
 }
 
-void Sprite::init(Renderer* renderer)
+void Sprite::init(Scene* scene, Renderer* renderer)
 {
 	m_textureImage->bufferIndex = renderer->createImageBuffer(m_textureImage.get());
 	m_textureImage->freeImageData();
@@ -25,7 +25,7 @@ void Sprite::init(Renderer* renderer)
 	m_mesh->indexBufferIndex = renderer->createIndexBuffer(&spriteIndices);
 }
 
-void Sprite::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
+void Sprite::render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
 	if (this->pipelineType.empty()) {
 		throw std::runtime_error("failed to render sprite: pipeline type is not set!");
@@ -41,6 +41,7 @@ void Sprite::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t c
 		imageDescriptorSet
 	};
 	renderer->bindPipeline(commandBuffer, this->pipelineType);
+	scene->bindSceneDescriptorSets(renderer, commandBuffer, currentFrame, this->pipelineType);
 	renderer->bindPushConstants(
 		commandBuffer,
 		renderer->getCurrentPipelineLayout(),
@@ -54,7 +55,7 @@ void Sprite::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t c
 }
 
 
-void Sprite::destroy(Renderer* renderer)
+void Sprite::destroy(Scene* scene, Renderer* renderer)
 {
 
 }

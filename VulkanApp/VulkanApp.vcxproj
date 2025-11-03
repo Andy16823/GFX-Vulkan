@@ -274,6 +274,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
   <ItemGroup>
     <ClCompile Include="Assets\AssetManager.cpp" />
     <ClCompile Include="Core\ChunkedScene3D.cpp" />
+    <ClCompile Include="Graphics\DirectionalLight.cpp" />
     <ClCompile Include="Graphics\Font.cpp" />
     <ClCompile Include="Graphics\FontAtlas.cpp" />
     <ClCompile Include="Graphics\Camera2D.cpp" />
@@ -319,6 +320,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Assets\AssetRessource.h" />
     <ClInclude Include="Assets\AssetManager.h" />
     <ClInclude Include="Core\ChunkedScene3D.h" />
+    <ClInclude Include="Graphics\DirectionalLight.h" />
     <ClInclude Include="Graphics\Font.h" />
     <ClInclude Include="Graphics\FontAtlas.h" />
     <ClInclude Include="Graphics\Camera2D.h" />
@@ -350,6 +352,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Graphics\RenderPassManager.h" />
     <ClInclude Include="Core\Input.h" />
     <ClInclude Include="Core\InstancedModel.h" />
+    <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Math\RayCast.h" />
     <ClInclude Include="Assets\ModelLoader.h" />
     <ClInclude Include="Core\Scene3D.h" />

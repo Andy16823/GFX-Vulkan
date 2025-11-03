@@ -2,8 +2,14 @@
 
 ChunkedScene3D::ChunkedScene3D(glm::vec3 initialPosition) : Scene()
 {
+	// Set the starting chunk and its neighbors
 	m_currentChunk = this->getChunkForPosition(initialPosition);
 	m_neighboringChunks = this->getChunkNeighbors(m_currentChunk);
+
+	// Create the directional light and set its binding infos for the engine predefined pipelines
+	this->directionalLight = std::make_unique<DirectionalLight>();
+	this->directionalLight->addBindingInfo({ ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D), 6 });
+	this->directionalLight->addBindingInfo({ ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_3D_INSTANCED), 7 });
 }
 
 void ChunkedScene3D::init(Renderer* renderer)
@@ -16,20 +22,25 @@ void ChunkedScene3D::init(Renderer* renderer)
 	{
 		for (const auto& entity : entities)
 		{
-			entity->init(renderer);
+			entity->init(this, renderer);
 		}
 	}
 
 	// Init all global entities
 	for (const auto& entity : m_globalEntities)
 	{
-		entity->init(renderer);
+		entity->init(this, renderer);
 	}
 
 	// Init the skybox if it exists
 	if (this->skybox != nullptr)
 	{
 		skybox->init(renderer);
+	}
+
+	// Init the directional light if it exists
+	if (this->directionalLight != nullptr) {
+		this->directionalLight->init(renderer);
 	}
 }
 
@@ -41,7 +52,7 @@ void ChunkedScene3D::update(float deltaTime)
 		const auto& currentChunkEntities = it->second;
 		for (const auto& entity : currentChunkEntities) {
 			if (entity->hasState(EntityState::ENTITY_STATE_ACTIVE)) {
-				entity->update(deltaTime);
+				entity->update(this, deltaTime);
 			}
 		}
 	}
@@ -54,7 +65,7 @@ void ChunkedScene3D::update(float deltaTime)
 			const auto& neighborEntities = neighborsIt->second;
 			for (const auto& entity : neighborEntities) {
 				if (entity->hasState(EntityState::ENTITY_STATE_ACTIVE)) {
-					entity->update(deltaTime);
+					entity->update(this, deltaTime);
 				}
 			}
 		}
@@ -65,7 +76,7 @@ void ChunkedScene3D::update(float deltaTime)
 	{
 		if (entity->hasState(EntityState::ENTITY_STATE_ACTIVE))
 		{
-			entity->update(deltaTime);
+			entity->update(this, deltaTime);
 		}
 	}
 }
@@ -77,13 +88,18 @@ void ChunkedScene3D::render(Renderer* renderer, VkCommandBuffer commandBuffer, u
 
 	renderer->beginnRenderPass(commandBuffer, renderTarget->getFramebuffer(), glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), renderer->getOffscreenRenderPass());
 
+	// Update the light buffers and bind the light
+	if (this->directionalLight != nullptr) {
+		this->directionalLight->updateBuffers(renderer, commandBuffer, currentFrame);
+	}
+
 	// Render current chunk entities
 	auto it = m_chunks.find(m_currentChunk);
 	if (it != m_chunks.end()) {
 		const auto& currentChunkEntities = it->second;
 		for (const auto& entity : currentChunkEntities) {
 			if (entity->hasState(EntityState::ENTITY_STATE_VISIBLE)) {
-				entity->render(renderer, commandBuffer, currentFrame);
+				entity->render(this, renderer, commandBuffer, currentFrame);
 			}
 		}
 	}
@@ -95,7 +111,7 @@ void ChunkedScene3D::render(Renderer* renderer, VkCommandBuffer commandBuffer, u
 			const auto& neighborEntities = neighborsIt->second;
 			for (const auto& entity : neighborEntities) {
 				if (entity->hasState(EntityState::ENTITY_STATE_VISIBLE)) {
-					entity->render(renderer, commandBuffer, currentFrame);
+					entity->render(this, renderer, commandBuffer, currentFrame);
 				}
 			}
 		}
@@ -104,7 +120,7 @@ void ChunkedScene3D::render(Renderer* renderer, VkCommandBuffer commandBuffer, u
 	// Render global entities
 	for (const auto& entity : m_globalEntities) {
 		if (entity->hasState(EntityState::ENTITY_STATE_VISIBLE)) {
-			entity->render(renderer, commandBuffer, currentFrame);
+			entity->render(this, renderer, commandBuffer, currentFrame);
 		}
 	}
 
@@ -121,13 +137,13 @@ void ChunkedScene3D::destroy(Renderer* renderer)
 	// Destroy all chunk entities 
 	for (const auto& [chunkIndex, entities] : m_chunks) {
 		for (const auto& chunkEntity : entities) {
-			chunkEntity->destroy(renderer);
+			chunkEntity->destroy(this, renderer);
 		}
 	}
 
 	// Destroy all global entities
 	for (const auto& entity : m_globalEntities) {
-		entity->destroy(renderer);
+		entity->destroy(this, renderer);
 	}
 
 	// Destroy the skybox if it exists
@@ -180,5 +196,12 @@ std::vector<ChunkIndex> ChunkedScene3D::getChunkNeighbors(const ChunkIndex& chun
 		}
 	}
 	return neighbors;
+}
+
+void ChunkedScene3D::bindSceneDescriptorSets(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame, const std::string& currentPipeline)
+{
+	if (this->directionalLight != nullptr) {
+		this->directionalLight->bind(renderer, commandBuffer, currentFrame, currentPipeline);
+	}
 }
 

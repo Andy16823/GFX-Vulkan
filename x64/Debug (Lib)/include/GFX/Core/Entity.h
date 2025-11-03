@@ -10,6 +10,9 @@
 #include <type_traits>  
 #include "../Math/Transform.h"
 
+
+class Scene;
+
 /// <summary>
 /// 
 /// </summary>
@@ -179,13 +182,13 @@ public:
 	/// Update the entity
 	/// </summary>
 	/// <param name="dt"></param>
-	virtual void update(float dt);
+	virtual void update(Scene* scene, float dt);
 
 	/// <summary>
 	/// Initialize the entity
 	/// </summary>
 	/// <param name="renderer"></param>
-	virtual void init(Renderer* renderer) = 0;
+	virtual void init(Scene* scene, Renderer* renderer) = 0;
 
 	/// <summary>
 	/// Render the entity
@@ -193,13 +196,13 @@ public:
 	/// <param name="renderer"></param>
 	/// <param name="commandBuffer"></param>
 	/// <param name="currentFrame"></param>
-	virtual void render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame) = 0;
+	virtual void render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame) = 0;
 
 	/// <summary>
 	/// Destroy the entity
 	/// </summary>
 	/// <param name="renderer"></param>
-	virtual void destroy(Renderer* renderer) = 0;
+	virtual void destroy(Scene* scene, Renderer* renderer) = 0;
 	
 	/// <summary>
 	/// Add a tag to the entity

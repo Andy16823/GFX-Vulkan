@@ -13,52 +13,59 @@ Model::Model(std::string name, StaticMeshesRsc* ressource)
 	m_meshResource = ressource;
 }
 
-void Model::update(float dt)
+void Model::update(Scene* scene, float dt)
 {
-	Entity::update(dt);
+	Entity::update(scene, dt);
 }
 
 
-void Model::init(Renderer* renderer)
+void Model::init(Scene* scene, Renderer* renderer)
 {
 	// Nothing needed anymore with the AssetRessource system
 }
 
-/// <summary>
-/// Render all meshes in the model
-/// </summary>
-/// <param name="renderer"></param>
-/// <param name="currentFrame"></param>
-void Model::render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
+void Model::render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
+	// Validate the pipeline type
 	if (this->pipelineType.empty()) {
 		throw std::runtime_error("failed to render model: pipeline type is not set!");
 	}
 
-	// Ensure the mesh resource is valid
+	// Validate the mesh resource
 	if (!m_meshResource) {
 		throw std::runtime_error("failed to render model: mesh resource is null!");
 	}
 
+	// Get the model matrix and the active camera
 	auto modelMatrix = this->getModelMatrix();
 	auto currentCamera = renderer->getActiveCamera();
-	VkDescriptorSet descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);
-	renderer->bindPipeline(commandBuffer, this->pipelineType); 
+
+	// Bind the pipeline to render with
+	renderer->bindPipeline(commandBuffer, this->pipelineType);
+
+	// Bind the scene descriptor sets e.g. lights
+	scene->bindSceneDescriptorSets(renderer, commandBuffer, currentFrame, this->pipelineType);
+
+	// Bind the model matrix push constant
 	renderer->bindPushConstants(commandBuffer, renderer->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &modelMatrix);
+	
+	// Bind the model related descriptor sets
+	VkDescriptorSet descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);
 	renderer->bindDescriptorSet(descriptorSet, 0, currentFrame);
 	
+	// Render all meshes
 	for (const auto& mesh : m_meshResource->meshes) {
 		auto material = mesh->material.get();
-		material->bindMaterial(renderer, commandBuffer, 1, currentFrame); // Bind material descriptor sets starting from set 1
+
+		// Bind the material related descriptor sets
+		material->bindMaterial(renderer, commandBuffer, 1, currentFrame);
+
+		// Draw the mesh
 		renderer->drawBuffers(mesh->vertexBufferIndex, mesh->indexBufferIndex, commandBuffer);
 	}
 }
 
-/// <summary>
-/// Destroy all meshes in the model
-/// </summary>
-/// <param name="renderer"></param>
-void Model::destroy(Renderer* renderer)
+void Model::destroy(Scene* scene, Renderer* renderer)
 {
 	// Nothing needed anymore with the AssetRessource system
 }

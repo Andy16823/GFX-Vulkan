@@ -48,9 +48,9 @@ UboModel Entity::getModelMatrix()
 	return { matrix };
 }
 
-void Entity::update(float dt)
+void Entity::update(Scene* scene, float dt)
 {
 	for (auto& component : m_behaviors) {
-		component->update(dt);
+		component->update(scene, dt);
 	}
 }

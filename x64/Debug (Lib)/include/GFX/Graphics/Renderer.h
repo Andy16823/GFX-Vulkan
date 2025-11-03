@@ -293,6 +293,7 @@ public:
 	RenderTarget* getRenderTarget(int index);
 	Font* getFont(int index);
 	int getActiveCamera();
+	size_t numSwapChainImages();
 
 	// Setters
 	void setConfig(RenderConfig config);
@@ -327,9 +328,12 @@ public:
 	// Pipeline functions
 	void createPipeline(std::string name, PipelineCreateInfos infos, std::function<void(Pipeline*, Renderer*)> creationCallback = nullptr);
 	void bindPipeline(VkCommandBuffer commandBuffer, std::string pipelineName);
+	Pipeline* getPipeline(const std::string& pipelineName);
 
 	// Bind functions
+	void bindDescriptorSet(Pipeline* pipeline, VkDescriptorSet descriptorSet, int firstSet, int frame);
 	void bindDescriptorSet(VkDescriptorSet descriptorSet, int firstSet, int frame);
+	void bindDescriptorSets(Pipeline* pipeline, const std::vector<VkDescriptorSet>& descriptorSets, int firstSet, int frame);
 	void bindDescriptorSets(const std::vector<VkDescriptorSet>& descriptorSets, int frame);
 	void bindDescriptorSets(const std::vector<VkDescriptorSet>& descriptorSets, int firstSet, int frame);
 	template<typename C>

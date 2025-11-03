@@ -1,4 +1,5 @@
 #pragma once
+#include "Scene.h"
 #include "Entity.h"
 #include <string>
 #include "../Graphics/Mesh.h"
@@ -50,7 +51,7 @@ public:
 	/// Initialize the instanced model
 	/// </summary>
 	/// <param name="renderer"></param>
-	void init(Renderer* renderer) override;
+	void init(Scene* scene, Renderer* renderer) override;
 
 	/// <summary>
 	/// Render the instanced model
@@ -58,13 +59,13 @@ public:
 	/// <param name="renderer"></param>
 	/// <param name="commandBuffer"></param>
 	/// <param name="currentFrame"></param>
-	void render(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame) override;
+	void render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame) override;
 
 	/// <summary>
 	/// Destroy the instanced model
 	/// </summary>
 	/// <param name="renderer"></param>
-	void destroy(Renderer* renderer) override;
+	void destroy(Scene* scene, Renderer* renderer) override;
 
 	/// <summary>
 	/// Update the instance data for a specific instance

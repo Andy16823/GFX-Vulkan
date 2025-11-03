@@ -22,6 +22,11 @@ layout(set = 6, binding = 0) uniform PBRMaterialProperties {
     vec4 albedoColor;
 } materialProps;
 
+layout(set = 7, binding = 0) uniform DirectionalLightData {
+    vec4 direction;
+    vec4 colorIntensity;
+} dirLight;
+
 // Camera UBO
 layout(set = 0, binding = 0) uniform UboViewProjection {
     mat4 projection;
@@ -43,10 +48,6 @@ layout(location = 0) out vec4 outColor;
 // ═══════════════════════════════════════════════════════════════
 const float PI = 3.14159265359;
 
-// ✅ DIRECTIONAL LIGHT (Hard-coded sun)
-const vec3 LIGHT_DIRECTION = normalize(vec3(-0.5, -1.0, -0.3));
-const vec3 LIGHT_COLOR = vec3(1.0, 0.95, 0.9);
-const float LIGHT_INTENSITY = 3.0;
 
 // ═══════════════════════════════════════════════════════════════
 // PBR FUNCTIONS
@@ -102,6 +103,11 @@ void main() {
         discard;
     }
 
+    // Directional light parameters
+    vec3 lightDir = dirLight.direction.xyz;
+    vec3 lightColor = dirLight.colorIntensity.rgb;
+    float lightIntensity = dirLight.colorIntensity.a;
+
     // Sample material properties
     vec4 albedoTextureColor = texture(albedoMap, fragTexCoord);
     vec4 albedoColor = materialProps.albedoColor * albedoTextureColor;
@@ -122,11 +128,11 @@ void main() {
     vec3 V = normalize(uboViewProjection.cameraPos - fragWorldPos);
     
     // ✅ Light direction (negative because pointing TO light)
-    vec3 L = -LIGHT_DIRECTION;
+    vec3 L = -lightDir;
     vec3 H = normalize(V + L);
     
     // ✅ Calculate radiance
-    vec3 radiance = LIGHT_COLOR * LIGHT_INTENSITY;
+    vec3 radiance = lightColor * lightIntensity;
     
     // ✅ Calculate F0 (base reflectivity)
     vec3 F0 = vec3(0.04);  // Dielectric default (4%)

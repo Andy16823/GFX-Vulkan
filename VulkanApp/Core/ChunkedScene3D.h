@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include <map>
 #include <vector>
+#include "../Graphics/DirectionalLight.h"
 
 /// <summary>
 /// The chunk index structure
@@ -47,6 +48,11 @@ public:
 	/// The skybox of the scene
 	/// </summary>
 	std::unique_ptr<Skybox> skybox;
+
+	/// <summary>
+	/// The directional light (Sun) of the scene
+	/// </summary>
+	std::unique_ptr<DirectionalLight> directionalLight;
 
 	/// <summary>
 	/// Chunk size in world units
@@ -146,5 +152,15 @@ public:
 	/// <param name="chunkIndex"></param>
 	/// <returns></returns>
 	std::vector<ChunkIndex> getChunkNeighbors(const ChunkIndex& chunkIndex);
+
+	/// <summary>
+	/// Binds the scene descriptor sets
+	/// </summary>
+	/// <param name="renderer"></param>
+	/// <param name="commandBuffer"></param>
+	/// <param name="currentFrame"></param>
+	/// <param name="currentPipeline"></param>
+	void bindSceneDescriptorSets(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame, const std::string& currentPipeline) override;
+
 };
 
