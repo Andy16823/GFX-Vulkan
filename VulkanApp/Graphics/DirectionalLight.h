@@ -65,7 +65,7 @@ public:
 	/// <summary>
 	/// The intensity of the light
 	/// </summary>
-	float intensity = 1;
+	float intensity = 3;
 
 	/// <summary>
 	/// Initialize the light

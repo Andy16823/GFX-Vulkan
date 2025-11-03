@@ -30,7 +30,6 @@ void DirectionalLight::bind(Renderer* renderer, VkCommandBuffer commandBuffer, i
 		if (bindingInfo.pipelineName != pipeline) {
 			continue;
 		}
-		renderer->bindPipeline(commandBuffer, bindingInfo.pipelineName);
 		renderer->bindDescriptorSet(descriptorSet, bindingInfo.binding, frame);
 		return;
 	}
