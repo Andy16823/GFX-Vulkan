@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "InstanceHandle.h"
 
 /// <summary>
 /// Instance data structure
@@ -88,5 +89,12 @@ public:
 	/// <param name="renderer"></param>
 	void destroy(Scene* scene, Renderer* renderer) override {};
 
+	/// <summary>
+	/// Create an instance handle for a specific instance
+	/// </summary>
+	/// <param name="name"></param>
+	/// <param name="instanceId"></param>
+	/// <returns></returns>
+	std::unique_ptr<InstanceHandle> createInstanceHandle(const std::string& name, int instanceId);
 };
 

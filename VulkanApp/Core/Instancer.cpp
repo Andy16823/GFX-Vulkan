@@ -28,6 +28,12 @@ void Instancer::init(Scene* scene, Renderer* renderer)
 	}
 }
 
+std::unique_ptr<InstanceHandle> Instancer::createInstanceHandle(const std::string& name, int instanceId)
+{
+	std::unique_ptr<InstanceHandle> handle = std::make_unique<InstanceHandle>(name, this, instanceId);
+	return handle;
+}
+
 void Instancer::updateInstance(Renderer* renderer, const InstanceData& data, int instanceIndex)
 {
 	if (instanceIndex < 0 || instanceIndex >= instanceCount) {
