@@ -1049,11 +1049,19 @@ SwapChainSupportDetails Renderer::getSwapChainSupport(VkPhysicalDevice device)
 
 void Renderer::recreateSurface()
 {
+	// Wait for the device to idle
 	vkDeviceWaitIdle(m_renderDevice.logicalDevice);
+
+	// Cleanup the swapchain
+	this->cleanupSwapChain();
+
+	// Destroy and recreate the surface
 	vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
 	if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to recreate window surface!");
 	}
+
+	// Recreate the swapchain
 	recreateSwapChain();
 }
 
@@ -1097,8 +1105,11 @@ void Renderer::cleanupSwapChain()
 {
 	// Cleanup framebuffers
 	for (auto framebuffer : m_swapChainFramebuffers) {
-		vkDestroyFramebuffer(m_renderDevice.logicalDevice, framebuffer, nullptr);
+		if (framebuffer != VK_NULL_HANDLE) {
+			vkDestroyFramebuffer(m_renderDevice.logicalDevice, framebuffer, nullptr);
+		}
 	}
+	m_swapChainFramebuffers.clear();
 
 	// Cleanup commmand buffers
 	if (!m_commandBuffers.empty()) {
@@ -1107,20 +1118,36 @@ void Renderer::cleanupSwapChain()
 	}
 
 	// Cleanup depth buffer image view
-	vkDestroyImageView(m_renderDevice.logicalDevice, m_depthBufferImageView, nullptr);
+	if (m_depthBufferImageView != VK_NULL_HANDLE) {
+		vkDestroyImageView(m_renderDevice.logicalDevice, m_depthBufferImageView, nullptr);
+		m_depthBufferImageView = VK_NULL_HANDLE;
+	}
 
 	// Cleanup depth buffer image
-	vkDestroyImage(m_renderDevice.logicalDevice, m_depthBufferImage, nullptr);
-	vkFreeMemory(m_renderDevice.logicalDevice, m_depthBufferImageMemory, nullptr);
+	if (m_depthBufferImage != VK_NULL_HANDLE) {
+		vkDestroyImage(m_renderDevice.logicalDevice, m_depthBufferImage, nullptr);
+		m_depthBufferImage = VK_NULL_HANDLE;
+	}
+	
+	// Cleanup depth buffer image memory
+	if (m_depthBufferImageMemory != VK_NULL_HANDLE) {
+		vkFreeMemory(m_renderDevice.logicalDevice, m_depthBufferImageMemory, nullptr);
+		m_depthBufferImageMemory = VK_NULL_HANDLE;
+	}
 
 	// Cleanup swapchain images
 	for (auto& swapChainImage : m_swapChainImages) {
-		vkDestroyImageView(m_renderDevice.logicalDevice, swapChainImage.imageView, nullptr);
+		if (swapChainImage.imageView != VK_NULL_HANDLE) {
+			vkDestroyImageView(m_renderDevice.logicalDevice, swapChainImage.imageView, nullptr);
+		}
 	}
 	m_swapChainImages.clear();
 
 	// Cleanup swapchain
-	vkDestroySwapchainKHR(m_renderDevice.logicalDevice, m_swapChain, nullptr);
+	if (m_swapChain != VK_NULL_HANDLE) {
+		vkDestroySwapchainKHR(m_renderDevice.logicalDevice, m_swapChain, nullptr);
+		m_swapChain = VK_NULL_HANDLE;
+	}
 
 	// Cleanup render passes
 	m_renderPassManager.dispose(m_renderDevice.logicalDevice);
