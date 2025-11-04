@@ -1084,6 +1084,7 @@ void Renderer::recreateSwapChain()
 	createFramebuffers();
 	createCommandBuffers();
 
+	m_imagesInFlight.clear();
 	m_imagesInFlight.resize(m_swapChainImages.size(), VK_NULL_HANDLE);
 
 	// Callbacks after recreating swapchain
