@@ -49,6 +49,19 @@ public:
 	virtual void bindSceneDescriptorSets(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame, const std::string& currentPipeline) = 0;
 
 	/// <summary>
+	/// Called before the swapchain is recreated
+	/// </summary>
+	/// <param name="renderer"></param>
+	virtual void beforeSwapchainRecreate(Renderer* renderer);
+
+	/// <summary>
+	/// Called after the swapchain is recreated
+	/// </summary>
+	/// <param name="renderer"></param>
+	/// <param name="newSize"></param>
+	virtual void afterSwapchainRecreate(Renderer* renderer, const glm::ivec2& newSize);
+
+	/// <summary>
 	/// destroy the scene
 	/// </summary>
 	/// <param name="renderer"></param>

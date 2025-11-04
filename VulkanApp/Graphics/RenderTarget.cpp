@@ -22,6 +22,11 @@ VkCommandBuffer RenderTarget::getCommandBuffer()
 /// <param name="renderpass"></param>
 void RenderTarget::createRenderTarget(VkPhysicalDevice physicalDevice, VkDevice device, VkExtent2D extent, VkFormat format, VkRenderPass renderpass, VkFormat depthFormat)
 {
+	// Store parameters
+	m_extent = extent;
+	m_format = format;
+	m_depthFormat = depthFormat;
+
 	// Create the image for the render target
 	m_image = createImage(
 		physicalDevice,
@@ -116,13 +121,78 @@ void RenderTarget::createCommandBuffer(VkDevice device, VkCommandPool commandPoo
 /// <param name="device"></param>
 void RenderTarget::dispose(VkDevice device)
 {
-	vkDestroyFramebuffer(device, m_framebuffer, nullptr);
-	vkDestroyImageView(device, m_imageView, nullptr);
-	vkDestroyImage(device, m_image, nullptr);
-	vkFreeMemory(device, m_imageMemory, nullptr);
-	vkDestroyImageView(device, m_depthImageView, nullptr);
-	vkDestroyImage(device, m_depthImage, nullptr);
-	vkFreeMemory(device, m_depthImageMemory, nullptr);
+	this->cleanupRenderTarget(device);
+}
+
+/// <summary>
+/// Cleanup any additional resources specific to the render target
+/// </summary>
+/// <param name="device"></param>
+void RenderTarget::cleanupRenderTarget(VkDevice device)
+{
+	// Destroy framebuffer
+	if (m_framebuffer != VK_NULL_HANDLE) {
+		vkDestroyFramebuffer(device, m_framebuffer, nullptr);
+		m_framebuffer = VK_NULL_HANDLE;
+	}
+
+	// Destroy image view
+	if (m_imageView != VK_NULL_HANDLE) {
+		vkDestroyImageView(device, m_imageView, nullptr);
+		m_imageView = VK_NULL_HANDLE;
+	}
+
+	// Destroy image
+	if (m_image != VK_NULL_HANDLE) {
+		vkDestroyImage(device, m_image, nullptr);
+		m_image = VK_NULL_HANDLE;
+	}
+
+	// Free image memory
+	if (m_imageMemory != VK_NULL_HANDLE) {
+		vkFreeMemory(device, m_imageMemory, nullptr);
+		m_imageMemory = VK_NULL_HANDLE;
+	}
+
+	// Destroy depth image view
+	if (m_depthImageView != VK_NULL_HANDLE) {
+		vkDestroyImageView(device, m_depthImageView, nullptr);
+		m_depthImageView = VK_NULL_HANDLE;
+	}
+
+	// Destroy depth image
+	if (m_depthImage != VK_NULL_HANDLE) {
+		vkDestroyImage(device, m_depthImage, nullptr);
+		m_depthImage = VK_NULL_HANDLE;
+	}
+
+	// Free depth image memory
+	if (m_depthImageMemory != VK_NULL_HANDLE) {
+		vkFreeMemory(device, m_depthImageMemory, nullptr);
+		m_depthImageMemory = VK_NULL_HANDLE;
+	}
+	std::cout << "Render target resources cleaned up." << std::endl;
+}
+
+void RenderTarget::cleanupCommandBuffer(VkDevice device, VkCommandPool commandPool)
+{
+	if (m_commandBuffer != VK_NULL_HANDLE) {
+		vkFreeCommandBuffers(device, commandPool, 1, &m_commandBuffer);
+		m_commandBuffer = VK_NULL_HANDLE;
+	}
+	std::cout << "Render target command buffer cleaned up." << std::endl;
+}
+
+void RenderTarget::recreateRenderTarget(VkPhysicalDevice physicalDevice, VkDevice device, VkRenderPass renderpass)
+{
+	this->recreateRenderTarget(physicalDevice, device, m_extent, renderpass);
+}
+
+void RenderTarget::recreateRenderTarget(VkPhysicalDevice physicalDevice, VkDevice device, VkExtent2D extent, VkRenderPass renderpass)
+{
+	this->cleanupRenderTarget(device);
+	this->createRenderTarget(physicalDevice, device, extent, m_format, renderpass, m_depthFormat);
+	std::cout << "Render target recreated." << std::endl;
 }
 
 /// <summary>

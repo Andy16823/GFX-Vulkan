@@ -360,6 +360,13 @@ public:
 	void updateCamera(int cameraIndex, uint32_t frame, const UboViewProjection& vp);
 	void updateUniformBuffer(int uniformBufferIndex, const void* data, VkDeviceSize size, VkDeviceSize offset = 0);
 	void updateStorageBuffer(int storageBufferIndex, const void* data, VkDeviceSize size, VkDeviceSize offset = 0);
+	void updateTextureDescriptor(int descriptorIndex, VkImageView textureImageView);
+
+	// Update functions for RenderTarget
+	void cleanupRenderTarget(int renderTargetIndex);
+	void recreateRenderTarget(int renderTargetIndex);
+	void recreateRenderTarget(int renderTargetIndex, VkExtent2D newSize);
+	void recreateRenderTarget(int renderTargetIndex, const glm::vec2& newSize);
 
 	// Draw functions
 	void drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer, int instances = 1);

@@ -2178,6 +2178,88 @@ void Renderer::updateStorageBuffer(int storageBufferIndex, const void* data, VkD
 	storageBuffer->updateBuffer(m_renderDevice.logicalDevice, data, size, offset);
 }
 
+void Renderer::updateTextureDescriptor(int descriptorIndex, VkImageView textureImageView)
+{
+	if (descriptorIndex < 0 || descriptorIndex >= m_samplerDescriptorSets.size()) {
+		throw std::runtime_error("failed to update texture descriptor: invalid descriptor index!");
+	}
+
+	VkDescriptorSet descriptorSet = m_samplerDescriptorSets[descriptorIndex];
+
+	// Image info
+	VkDescriptorImageInfo imageInfo = {};
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = textureImageView;
+	imageInfo.sampler = m_textureSampler;
+
+	// Descriptor Write info
+	VkWriteDescriptorSet descriptorWrite = {};
+	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrite.dstSet = descriptorSet;
+	descriptorWrite.dstBinding = 0;
+	descriptorWrite.dstArrayElement = 0;
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptorWrite.descriptorCount = 1;
+	descriptorWrite.pImageInfo = &imageInfo;
+
+	// Update the descriptor set with the image info
+	vkUpdateDescriptorSets(m_renderDevice.logicalDevice, 1, &descriptorWrite, 0, nullptr);
+}
+
+void Renderer::cleanupRenderTarget(int renderTargetIndex)
+{
+	if (renderTargetIndex < 0 || renderTargetIndex >= m_renderTargets.size()) {
+		throw std::runtime_error("failed to cleanup render target: invalid render target index!");
+	}
+	m_renderTargets[renderTargetIndex]->cleanupRenderTarget(m_renderDevice.logicalDevice);
+	m_renderTargets[renderTargetIndex]->cleanupCommandBuffer(m_renderDevice.logicalDevice, m_commandPool);
+}
+
+void Renderer::recreateRenderTarget(int renderTargetIndex)
+{
+	this->recreateRenderTarget(renderTargetIndex, m_swapChainExtent);
+}
+
+void Renderer::recreateRenderTarget(int renderTargetIndex, const glm::vec2& newSize)
+{
+	VkExtent2D extent = {};
+	extent.width = static_cast<uint32_t>(newSize.x);
+	extent.height = static_cast<uint32_t>(newSize.y);
+	this->recreateRenderTarget(renderTargetIndex, extent);
+}
+
+void Renderer::recreateRenderTarget(int renderTargetIndex, VkExtent2D newSize)
+{
+	if (renderTargetIndex < 0 || renderTargetIndex >= m_renderTargets.size()) {
+		throw std::runtime_error("failed to recreate render target: invalid render target index!");
+	}
+
+	auto renderPass = m_renderPassManager.getRenderPass(m_offscreenRenderPassIndex);
+
+	// Get the render target
+	auto& renderTarget = m_renderTargets[renderTargetIndex];
+
+	// Get the old descriptor index
+	auto descriptorIndex = renderTarget->getOffscreenDescriptorIndex();
+
+	// Recreate the render target
+	renderTarget->recreateRenderTarget(
+		m_renderDevice.physicalDevice,
+		m_renderDevice.logicalDevice,
+		newSize,
+		renderPass->getRenderPass()
+	);
+
+	// Recreate the command buffer
+	renderTarget->createCommandBuffer(
+		m_renderDevice.logicalDevice,
+		m_commandPool
+	);
+
+	// Update the descriptor set
+	this->updateTextureDescriptor(descriptorIndex, renderTarget->getImageView());
+}
+
 void Renderer::drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer, int instances)
 {
 	// Get the required buffers

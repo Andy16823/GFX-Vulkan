@@ -73,6 +73,21 @@ private:
 	/// </summary>
 	VkImageView m_depthImageView;
 
+    /// <summary>
+	/// The extent (width and height) of the render target.
+    /// </summary>
+    VkExtent2D m_extent;
+
+	/// <summary>
+	/// The format of the render target image.
+	/// </summary>
+	VkFormat m_format;
+
+	/// <summary>
+	/// The depth format of the render target.
+	/// </summary>
+	VkFormat m_depthFormat;
+
 public:
     RenderTarget(const bool presentOnScreen);
     ~RenderTarget() = default;
@@ -111,6 +126,39 @@ public:
     /// </summary>
     /// <param name="device">The Vulkan logical device used to destroy resources.</param>
     void dispose(VkDevice device);
+
+    /// <summary>
+	/// Cleanup any additional resources specific to the render target.
+    /// </summary>
+    /// <param name="device"></param>
+    void cleanupRenderTarget(VkDevice device);
+
+	/// <summary>
+	/// Cleanup the command buffer associated with this render target.
+	/// Needed before recreating the command buffer.
+	/// </summary>
+	/// <param name="device"></param>
+	/// <param name="commandPool"></param>
+	void cleanupCommandBuffer(VkDevice device, VkCommandPool commandPool);
+
+    /// <summary>
+	/// Recreates the render target with existing parameters, disposing of existing resources first.
+    /// </summary>
+    /// <param name="physicalDevice"></param>
+    /// <param name="device"></param>
+    /// <param name="renderpass"></param>
+    void recreateRenderTarget(VkPhysicalDevice physicalDevice, VkDevice device, VkRenderPass renderpass);
+
+	/// <summary>
+	/// Recreates the render target with new parameters, disposing of existing resources first.
+	/// </summary>
+	/// <param name="physicalDevice"></param>
+	/// <param name="device"></param>
+	/// <param name="extent"></param>
+	/// <param name="format"></param>
+	/// <param name="renderpass"></param>
+	/// <param name="depthFormat"></param>
+	void recreateRenderTarget(VkPhysicalDevice physicalDevice, VkDevice device, VkExtent2D extent, VkRenderPass renderpass);
 
     /// <summary>
     /// Begins command buffer recording for rendering to this render target.
