@@ -1819,7 +1819,14 @@ void Renderer::draw()
 
 	// Setp 1: Get the next image from the swap chain
 	uint32_t imageIndex;
-	VkResult acquireResult = vkAcquireNextImageKHR(m_renderDevice.logicalDevice, m_swapChain, std::numeric_limits<uint64_t>::max(), m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
+	VkResult acquireResult = vkAcquireNextImageKHR(
+		m_renderDevice.logicalDevice, 
+		m_swapChain, 
+		std::numeric_limits<uint64_t>::max(), 
+		m_imageAvailableSemaphores[m_currentFrame], 
+		VK_NULL_HANDLE, 
+		&imageIndex
+	);
 
 	if (acquireResult == VK_ERROR_OUT_OF_DATE_KHR) {
 		std::cout << "[INFO] Swapchain out of date recreating swapchain." << std::endl;
@@ -1841,6 +1848,8 @@ void Renderer::draw()
 		vkWaitForFences(m_renderDevice.logicalDevice, 1, &m_imagesInFlight[imageIndex], VK_TRUE, std::numeric_limits<uint64_t>::max());
 	}
 	m_imagesInFlight[imageIndex] = m_inFlightFences[m_currentFrame];
+	
+	// Reset the fence for this frame
 	vkResetFences(m_renderDevice.logicalDevice, 1, &m_inFlightFences[m_currentFrame]);
 
 	// Record command buffer for this image
@@ -1861,6 +1870,7 @@ void Renderer::draw()
 	submitInfo.pSignalSemaphores = &m_renderFinishedSemaphores[m_currentFrame];	// Semaphores to signal once the command buffer has finished execution
 
 	if (vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS) {
+		std::cerr << "[ERROR] Failed to submit draw command buffer!" << std::endl;
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
 
@@ -1874,18 +1884,19 @@ void Renderer::draw()
 	presentInfo.pImageIndices = &imageIndex;									// Indices of the images in the swap chains to present
 
 	VkResult presentResult = vkQueuePresentKHR(m_presentQueue, &presentInfo);
-	if (presentResult != VK_SUCCESS) {
-		if (presentResult == VK_ERROR_OUT_OF_DATE_KHR) {
-			std::cerr << "[WARNING] Swapchain out of date (window resized?)" << std::endl;
-		}
-		else if (presentResult == VK_SUBOPTIMAL_KHR) {
-			std::cerr << "[WARNING] Swapchain suboptimal" << std::endl;
-		}
-		else {
-			std::cerr << "[ERROR] Present failed with error: " << presentResult << std::endl;
-			throw std::runtime_error("Failed to present!");
-		}
+	if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR) {
+		std::cout << "[INFO] Swapchain out of date or suboptimal recreating swapchain." << std::endl;
+		this->recreateSwapChain();
 	}
+	else if (presentResult == VK_ERROR_SURFACE_LOST_KHR) {
+		std::cerr << "[ERROR] Surface lost! trying to recreate the surface." << std::endl;
+		this->recreateSurface();
+	}
+	else if (presentResult != VK_SUCCESS) {
+		std::cerr << "[ERROR] Failed to present swapchain image. Result: " << presentResult << std::endl;
+		throw std::runtime_error("Failed to present swapchain image!");
+	}
+
 	m_currentFrame = (m_currentFrame + 1) % m_numFramesInFlight;
 }
 
