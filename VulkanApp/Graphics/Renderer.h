@@ -245,6 +245,11 @@ private:
 	QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device);
 	SwapChainSupportDetails getSwapChainSupport(VkPhysicalDevice device);
 
+	// Swapchain Recreation
+	void recreateSurface();
+	void recreateSwapChain();
+	void cleanupSwapChain();
+
 	// Helpers
 	VkSurfaceFormatKHR chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseBestPresentationMode(const std::vector<VkPresentModeKHR>& availablePresentModes);

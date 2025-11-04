@@ -292,6 +292,8 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Graphics\IndexBuffer.cpp" />
     <ClCompile Include="Core\Input.cpp" />
     <ClCompile Include="Core\InstancedModel.cpp" />
+    <ClCompile Include="Core\InstanceHandle.cpp" />
+    <ClCompile Include="Core\Instancer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Core\Model.cpp" />
@@ -353,6 +355,8 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Core\Input.h" />
     <ClInclude Include="Core\InstancedModel.h" />
     <ClInclude Include="Graphics\Light.h" />
+    <ClInclude Include="Core\InstanceHandle.h" />
+    <ClInclude Include="Core\Instancer.h" />
     <ClInclude Include="Math\RayCast.h" />
     <ClInclude Include="Assets\ModelLoader.h" />
     <ClInclude Include="Core\Scene3D.h" />

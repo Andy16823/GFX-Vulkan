@@ -18,6 +18,8 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\ImageTexture.cpp;C
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\IndexBuffer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\IndexBuffer.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Input.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Input.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\InstancedModel.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\InstancedModel.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\InstanceHandle.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\InstanceHandle.obj
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Instancer.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Instancer.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\main.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\main.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Mesh.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Mesh.obj
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Core\Model.cpp;C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\x64\Debug (Lib)\Model.obj

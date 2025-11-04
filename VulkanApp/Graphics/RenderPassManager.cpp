@@ -20,4 +20,5 @@ void RenderPassManager::dispose(VkDevice device)
 	for (auto& renderPass : m_renderPasses) {
 		renderPass->dispose(device);
 	}
+	m_renderPasses.clear();
 }

@@ -1047,6 +1047,77 @@ SwapChainSupportDetails Renderer::getSwapChainSupport(VkPhysicalDevice device)
 	return details;
 }
 
+void Renderer::recreateSurface()
+{
+	vkDeviceWaitIdle(m_renderDevice.logicalDevice);
+	vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+	if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to recreate window surface!");
+	}
+	recreateSwapChain();
+}
+
+void Renderer::recreateSwapChain()
+{
+	// Get the new window size
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(m_window, &width, &height);
+	while (width == 0 || height == 0) {
+		glfwGetFramebufferSize(m_window, &width, &height);
+		glfwWaitEvents();
+	}
+	vkDeviceWaitIdle(m_renderDevice.logicalDevice);
+
+	// Cleanup old swapchain
+	cleanupSwapChain();
+
+	// Recreate
+	createSwapChain();
+	createDepthBufferImage();
+	createRenderPass();
+	createGraphicsPipelines();
+	createFramebuffers();
+	createCommandBuffers();
+
+	m_imagesInFlight.resize(m_swapChainImages.size(), VK_NULL_HANDLE);
+}
+
+void Renderer::cleanupSwapChain()
+{
+	// Cleanup framebuffers
+	for (auto framebuffer : m_swapChainFramebuffers) {
+		vkDestroyFramebuffer(m_renderDevice.logicalDevice, framebuffer, nullptr);
+	}
+
+	// Cleanup commmand buffers
+	if (!m_commandBuffers.empty()) {
+		vkFreeCommandBuffers(m_renderDevice.logicalDevice, m_commandPool, static_cast<uint32_t>(m_commandBuffers.size()), m_commandBuffers.data());
+		m_commandBuffers.clear();
+	}
+
+	// Cleanup depth buffer image view
+	vkDestroyImageView(m_renderDevice.logicalDevice, m_depthBufferImageView, nullptr);
+
+	// Cleanup depth buffer image
+	vkDestroyImage(m_renderDevice.logicalDevice, m_depthBufferImage, nullptr);
+	vkFreeMemory(m_renderDevice.logicalDevice, m_depthBufferImageMemory, nullptr);
+
+	// Cleanup swapchain images
+	for (auto& swapChainImage : m_swapChainImages) {
+		vkDestroyImageView(m_renderDevice.logicalDevice, swapChainImage.imageView, nullptr);
+	}
+	m_swapChainImages.clear();
+
+	// Cleanup swapchain
+	vkDestroySwapchainKHR(m_renderDevice.logicalDevice, m_swapChain, nullptr);
+
+	// Cleanup render passes
+	m_renderPassManager.dispose(m_renderDevice.logicalDevice);
+
+	// Cleanup pipelines
+	m_pipelineManager->destroyAllPipelines(m_renderDevice.logicalDevice);
+}
+
 /// <summary>
 /// Choose the best surface format
 /// Preferably VK_FORMAT_R8G8B8A8_UNORM with VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
@@ -1749,9 +1820,20 @@ void Renderer::draw()
 	// Setp 1: Get the next image from the swap chain
 	uint32_t imageIndex;
 	VkResult acquireResult = vkAcquireNextImageKHR(m_renderDevice.logicalDevice, m_swapChain, std::numeric_limits<uint64_t>::max(), m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
-	if (acquireResult != VK_SUCCESS && acquireResult != VK_SUBOPTIMAL_KHR) {
-		std::cerr << "[WARNING] Failed to acquire image, skipping frame. Result: " << acquireResult << std::endl;
+
+	if (acquireResult == VK_ERROR_OUT_OF_DATE_KHR) {
+		std::cout << "[INFO] Swapchain out of date recreating swapchain." << std::endl;
+		this->recreateSwapChain();
 		return;
+	}
+	else if (acquireResult == VK_ERROR_SURFACE_LOST_KHR) {
+		std::cerr << "[ERROR] Surface lost! trying to recreate the surface." << std::endl;
+		this->recreateSurface();
+		return;
+	}
+	else if (acquireResult != VK_SUCCESS && acquireResult != VK_SUBOPTIMAL_KHR) {
+		std::cerr << "[ERROR] Failed to acquire image. Result: " << acquireResult << std::endl;
+		throw std::runtime_error("Failed to acquire swapchain image!");
 	}
 
 	// Check if a previous frame is using this image (i.e. there is its fence to wait on)
