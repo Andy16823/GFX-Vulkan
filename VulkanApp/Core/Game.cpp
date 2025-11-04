@@ -41,6 +41,18 @@ void Game::run(const std::string name, const glm::i32vec2 windowSize, const int 
 			this->assetManager->dispose(renderer);
 		}
 	);
+	m_renderer->addBeforeSwapchainRecreateCallback(
+		[this](Renderer* renderer)
+		{
+			this->beforeSwapchainRecreation(renderer);
+		}
+	);
+	m_renderer->addAfterSwapchainRecreateCallback(
+		[this](Renderer* renderer, const glm::ivec2& dimensions)
+		{
+			this->afterSwapchainRecreation(renderer, dimensions);
+		}
+	);
 
 	this->loadContent();
 

@@ -83,6 +83,18 @@ public:
 	virtual void render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) = 0;
 
 	/// <summary>
+	/// Called before the swapchain is recreated, allowing for resource cleanup.
+	/// </summary>
+	/// <param name="renderer"></param>
+	virtual void beforeSwapchainRecreation(Renderer* renderer) = 0;
+
+	/// <summary>
+	/// Called after the swapchain has been recreated, allowing for resource reinitialization.
+	/// </summary>
+	/// <param name="renderer"></param>
+	virtual void afterSwapchainRecreation(Renderer* renderer, const glm::ivec2& dimensions) = 0;
+
+	/// <summary>
 	/// Disposes of game resources using the given renderer.
 	/// </summary>
 	/// <param name="renderer"></param>

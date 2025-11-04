@@ -173,11 +173,10 @@ private:
 	VkDescriptorSetLayout m_cameraDescriptorSetLayout;
 
 	// Uniform Buffers
-	std::vector<std::unique_ptr<UniformBuffer>> m_uniformBuffers; // done
+	std::vector<std::unique_ptr<UniformBuffer>> m_uniformBuffers;
 	std::vector<VkDescriptorSet> m_uniformBufferDescriptorSets; 
-	VkDescriptorSetLayout m_uniformBufferSetLayout; // done
-	VkDescriptorPool m_uniformBufferDescriptorPool; // done
-
+	VkDescriptorSetLayout m_uniformBufferSetLayout;
+	VkDescriptorPool m_uniformBufferDescriptorPool;
 
 	// TEXTURE STUFF
 	std::vector<std::unique_ptr<ImageBuffer>> m_imageBuffers;
@@ -211,6 +210,8 @@ private:
 	std::vector<std::function<void(Renderer*)>> m_initCallbacks;
 	std::vector<std::function<void(Renderer*)>> m_disposeCallbacks;
 	std::vector<std::function<void(Renderer*, VkCommandBuffer, uint32_t)>> m_offscreenCallbacks;
+	std::vector<std::function<void(Renderer*)>> m_beforeSwapchainRecreateCallbacks;
+	std::vector<std::function<void(Renderer*, const glm::ivec2&)>> m_afterSwapchainRecreateCallbacks;
 
 	// Core
 	void createValidationLayers();
@@ -281,6 +282,8 @@ public:
 	void addOnInitCallback(std::function<void(Renderer*)> callback);
 	void addOnDisposeCallback(std::function<void(Renderer*)> callback);
 	void addOnOffscreenCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback);
+	void addBeforeSwapchainRecreateCallback(std::function<void(Renderer*)> callback);
+	void addAfterSwapchainRecreateCallback(std::function<void(Renderer*, glm::ivec2)> callback);
 
 	// Getters
 	VkDevice getDevice();

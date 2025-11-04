@@ -1068,6 +1068,11 @@ void Renderer::recreateSwapChain()
 	}
 	vkDeviceWaitIdle(m_renderDevice.logicalDevice);
 
+	// Callbacks before recreating swapchain
+	for (auto& beforeRecreateCallback : m_beforeSwapchainRecreateCallbacks) {
+		beforeRecreateCallback(this);
+	}
+
 	// Cleanup old swapchain
 	cleanupSwapChain();
 
@@ -1080,6 +1085,11 @@ void Renderer::recreateSwapChain()
 	createCommandBuffers();
 
 	m_imagesInFlight.resize(m_swapChainImages.size(), VK_NULL_HANDLE);
+
+	// Callbacks after recreating swapchain
+	for (auto& afterRecreateCallback : m_afterSwapchainRecreateCallbacks) {
+		afterRecreateCallback(this, glm::ivec2(width, height));
+	}
 }
 
 void Renderer::cleanupSwapChain()
@@ -1918,6 +1928,16 @@ void Renderer::addOnDisposeCallback(std::function<void(Renderer*)> callback)
 void Renderer::addOnOffscreenCallback(std::function<void(Renderer*, VkCommandBuffer, uint32_t)> callback)
 {
 	m_offscreenCallbacks.push_back(callback);
+}
+
+void Renderer::addBeforeSwapchainRecreateCallback(std::function<void(Renderer*)> callback)
+{
+	m_beforeSwapchainRecreateCallbacks.push_back(callback);
+}
+
+void Renderer::addAfterSwapchainRecreateCallback(std::function<void(Renderer*, glm::ivec2)> callback)
+{
+	m_afterSwapchainRecreateCallbacks.push_back(callback);
 }
 
 VkViewport Renderer::getSwapchainViewport()
