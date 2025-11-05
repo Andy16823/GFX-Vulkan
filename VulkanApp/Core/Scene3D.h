@@ -186,5 +186,8 @@ public:
 	/// <param name="currentPipeline"></param>
 	void bindSceneDescriptorSets(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame, const std::string& currentPipeline) override;
 
+
+	RayHit raycast(const Ray& ray) const override;
+
 };
 

@@ -211,3 +211,62 @@ void ChunkedScene3D::bindSceneDescriptorSets(Renderer* renderer, VkCommandBuffer
 	}
 }
 
+RayHit ChunkedScene3D::raycast(const Ray& ray) const
+{
+	float closestDistance = std::numeric_limits<float>::max();
+	Entity* hitEntity = nullptr;
+
+	// Check global entities
+	for (const auto& entity : m_globalEntities) {
+		AABB worldAabb = entity->getAABB(true);
+		float tMin, tMax;
+		if (RayCast::rayIntersectsAABB(ray, worldAabb, tMin, tMax)) {
+			if (tMin < closestDistance) {
+				closestDistance = tMin;
+				hitEntity = entity.get();
+			}
+		}
+	}
+
+	// Check current chunk entities
+	auto it = m_chunks.find(m_currentChunk);
+	if (it != m_chunks.end()) {
+		const auto& entities = it->second;
+		for (const auto& entity : entities) {
+			AABB worldAabb = entity->getAABB(true);
+			float tMin, tMax;
+			if (RayCast::rayIntersectsAABB(ray, worldAabb, tMin, tMax)) {
+				if (tMin < closestDistance) {
+					closestDistance = tMin;
+					hitEntity = entity.get();
+				}
+			}
+		}
+	}
+
+	// check neighboring chunk entities 
+	for (const auto& neighborIndex : m_neighboringChunks) {
+		auto neighborsIt = m_chunks.find(neighborIndex);
+		if (neighborsIt != m_chunks.end()) {
+			const auto& entities = neighborsIt->second;
+			for (const auto& entity : entities) {
+				AABB worldAabb = entity->getAABB(true);
+				float tMin, tMax;
+				if (RayCast::rayIntersectsAABB(ray, worldAabb, tMin, tMax)) {
+					if (tMin < closestDistance) {
+						closestDistance = tMin;
+						hitEntity = entity.get();
+					}
+				}
+			}
+		}
+	}
+
+	RayHit hitResult = {};
+	hitResult.hitobject = hitEntity;
+	hitResult.distance = (hitEntity != nullptr) ? closestDistance : -1.0f;
+	hitResult.position = ray.origin + ray.direction * closestDistance;
+	hitResult.hit = (hitEntity != nullptr);
+	return hitResult;
+}
+

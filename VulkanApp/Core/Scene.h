@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Skybox.h"
 #include "SceneBehavior.h"
+#include "../Math/RayCast.h"
 
 
 /// <summary>
@@ -35,6 +36,13 @@ public:
 	/// </summary>
 	/// <param name="deltaTime"></param>
 	virtual void update(float deltaTime);
+
+	/// <summary>
+	/// Perform a raycast in the scene
+	/// </summary>
+	/// <param name="ray"></param>
+	/// <returns></returns>
+	virtual RayHit raycast(const Ray& ray) const = 0;
 
 	/// <summary>
 	/// render the scene

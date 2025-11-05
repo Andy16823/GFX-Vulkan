@@ -100,3 +100,27 @@ void Scene3D::bindSceneDescriptorSets(Renderer* renderer, VkCommandBuffer comman
 		this->directionalLight->bind(renderer, commandBuffer, currentFrame, currentPipeline);
 	}
 }
+
+RayHit Scene3D::raycast(const Ray& ray) const
+{
+	float closestDistance = std::numeric_limits<float>::max();
+	Entity* closestEntity = nullptr;
+
+	for (const auto& entity : m_entities) {
+		AABB aabb = entity->getAABB(true);
+		float tMin, tMax;
+		if (RayCast::rayIntersectsAABB(ray, aabb, tMin, tMax)) {
+			if (tMin < closestDistance) {
+				closestDistance = tMin;
+				closestEntity = entity.get();
+			}
+		}
+	}
+
+	RayHit result = {};
+	result.distance = closestDistance;
+	result.hitobject = closestEntity;
+	result.position = ray.origin + ray.direction * closestDistance;
+	result.hit = (closestEntity != nullptr);
+	return result;
+}
