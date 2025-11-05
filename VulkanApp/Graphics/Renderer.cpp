@@ -2519,6 +2519,11 @@ void Renderer::drawCube(const glm::mat4& modelMatrix, const glm::vec4& color, Vk
 	this->drawBuffers(buffers.vertexBufferIndex, buffers.indexBufferIndex, commandBuffer, 1);
 }
 
+void Renderer::drawAabb(const AABB& aabb, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame)
+{
+	this->drawCube(aabb.toMatrix(), color, commandBuffer, frame);
+}
+
 /// <summary>
 /// Dispose the renderer and free resources
 /// </summary>

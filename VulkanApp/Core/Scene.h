@@ -3,6 +3,8 @@
 #include <vector>
 #include "Entity.h"
 #include "Skybox.h"
+#include "SceneBehavior.h"
+
 
 /// <summary>
 /// Base class for all scenes
@@ -17,6 +19,10 @@ private:
 	/// </summary>
 	int m_renderTargetIndex = -1;
 
+	/// <summary>
+	/// Vector of scene behaviors
+	/// </summary>
+	std::vector<std::unique_ptr<SceneBehavior>> m_sceneBehaviors;
 public:
 	/// <summary>
 	/// init the scene
@@ -28,7 +34,7 @@ public:
 	/// update the scene
 	/// </summary>
 	/// <param name="deltaTime"></param>
-	virtual void update(float deltaTime) = 0;
+	virtual void update(float deltaTime);
 
 	/// <summary>
 	/// render the scene
@@ -36,7 +42,7 @@ public:
 	/// <param name="renderer"></param>
 	/// <param name="commandBuffer"></param>
 	/// <param name="currentFrame"></param>
-	virtual void render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame) = 0;
+	virtual void render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t currentFrame);
 
 	/// <summary>
 	/// Bind the scene descriptor sets to the current pipeline layout
@@ -65,7 +71,7 @@ public:
 	/// destroy the scene
 	/// </summary>
 	/// <param name="renderer"></param>
-	virtual void destroy(Renderer* renderer) = 0;
+	virtual void destroy(Renderer* renderer);
 
 	Scene() = default;
 	~Scene() = default;
@@ -77,5 +83,36 @@ public:
 	int getRenderTargetIndex() const {
 		return m_renderTargetIndex;
 	}
-};
 
+	/// <summary>
+	/// Add a scene behavior of a specific type
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="behavior"></param>
+	/// <returns></returns>
+	template<typename T>
+	T* addSceneBehavior(std::unique_ptr<T> behavior) {
+		T* ptr = dynamic_cast<T*>(behavior.get());
+		if (ptr == nullptr) {
+			throw std::runtime_error("failed to add scene behavior: invalid type cast!");
+		}
+		m_sceneBehaviors.push_back(std::move(behavior));
+		return ptr;
+	}
+
+	/// <summary>
+	/// Get a scene behavior of a specific type
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
+	template<typename T>
+	T* getSceneBehavior() {
+		for (const auto& behavior : m_sceneBehaviors) {
+			T* casted = dynamic_cast<T*>(behavior.get());
+			if (casted != nullptr) {
+				return casted;
+			}
+		}
+		return nullptr;
+	}
+};

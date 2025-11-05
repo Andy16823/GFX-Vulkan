@@ -365,6 +365,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Core\Scene3D.h" />
     <ClInclude Include="Assets\StaticMeshesRsc.h" />
     <ClInclude Include="Graphics\Primitive.h" />
+    <ClInclude Include="Core\SceneBehavior.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
     <ClInclude Include="Graphics\PBRMaterial.h" />

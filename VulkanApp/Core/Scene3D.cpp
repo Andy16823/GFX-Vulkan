@@ -21,7 +21,6 @@ void Scene3D::init(Renderer* renderer)
 	// Initialize all entities
 	for (const auto& entity : m_entities) {
 		entity->init(this, renderer);
-		entity->createAABB();
 	}
 
 	// Initialize the directional light if it exists
@@ -32,6 +31,8 @@ void Scene3D::init(Renderer* renderer)
 
 void Scene3D::update(float deltaTime)
 {
+	Scene::update(deltaTime);
+
 	for (const auto& entity : m_entities) {
 		if (entity->hasState(EntityState::ENTITY_STATE_ACTIVE)) {
 			entity->update(this, deltaTime);
@@ -47,6 +48,9 @@ void Scene3D::render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t
 
 	// Beginn the render pass with the render target's framebuffer
 	renderer->beginnRenderPass(commandBuffer, renderTarget->getFramebuffer(), glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), renderer->getOffscreenRenderPass());
+
+	// TODO: Refactor this in the future to make it more straightforward
+	Scene::render(renderer, commandBuffer, currentFrame);
 
 	// Update the directional light buffers if it exists
 	if (this->directionalLight != nullptr) {
@@ -71,6 +75,8 @@ void Scene3D::render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t
 
 void Scene3D::destroy(Renderer* renderer)
 {
+	Scene::destroy(renderer);
+
 	// Destroy the skybox if it exists
 	if (this->hasSkybox()) {
 		skybox->destroy(renderer);

@@ -17,5 +17,5 @@ layout(location = 0) out vec4 color;
 
 void main() {
     gl_Position = ubo.projection * ubo.view * pushConstants.model * vec4(pos, 1.0);
-    color = vec4(vcolor, 1.0) * pushConstants.color;
+    color = pushConstants.color;
 }

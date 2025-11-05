@@ -23,7 +23,6 @@ void ChunkedScene3D::init(Renderer* renderer)
 		for (const auto& entity : entities)
 		{
 			entity->init(this, renderer);
-			entity->createAABB();
 		}
 	}
 
@@ -31,7 +30,6 @@ void ChunkedScene3D::init(Renderer* renderer)
 	for (const auto& entity : m_globalEntities)
 	{
 		entity->init(this, renderer);
-		entity->createAABB();
 	}
 
 	// Init the skybox if it exists
@@ -48,6 +46,8 @@ void ChunkedScene3D::init(Renderer* renderer)
 
 void ChunkedScene3D::update(float deltaTime)
 {
+	Scene::update(deltaTime);
+
 	// Update the current chunk
 	auto it = m_chunks.find(m_currentChunk);
 	if (it != m_chunks.end()) {
@@ -89,6 +89,8 @@ void ChunkedScene3D::render(Renderer* renderer, VkCommandBuffer commandBuffer, u
 	auto renderTarget = renderer->getRenderTarget(renderTargetIndex);
 
 	renderer->beginnRenderPass(commandBuffer, renderTarget->getFramebuffer(), glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), renderer->getOffscreenRenderPass());
+
+	Scene::render(renderer, commandBuffer, currentFrame);
 
 	// Update the light buffers and bind the light
 	if (this->directionalLight != nullptr) {
@@ -136,6 +138,8 @@ void ChunkedScene3D::render(Renderer* renderer, VkCommandBuffer commandBuffer, u
 
 void ChunkedScene3D::destroy(Renderer* renderer)
 {
+	Scene::destroy(renderer);
+
 	// Destroy all chunk entities 
 	for (const auto& [chunkIndex, entities] : m_chunks) {
 		for (const auto& chunkEntity : entities) {
