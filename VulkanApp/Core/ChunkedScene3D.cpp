@@ -23,6 +23,7 @@ void ChunkedScene3D::init(Renderer* renderer)
 		for (const auto& entity : entities)
 		{
 			entity->init(this, renderer);
+			entity->createAABB();
 		}
 	}
 
@@ -30,6 +31,7 @@ void ChunkedScene3D::init(Renderer* renderer)
 	for (const auto& entity : m_globalEntities)
 	{
 		entity->init(this, renderer);
+		entity->createAABB();
 	}
 
 	// Init the skybox if it exists

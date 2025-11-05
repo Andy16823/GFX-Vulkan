@@ -28,5 +28,10 @@ public:
 	/// <param name="commandBuffer"></param>
 	/// <param name="currentFrame"></param>
 	void render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame) override;
+
+	/// <summary>
+	/// Create the axis-aligned bounding box for the instanced model
+	/// </summary>
+	void createAABB() override;
 };
 

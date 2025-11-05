@@ -67,3 +67,15 @@ void InstancedModel::render(Scene* scene, Renderer* renderer, VkCommandBuffer co
 	}
 }
 
+void InstancedModel::createAABB()
+{
+	AABB aabb;
+	for (const auto& mesh : m_meshResource->meshes) {
+		for (const auto& vertex : mesh->vertices) 
+		{
+			aabb.expand(vertex.pos);
+		}
+	}
+	this->setAABB(aabb);
+}
+

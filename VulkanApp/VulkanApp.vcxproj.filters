@@ -150,6 +150,12 @@
     <ClCompile Include="Core\Instancer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Math\AABB.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Primitive.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -303,6 +309,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Core\Instancer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\AABB.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Primitive.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

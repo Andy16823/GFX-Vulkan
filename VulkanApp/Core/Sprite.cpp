@@ -76,3 +76,11 @@ std::vector<uint32_t> Sprite::getSpriteIndices()
 		0, 1, 2, 2, 3, 0
 	};
 }
+
+void Sprite::createAABB()
+{
+	AABB aabb;
+	aabb.expand(glm::vec3(-0.5f, -0.5f, 0.0f));
+	aabb.expand(glm::vec3(0.5f, 0.5f, 0.0f));
+	this->setAABB(aabb);
+}

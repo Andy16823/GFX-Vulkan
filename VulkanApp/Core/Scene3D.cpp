@@ -21,6 +21,7 @@ void Scene3D::init(Renderer* renderer)
 	// Initialize all entities
 	for (const auto& entity : m_entities) {
 		entity->init(this, renderer);
+		entity->createAABB();
 	}
 
 	// Initialize the directional light if it exists

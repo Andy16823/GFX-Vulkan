@@ -9,7 +9,7 @@
 #include <vector>  
 #include <type_traits>  
 #include "../Math/Transform.h"
-
+#include "../Math/AABB.h"
 
 class Scene;
 
@@ -99,6 +99,11 @@ private:
 	/// The tags attached to this entity
 	/// </summary>
 	std::map<std::string, std::string> m_tags;
+
+	/// <summary>
+	/// The axis-aligned bounding box of the entity
+	/// </summary>
+	AABB m_aabb;
 
 	/// <summary>
 	/// The state of the entity
@@ -204,6 +209,29 @@ public:
 	/// <param name="renderer"></param>
 	virtual void destroy(Scene* scene, Renderer* renderer) = 0;
 	
+	/// <summary>
+	/// Creates the axis-aligned bounding box for the entity
+	/// Gets called during initialization
+	/// </summary>
+	virtual void createAABB() = 0;
+
+	/// <summary>
+	/// Gets the axis-aligned bounding box of the entity
+	/// </summary>
+	/// <param name="worldpos">Defines whether to get the AABB in world position or local position</param>
+	/// <returns></returns>
+	virtual AABB getAABB(bool worldpos) {
+		return m_aabb * (worldpos ? transform.getMatrix() : glm::mat4(1.0f));
+	}
+
+	/// <summary>
+	/// Sets the axis-aligned bounding box of the entity
+	/// </summary>
+	/// <param name="aabb"></param>
+	void setAABB(const AABB& aabb) {
+		m_aabb = aabb;
+	}
+
 	/// <summary>
 	/// Add a tag to the entity
 	/// </summary>

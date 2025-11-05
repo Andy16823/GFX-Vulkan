@@ -69,3 +69,15 @@ void Model::destroy(Scene* scene, Renderer* renderer)
 {
 	// Nothing needed anymore with the AssetRessource system
 }
+
+void Model::createAABB()
+{
+	AABB aabb;
+	for (const auto& mesh : m_meshResource->meshes) {
+		for (const auto& vertex : mesh->vertices)
+		{
+			aabb.expand(vertex.pos);
+		}
+	}
+	setAABB(aabb);
+}

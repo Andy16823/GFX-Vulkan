@@ -5,14 +5,30 @@
 #include <vector>
 #include "../Graphics/VertexBuffer.h"
 
+/// <summary>
+/// Sprite Entity
+/// </summary>
 class Sprite :
     public Entity
 {
 private:
+	/// <summary>
+	/// An internal mesh for the sprite quad
+	/// </summary>
 	std::unique_ptr<Mesh> m_mesh;
+
+	/// <summary>
+	/// The texture image for the sprite
+	/// </summary>
 	std::unique_ptr<ImageTexture> m_textureImage;
 
 public:
+
+	/// <summary>
+	/// Create a sprite from a texture file
+	/// </summary>
+	/// <param name="name"></param>
+	/// <param name="file"></param>
 	Sprite(std::string name, std::string file);
 	~Sprite() = default;
 	void update(Scene* scene, float dt) override;
@@ -27,5 +43,7 @@ public:
 	// Statics
 	static std::vector<Vertex> getSpriteVertices();
 	static std::vector<uint32_t> getSpriteIndices();
+
+	void createAABB() override;
 };
 

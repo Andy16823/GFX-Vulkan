@@ -31,3 +31,8 @@ void InstanceHandle::destroy(Scene* scene, Renderer* renderer)
 {
 	
 }
+
+void InstanceHandle::createAABB()
+{
+	auto modelAABB = m_instancer->getAABB(false);
+}

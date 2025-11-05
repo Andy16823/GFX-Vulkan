@@ -53,5 +53,8 @@ public:
 	/// <param name="scene"></param>
 	/// <param name="renderer"></param>
 	void destroy(Scene* scene, Renderer* renderer) override;
+
+	void createAABB() override;
+
 };
 
