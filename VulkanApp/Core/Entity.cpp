@@ -54,3 +54,10 @@ void Entity::update(Scene* scene, float dt)
 		component->update(scene, dt);
 	}
 }
+
+void Entity::render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
+{
+	for (auto& component : m_behaviors) {
+		component->render(scene, renderer, commandBuffer, currentFrame);
+	}
+}

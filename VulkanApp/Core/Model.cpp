@@ -26,6 +26,8 @@ void Model::init(Scene* scene, Renderer* renderer)
 
 void Model::render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
+	Entity::render(scene, renderer, commandBuffer, currentFrame);
+
 	// Validate the pipeline type
 	if (this->pipelineType.empty()) {
 		throw std::runtime_error("failed to render model: pipeline type is not set!");

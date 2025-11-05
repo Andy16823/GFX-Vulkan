@@ -86,6 +86,11 @@ struct UboModel {
 	glm::mat4 model;
 };
 
+struct UboModelColor {
+	glm::mat4 model;
+	glm::vec4 color;
+};
+
 struct UboViewProjection {
 	glm::mat4 projection;
 	glm::mat4 view;

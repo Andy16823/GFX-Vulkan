@@ -15,6 +15,8 @@ void InstanceHandle::init(Scene* scene, Renderer* renderer)
 
 void InstanceHandle::render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
+	Entity::render(scene, renderer, commandBuffer, currentFrame);
+
 	InstanceData data = {};
 	data.model = this->transform.getMatrix();
 	if (this->hasState(EntityState::ENTITY_STATE_VISIBLE))

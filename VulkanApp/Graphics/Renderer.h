@@ -26,6 +26,7 @@
 #include "OffscreenRenderPass.h"
 #include "RenderTarget.h"
 #include "Font.h"
+#include "Primitive.h"
 
 /// <summary>
 /// Renderer configuration structure
@@ -72,6 +73,7 @@ enum class PipelineType {
 	PIPELINE_TYPE_GRAPHICS_2D,
 	PIPELINE_TYPE_SKYBOX,
 	PIPELINE_TYPE_FONT_RENDERING,
+	PIPELINE_TYPE_SOLID_SHADING,
 	PIPELINE_TYPE_RENDER_TARGET_PRESENT
 };
 
@@ -89,6 +91,7 @@ inline const char* ToString(PipelineType type) {
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_2D: return "pipeline_2D";
 	case PipelineType::PIPELINE_TYPE_SKYBOX: return "pipeline_skybox";
 	case PipelineType::PIPELINE_TYPE_FONT_RENDERING: return "pipeline_font_rendering";
+	case PipelineType::PIPELINE_TYPE_SOLID_SHADING: return "pipeline_solid_shading";
 	case PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT: return "pipeline_render_target_present";
 	default: return "unknown";
 	}
@@ -104,13 +107,6 @@ enum TextAlignment {
 	ALIGNMENT_TOP = 8,
 	ALIGNMENT_MIDDLE = 16,
 	ALIGNMENT_BOTTOM = 32
-};
-
-/// <summary>
-/// Primitive types
-/// </summary>
-enum class PrimitiveType {
-	PRIMITVE_TYPE_QUAD
 };
 
 class Renderer
@@ -374,6 +370,7 @@ public:
 	void drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame);
 	void drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size);
 	void drawText(const std::string& text, const int fontIndex, const int vertexBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, float lineSpacing = 1.2, int textalignment = TextAlignment::ALIGNMENT_CENTER | TextAlignment::ALIGNMENT_MIDDLE);
+	void drawCube(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
 
 	~Renderer();
 };

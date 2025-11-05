@@ -25,4 +25,7 @@ C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V shader_unlit3D.frag -o shader
 C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V shader_unlit3Di.vert -o shader_unlit3Di_vert.spv
 C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V shader_unlit3Di.frag -o shader_unlit3Di_frag.spv
 
+C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V solid.vert -o solid_vert.spv
+C:\VulkanSDK\1.4.328.0\Bin\glslangValidator.exe -V solid.frag -o solid_frag.spv
+
 pause

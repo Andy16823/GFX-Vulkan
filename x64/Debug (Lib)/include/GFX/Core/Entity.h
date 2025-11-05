@@ -201,7 +201,7 @@ public:
 	/// <param name="renderer"></param>
 	/// <param name="commandBuffer"></param>
 	/// <param name="currentFrame"></param>
-	virtual void render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame) = 0;
+	virtual void render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame);
 
 	/// <summary>
 	/// Destroy the entity

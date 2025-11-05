@@ -534,6 +534,20 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, fontPipelineLayouts.data(), static_cast<uint32_t>(fontPipelineLayouts.size()), &pushConstantRange, 1);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
+	// SOLID COLOR PIPELINE
+	VkPushConstantRange pushConstantRangeSolid = {};
+	pushConstantRangeSolid.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	pushConstantRangeSolid.offset = 0;
+	pushConstantRangeSolid.size = sizeof(UboModelColor);
+
+	ShaderSourceCollection solidColorShaders = { "Shaders/solid_vert.spv", "Shaders/solid_frag.spv" };
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_SOLID_SHADING), solidColorShaders, bindingInfo);
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
+	std::array<VkDescriptorSetLayout, 1> solidColorPipelineLayouts = { m_cameraDescriptorSetLayout };
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, solidColorPipelineLayouts.data(), static_cast<uint32_t>(solidColorPipelineLayouts.size()), &pushConstantRangeSolid, 1);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
+
 	// PRESENT PIPELINE FOR RENDER TARGETS
 	ShaderSourceCollection presentShaders = { "Shaders/fullscreen_vert.spv", "Shaders/fullscreen_frag.spv" };
 	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT), presentShaders, bindingInfo);
@@ -801,27 +815,33 @@ void Renderer::createSampler()
 
 void Renderer::createRendererPrimitives()
 {
-	// Create Quad Ressource
-	auto quadVertices = std::vector<Vertex> {
-		{{0.5f, -0.5f, 0.0f}, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }}, // Bottom Right
-		{ {0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f} }, // Top Right
-		{ {-0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f} }, // Top Left
-		{ {-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f} }, // Bottom Left
-	};
+	// Create Quad Primitive
+	auto quadData = Primitive::create(PrimitiveType::PRIMITIVE_TYPE_QUAD);
+	PrimitiveBuffer quadBuffer = {};
+	quadBuffer.vertexBufferIndex = createVertexBuffer(&quadData.vertices);
+	quadBuffer.indexBufferIndex = createIndexBuffer(&quadData.indices);
+	m_rendererPrimitives[PrimitiveType::PRIMITIVE_TYPE_QUAD] = quadBuffer;
 
-	// Create quad index data
-	auto quadIndices = std::vector<uint32_t>{
-		0, 1, 2, 2, 3, 0
-	};
+	// Create Cube Primitive
+	auto cubeData = Primitive::create(PrimitiveType::PRIMITIVE_TYPE_CUBE);
+	PrimitiveBuffer cubeBuffer = {};
+	cubeBuffer.vertexBufferIndex = createVertexBuffer(&cubeData.vertices);
+	cubeBuffer.indexBufferIndex = createIndexBuffer(&cubeData.indices);
+	m_rendererPrimitives[PrimitiveType::PRIMITIVE_TYPE_CUBE] = cubeBuffer;
 
-	auto quadVertexBuffer = createVertexBuffer(&quadVertices);
-	auto quadIndexBuffer = createIndexBuffer(&quadIndices);
+	// Create Sphere Primitive
+	auto sphereData = Primitive::create(PrimitiveType::PRIMITIVE_TYPE_SPHERE);
+	PrimitiveBuffer sphereBuffer = {};
+	sphereBuffer.vertexBufferIndex = createVertexBuffer(&sphereData.vertices);
+	sphereBuffer.indexBufferIndex = createIndexBuffer(&sphereData.indices);
+	m_rendererPrimitives[PrimitiveType::PRIMITIVE_TYPE_SPHERE] = sphereBuffer;
 
-	PrimitiveBuffer quadPrimitive = {};
-	quadPrimitive.vertexBufferIndex = quadVertexBuffer;
-	quadPrimitive.indexBufferIndex = quadIndexBuffer;
-
-	m_rendererPrimitives[PrimitiveType::PRIMITVE_TYPE_QUAD] = quadPrimitive;
+	// Create Triangle Primitive
+	auto triangleData = Primitive::create(PrimitiveType::PRIMITIVE_TYPE_TRIANGLE);
+	PrimitiveBuffer triangleBuffer = {};
+	triangleBuffer.vertexBufferIndex = createVertexBuffer(&triangleData.vertices);
+	triangleBuffer.indexBufferIndex = createIndexBuffer(&triangleData.indices);
+	m_rendererPrimitives[PrimitiveType::PRIMITIVE_TYPE_TRIANGLE] = triangleBuffer;
 }
 
 void Renderer::recordCommands(uint32_t currentImage)
@@ -2346,7 +2366,7 @@ void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer
 	auto imageDescriptorSet = this->getSamplerDescriptorSet(imageBuffer->descriptorIndex);
 
 	// Get the primitve
-	auto primitveBuffer = m_rendererPrimitives[PrimitiveType::PRIMITVE_TYPE_QUAD];
+	auto primitveBuffer = m_rendererPrimitives[PrimitiveType::PRIMITIVE_TYPE_QUAD];
 
 	// Create the model matrix for the font quad
 	glm::mat4 model = glm::mat4(1.0f);
@@ -2466,6 +2486,37 @@ void Renderer::drawText(const std::string& text, const int fontIndex, const int 
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+}
+
+void Renderer::drawCube(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame)
+{
+	if (m_activeCamera < 0)
+	{
+		throw std::runtime_error("No camera bound for cube rendering!");
+	}
+
+	// Get the required buffers and descriptors
+	auto buffers = m_rendererPrimitives[PrimitiveType::PRIMITIVE_TYPE_CUBE];
+	auto descriptorSet = this->getCameraDescriptorSet(m_activeCamera, frame);
+
+	// Create descriptor set
+	std::array<VkDescriptorSet, 1> descriptorSets = {
+		descriptorSet
+	};
+
+	// Create the model matrix for the cube
+	UboModelColor uboModelColor = {};
+	uboModelColor.model = modelMatrix;
+	uboModelColor.color = color;
+
+	// Bind the pipeline, descriptor sets and draw the cube
+	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_SOLID_SHADING));
+	auto pipelineLayout = m_currentPipeline->getPipelineLayout();
+
+	this->bindPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModelColor), &uboModelColor);
+	this->bindDescriptorSets(descriptorSets, 0, frame);
+
+	this->drawBuffers(buffers.vertexBufferIndex, buffers.indexBufferIndex, commandBuffer, 1);
 }
 
 /// <summary>

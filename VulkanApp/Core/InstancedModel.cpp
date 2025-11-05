@@ -21,6 +21,8 @@ InstancedModel::InstancedModel(const std::string& name, StaticMeshesRsc* ressour
 
 void InstancedModel::render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
+	Entity::render(scene, renderer, commandBuffer, currentFrame);
+
 	// Early out if pipeline type is not set
 	if (this->pipelineType.empty()) {
 		throw std::runtime_error("failed to render instanced model: pipeline type is not set!");
