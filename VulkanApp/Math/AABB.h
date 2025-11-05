@@ -203,6 +203,10 @@ struct AABB
 		return matrix;
 	}
 
+	/// <summary>
+	/// Checks if the AABB is valid
+	/// </summary>
+	/// <returns></returns>
 	bool isValid() const {
 		return !std::isnan(min.x) && !std::isnan(min.y) && !std::isnan(min.z) &&
 			!std::isnan(max.x) && !std::isnan(max.y) && !std::isnan(max.z) &&

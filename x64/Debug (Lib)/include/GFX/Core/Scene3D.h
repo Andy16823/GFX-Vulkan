@@ -186,7 +186,11 @@ public:
 	/// <param name="currentPipeline"></param>
 	void bindSceneDescriptorSets(Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame, const std::string& currentPipeline) override;
 
-
+	/// <summary>
+	/// Perform a raycast in the scene and return the closest hit information
+	/// </summary>
+	/// <param name="ray"></param>
+	/// <returns></returns>
 	RayHit raycast(const Ray& ray) const override;
 
 };

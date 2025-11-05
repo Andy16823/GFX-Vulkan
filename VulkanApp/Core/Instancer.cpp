@@ -31,6 +31,7 @@ void Instancer::init(Scene* scene, Renderer* renderer)
 std::unique_ptr<InstanceHandle> Instancer::createInstanceHandle(const std::string& name, int instanceId)
 {
 	std::unique_ptr<InstanceHandle> handle = std::make_unique<InstanceHandle>(name, this, instanceId);
+	handle->setAABB(this->getAABB(false));
 	return handle;
 }
 
