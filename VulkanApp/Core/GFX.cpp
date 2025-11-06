@@ -12,3 +12,8 @@ GLFWwindow* GFX::createWindow(std::string wName, const int width, const int heig
 	auto window = glfwCreateWindow(width, height, wName.c_str(), nullptr, nullptr);
 	return window;
 }
+
+GLFWwindow* GFX::getCurrentWindow()
+{
+	return glfwGetCurrentContext();
+}
