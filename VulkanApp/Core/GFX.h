@@ -7,6 +7,7 @@
 #include "Sprite.h"
 #include "Model.h"
 #include <map>
+#include <type_traits>  
 
 struct GFXService {
 	void* ptr;
@@ -53,6 +54,19 @@ public:
 			return m_services[name].ptr;
 		}
 		return nullptr;
+	}
+
+	/// <summary>
+	/// Gets a service from the GFX service locator and casts it to the correct type
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="name"></param>
+	/// <returns></returns>
+	template<typename T>
+	T* getServiceAs(const std::string& name)
+	{
+		void* servicePtr = getService(name);
+		return static_cast<T*>(servicePtr);
 	}
 
 	/// <summary>
