@@ -17,7 +17,7 @@ void Game::run(const std::string name, const glm::i32vec2 windowSize, const int 
 	m_renderer = std::make_unique<Renderer>();
 
 	// Create the game window
-	this->window = GFX::createWindow(name, windowSize.x, windowSize.y);
+	this->window = GFX::instance().createWindow(name, windowSize.x, windowSize.y);
 
 	// Create the renderer and set up the callbacks
 	m_renderer->addOnInitCallback(
@@ -87,8 +87,9 @@ void Game::run(const std::string name, const glm::i32vec2 windowSize, const int 
 
 	// Dispose the renderer
 	m_renderer->dispose();
-	glfwDestroyWindow(window);
+	GFX::instance().destroyWindows();
 	glfwTerminate();
+	GFX::instance().clearServices();
 }
 
 void Game::stop()

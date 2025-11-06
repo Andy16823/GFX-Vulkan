@@ -10,10 +10,14 @@ GLFWwindow* GFX::createWindow(std::string wName, const int width, const int heig
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	auto window = glfwCreateWindow(width, height, wName.c_str(), nullptr, nullptr);
+	m_windows.push_back(window);
 	return window;
 }
 
-GLFWwindow* GFX::getCurrentWindow()
+GLFWwindow* GFX::getWindow(int index)
 {
-	return glfwGetCurrentContext();
+	if (index < 0 || index >= m_windows.size()) {
+		return nullptr;
+	}
+	return m_windows[index];
 }
