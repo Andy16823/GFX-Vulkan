@@ -89,7 +89,7 @@ void Game::run(const std::string name, const glm::i32vec2 windowSize, const int 
 	m_renderer->dispose();
 	GFX::instance().destroyWindows();
 	glfwTerminate();
-	GFX::instance().clearServices();
+	GFX::instance().shutdownServices();
 }
 
 void Game::stop()

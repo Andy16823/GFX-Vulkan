@@ -9,13 +9,10 @@
 #include <map>
 #include <type_traits>  
 #include <vector>
-#include <any>
 
 struct ServiceData {
-	std::any data;
-	bool isPointer; // true if it's a unique_ptr, false if it's a value
+	void* ptr;
 };
-
 
 class GFX
 {
@@ -25,6 +22,8 @@ private:
 
 	/// <summary>
 	/// Services registered with GFX
+	/// GFX takes NO ownership of the services
+	/// its just a registry
 	/// </summary>
 	std::map < std::string, ServiceData> m_services;
 
@@ -45,51 +44,17 @@ public:
 	}
 
 	/// <summary>
-	/// Register service with OWNERSHIP (for objects)
-	/// takes ownership of the service pointer
+	/// Registers a service with GFX
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
 	/// <param name="name"></param>
-	/// <param name="service"></param>
-	template<typename T>
-	void registerServicePtr(const std::string& name, std::unique_ptr<T> service)
+	/// <param name="servicePtr"></param>
+	void registerAsService(const std::string& name, void* servicePtr)
 	{
-		ServiceData data;
-		data.data = std::move(service);
-		data.isPointer = true;
-		m_services[name] = std::move(data);
+		m_services[name] = ServiceData{ servicePtr };
 	}
 
 	/// <summary>
-	/// Register service with OWNERSHIP and return raw pointer (for objects)
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="name"></param>
-	/// <param name="service"></param>
-	/// <returns></returns>
-	template<typename T>
-	T* registerServicePtr(const std::string& name, std::unique_ptr<T> service) {
-		registerServicePtr<T>(name, std::move(service));
-		return getService<T>(name);
-	}
-
-	/// <summary>
-	/// Register service VALUE (for primitive types)
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="name"></param>
-	/// <param name="service"></param>
-	template<typename T>
-	void registerServiceValue(const std::string& name, T service)
-	{
-		ServiceData data;
-		data.data = service;
-		data.isPointer = false;
-		m_services[name] = std::move(data);
-	}
-
-	/// <summary>
-	/// Gets a service from the GFX service locator
+	/// Gets a registered service from GFX
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <param name="name"></param>
@@ -98,87 +63,49 @@ public:
 	T* getService(const std::string& name)
 	{
 		auto it = m_services.find(name);
-		if (it != m_services.end() && it->second.isPointer) {
-			try {
-				auto& ptr = std::any_cast<std::unique_ptr<T>&>(it->second.data);
-				return ptr.get();
-			}
-			catch (const std::bad_any_cast&) {
-				return nullptr;
-			}
+		if (it != m_services.end()) {
+			return static_cast<T*>(it->second.ptr);
 		}
 		return nullptr;
 	}
 
 	/// <summary>
-	/// Gets a service value from the GFX service locator
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="name"></param>
-	/// <param name="defaultValue"></param>
-	/// <returns></returns>
-	template<typename T>
-	T getServiceValue(const std::string& name, const T& defaultValue = T{}) {
-		auto it = m_services.find(name);
-		if (it != m_services.end() && !it->second.isPointer) {
-			try {
-				return std::any_cast<T>(it->second.data);
-			}
-			catch (const std::bad_any_cast&) {
-				return defaultValue;
-			}
-		}
-		return defaultValue;
-	}
-
-	/// <summary>
-	/// Gets a reference to a service value from the GFX service locator
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="name"></param>
-	/// <returns></returns>
-	template<typename T>
-	T* getServiceValueRef(const std::string& name) {
-		auto it = m_services.find(name);
-		if (it != m_services.end() && !it->second.isPointer) {
-			try {
-				return &std::any_cast<T&>(it->second.data);
-			}
-			catch (const std::bad_any_cast&) {
-				return nullptr;
-			}
-		}
-		return nullptr;
-	}
-
-	/// <summary>
-	/// Checks if a service is registered
+	/// Checks if a service is registered with GFX
 	/// </summary>
 	/// <param name="name"></param>
 	/// <returns></returns>
-	bool hasService(const std::string& name) {
+	bool hasService(const std::string& name)
+	{
 		return m_services.find(name) != m_services.end();
 	}
 
 	/// <summary>
-	/// Unregisters a service
+	/// Removes a registered service from GFX
 	/// </summary>
 	/// <param name="name"></param>
 	/// <returns></returns>
-	bool unregisterService(const std::string& name) {
-		auto it = m_services.find(name);
-		if (it != m_services.end()) {
-			m_services.erase(it);
-			return true;
-		}
-		return false;
+	bool removeService(const std::string& name)
+	{
+		return m_services.erase(name) > 0;
 	}
 
 	/// <summary>
-	/// Clears all registered services
+	/// Shutdown all registered services
 	/// </summary>
-	void clearServices() {
+	/// <returns></returns>
+	bool shutdownServices()
+	{
+		bool result = true;
+
+		for (auto& [name, service] : m_services) {
+			auto servicePtr = service.ptr;
+			if (servicePtr != nullptr) {
+				std::cerr << "Service '" << name << "' was not properly disposed before shutdown." << std::endl;
+				result = false;
+			}
+		}
 		m_services.clear();
+		return result;
 	}
 
 	/// <summary>
