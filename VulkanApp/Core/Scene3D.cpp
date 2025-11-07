@@ -103,12 +103,14 @@ RayHit Scene3D::raycast(const Ray& ray) const
 	Entity* closestEntity = nullptr;
 
 	for (const auto& entity : m_entities) {
-		AABB aabb = entity->getAABB(true);
-		float tMin, tMax;
-		if (RayCast::rayIntersectsAABB(ray, aabb, tMin, tMax)) {
-			if (tMin < closestDistance) {
-				closestDistance = tMin;
-				closestEntity = entity.get();
+		if (entity->hasState(EntityState::ENTITY_STATE_RAYCASTABLE)) {
+			AABB aabb = entity->getAABB(true);
+			float tMin, tMax;
+			if (RayCast::rayIntersectsAABB(ray, aabb, tMin, tMax)) {
+				if (tMin < closestDistance) {
+					closestDistance = tMin;
+					closestEntity = entity.get();
+				}
 			}
 		}
 	}

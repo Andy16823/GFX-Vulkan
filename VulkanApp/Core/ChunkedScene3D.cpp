@@ -205,21 +205,7 @@ RayHit ChunkedScene3D::raycast(const Ray& ray) const
 
 	// Check global entities
 	for (const auto& entity : m_globalEntities) {
-		AABB worldAabb = entity->getAABB(true);
-		float tMin, tMax;
-		if (RayCast::rayIntersectsAABB(ray, worldAabb, tMin, tMax)) {
-			if (tMin < closestDistance) {
-				closestDistance = tMin;
-				hitEntity = entity.get();
-			}
-		}
-	}
-
-	// Check current chunk entities
-	auto it = m_chunks.find(m_currentChunk);
-	if (it != m_chunks.end()) {
-		const auto& entities = it->second;
-		for (const auto& entity : entities) {
+		if (entity->hasState(EntityState::ENTITY_STATE_RAYCASTABLE)) {
 			AABB worldAabb = entity->getAABB(true);
 			float tMin, tMax;
 			if (RayCast::rayIntersectsAABB(ray, worldAabb, tMin, tMax)) {
@@ -231,18 +217,38 @@ RayHit ChunkedScene3D::raycast(const Ray& ray) const
 		}
 	}
 
-	// check neighboring chunk entities 
-	for (const auto& neighborIndex : m_neighboringChunks) {
-		auto neighborsIt = m_chunks.find(neighborIndex);
-		if (neighborsIt != m_chunks.end()) {
-			const auto& entities = neighborsIt->second;
-			for (const auto& entity : entities) {
+	// Check current chunk entities
+	auto it = m_chunks.find(m_currentChunk);
+	if (it != m_chunks.end()) {
+		const auto& entities = it->second;
+		for (const auto& entity : entities) {
+			if (entity->hasState(EntityState::ENTITY_STATE_RAYCASTABLE)) {
 				AABB worldAabb = entity->getAABB(true);
 				float tMin, tMax;
 				if (RayCast::rayIntersectsAABB(ray, worldAabb, tMin, tMax)) {
 					if (tMin < closestDistance) {
 						closestDistance = tMin;
 						hitEntity = entity.get();
+					}
+				}
+			}
+		}
+	}
+
+	// check neighboring chunk entities 
+	for (const auto& neighborIndex : m_neighboringChunks) {
+		auto neighborsIt = m_chunks.find(neighborIndex);
+		if (neighborsIt != m_chunks.end()) {
+			const auto& entities = neighborsIt->second;
+			for (const auto& entity : entities) {
+				if (entity->hasState(EntityState::ENTITY_STATE_RAYCASTABLE)) {
+					AABB worldAabb = entity->getAABB(true);
+					float tMin, tMax;
+					if (RayCast::rayIntersectsAABB(ray, worldAabb, tMin, tMax)) {
+						if (tMin < closestDistance) {
+							closestDistance = tMin;
+							hitEntity = entity.get();
+						}
 					}
 				}
 			}

@@ -19,7 +19,8 @@ class Scene;
 enum class EntityState : uint8_t {
 	ENTITY_STATE_NONE = 0,
 	ENTITY_STATE_ACTIVE = 1 << 0,
-	ENTITY_STATE_VISIBLE = 1 << 1
+	ENTITY_STATE_VISIBLE = 1 << 1,
+	ENTITY_STATE_RAYCASTABLE = 1 << 2
 };
 
 /// <summary>
