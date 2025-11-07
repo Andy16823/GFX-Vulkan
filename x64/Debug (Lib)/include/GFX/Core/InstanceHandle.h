@@ -55,9 +55,15 @@ public:
 	void destroy(Scene* scene, Renderer* renderer) override;
 
 	/// <summary>
+	/// Update the instance handle
+	/// </summary>
+	/// <param name="scene"></param>
+	/// <param name="dt"></param>
+	void update(Scene* scene, float dt) override;
+
+	/// <summary>
 	/// Create the axis-aligned bounding box for this instance handle
 	/// </summary>
 	void createAABB() override;
-
 };
 

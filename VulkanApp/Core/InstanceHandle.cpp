@@ -34,6 +34,14 @@ void InstanceHandle::destroy(Scene* scene, Renderer* renderer)
 	
 }
 
+void InstanceHandle::update(Scene* scene, float dt)
+{
+	if (this->hasState(EntityState::ENTITY_STATE_ACTIVE)) 
+	{
+		Entity::update(scene, dt);
+	}
+}
+
 void InstanceHandle::createAABB()
 {
 	auto modelAABB = m_instancer->getAABB(false);

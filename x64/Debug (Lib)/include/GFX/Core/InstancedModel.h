@@ -29,6 +29,8 @@ public:
 	/// <param name="currentFrame"></param>
 	void render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame) override;
 
+	void update(Scene* scene, float dt) override;
+
 	/// <summary>
 	/// Create the axis-aligned bounding box for the instanced model
 	/// </summary>

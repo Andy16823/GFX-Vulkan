@@ -10,7 +10,10 @@ Sprite::Sprite(std::string name, std::string file) : Entity(name)
 
 void Sprite::update(Scene* scene, float dt)
 {
-	Entity::update(scene, dt);
+	if (this->hasState(EntityState::ENTITY_STATE_ACTIVE))
+	{
+		Entity::update(scene, dt);
+	}
 }
 
 void Sprite::init(Scene* scene, Renderer* renderer)
@@ -27,33 +30,36 @@ void Sprite::init(Scene* scene, Renderer* renderer)
 
 void Sprite::render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
-	Entity::render(scene, renderer, commandBuffer, currentFrame);
+	if (this->hasState(EntityState::ENTITY_STATE_VISIBLE))
+	{
+		Entity::render(scene, renderer, commandBuffer, currentFrame);
 
-	if (this->pipelineType.empty()) {
-		throw std::runtime_error("failed to render sprite: pipeline type is not set!");
+		if (this->pipelineType.empty()) {
+			throw std::runtime_error("failed to render sprite: pipeline type is not set!");
+		}
+
+		int currentCamera = renderer->getActiveCamera();
+		auto modelMatrix = this->getModelMatrix();
+		auto descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);
+		auto imageDescriptorSet = renderer->getSamplerDescriptorSetFromImageBuffer(m_textureImage->bufferIndex);
+
+		std::vector<VkDescriptorSet> descriptorSets = {
+			descriptorSet,
+			imageDescriptorSet
+		};
+		renderer->bindPipeline(commandBuffer, this->pipelineType);
+		scene->bindSceneDescriptorSets(renderer, commandBuffer, currentFrame, this->pipelineType);
+		renderer->bindPushConstants(
+			commandBuffer,
+			renderer->getCurrentPipelineLayout(),
+			VK_SHADER_STAGE_VERTEX_BIT,
+			0,
+			sizeof(UboModel),
+			&modelMatrix
+		);
+		renderer->bindDescriptorSets(descriptorSets, currentFrame);
+		renderer->drawBuffers(m_mesh->vertexBufferIndex, m_mesh->indexBufferIndex, commandBuffer);
 	}
-
-	int currentCamera = renderer->getActiveCamera();
-	auto modelMatrix = this->getModelMatrix();
-	auto descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);
-	auto imageDescriptorSet = renderer->getSamplerDescriptorSetFromImageBuffer(m_textureImage->bufferIndex);
-
-	std::vector<VkDescriptorSet> descriptorSets = {
-		descriptorSet,
-		imageDescriptorSet
-	};
-	renderer->bindPipeline(commandBuffer, this->pipelineType);
-	scene->bindSceneDescriptorSets(renderer, commandBuffer, currentFrame, this->pipelineType);
-	renderer->bindPushConstants(
-		commandBuffer,
-		renderer->getCurrentPipelineLayout(),
-		VK_SHADER_STAGE_VERTEX_BIT,
-		0,
-		sizeof(UboModel),
-		&modelMatrix
-	);
-	renderer->bindDescriptorSets(descriptorSets, currentFrame);
-	renderer->drawBuffers(m_mesh->vertexBufferIndex, m_mesh->indexBufferIndex, commandBuffer);
 }
 
 

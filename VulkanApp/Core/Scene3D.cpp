@@ -34,9 +34,7 @@ void Scene3D::update(float deltaTime)
 	Scene::update(deltaTime);
 
 	for (const auto& entity : m_entities) {
-		if (entity->hasState(EntityState::ENTITY_STATE_ACTIVE)) {
-			entity->update(this, deltaTime);
-		}
+		entity->update(this, deltaTime);
 	}
 }
 
@@ -57,11 +55,9 @@ void Scene3D::render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t
 		this->directionalLight->updateBuffers(renderer, commandBuffer, currentFrame);
 	}
 
-	// Render all visible entities
+	// Render all entities
 	for (const auto& entity : m_entities) {
-		if (entity->hasState(EntityState::ENTITY_STATE_VISIBLE)) {
-			entity->render(this, renderer, commandBuffer, currentFrame);
-		}
+		entity->render(this, renderer, commandBuffer, currentFrame);
 	}
 
 	// Render the skybox if it exists

@@ -15,7 +15,9 @@ Model::Model(std::string name, StaticMeshesRsc* ressource)
 
 void Model::update(Scene* scene, float dt)
 {
-	Entity::update(scene, dt);
+	if (this->hasState(EntityState::ENTITY_STATE_ACTIVE)) {
+		Entity::update(scene, dt);
+	}
 }
 
 
@@ -26,44 +28,46 @@ void Model::init(Scene* scene, Renderer* renderer)
 
 void Model::render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
-	Entity::render(scene, renderer, commandBuffer, currentFrame);
+	if (this->hasState(EntityState::ENTITY_STATE_VISIBLE)) {
+		Entity::render(scene, renderer, commandBuffer, currentFrame);
 
-	// Validate the pipeline type
-	if (this->pipelineType.empty()) {
-		throw std::runtime_error("failed to render model: pipeline type is not set!");
-	}
+		// Validate the pipeline type
+		if (this->pipelineType.empty()) {
+			throw std::runtime_error("failed to render model: pipeline type is not set!");
+		}
 
-	// Validate the mesh resource
-	if (!m_meshResource) {
-		throw std::runtime_error("failed to render model: mesh resource is null!");
-	}
+		// Validate the mesh resource
+		if (!m_meshResource) {
+			throw std::runtime_error("failed to render model: mesh resource is null!");
+		}
 
-	// Get the model matrix and the active camera
-	auto modelMatrix = this->getModelMatrix();
-	auto currentCamera = renderer->getActiveCamera();
+		// Get the model matrix and the active camera
+		auto modelMatrix = this->getModelMatrix();
+		auto currentCamera = renderer->getActiveCamera();
 
-	// Bind the pipeline to render with
-	renderer->bindPipeline(commandBuffer, this->pipelineType);
+		// Bind the pipeline to render with
+		renderer->bindPipeline(commandBuffer, this->pipelineType);
 
-	// Bind the scene descriptor sets e.g. lights
-	scene->bindSceneDescriptorSets(renderer, commandBuffer, currentFrame, this->pipelineType);
+		// Bind the scene descriptor sets e.g. lights
+		scene->bindSceneDescriptorSets(renderer, commandBuffer, currentFrame, this->pipelineType);
 
-	// Bind the model matrix push constant
-	renderer->bindPushConstants(commandBuffer, renderer->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &modelMatrix);
-	
-	// Bind the model related descriptor sets
-	VkDescriptorSet descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);
-	renderer->bindDescriptorSet(descriptorSet, 0, currentFrame);
-	
-	// Render all meshes
-	for (const auto& mesh : m_meshResource->meshes) {
-		auto material = mesh->material.get();
+		// Bind the model matrix push constant
+		renderer->bindPushConstants(commandBuffer, renderer->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &modelMatrix);
 
-		// Bind the material related descriptor sets
-		material->bindMaterial(renderer, commandBuffer, 1, currentFrame);
+		// Bind the model related descriptor sets
+		VkDescriptorSet descriptorSet = renderer->getCameraDescriptorSet(currentCamera, currentFrame);
+		renderer->bindDescriptorSet(descriptorSet, 0, currentFrame);
 
-		// Draw the mesh
-		renderer->drawBuffers(mesh->vertexBufferIndex, mesh->indexBufferIndex, commandBuffer);
+		// Render all meshes
+		for (const auto& mesh : m_meshResource->meshes) {
+			auto material = mesh->material.get();
+
+			// Bind the material related descriptor sets
+			material->bindMaterial(renderer, commandBuffer, 1, currentFrame);
+
+			// Draw the mesh
+			renderer->drawBuffers(mesh->vertexBufferIndex, mesh->indexBufferIndex, commandBuffer);
+		}
 	}
 }
 

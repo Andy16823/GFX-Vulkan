@@ -53,9 +53,7 @@ void ChunkedScene3D::update(float deltaTime)
 	if (it != m_chunks.end()) {
 		const auto& currentChunkEntities = it->second;
 		for (const auto& entity : currentChunkEntities) {
-			if (entity->hasState(EntityState::ENTITY_STATE_ACTIVE)) {
-				entity->update(this, deltaTime);
-			}
+			entity->update(this, deltaTime);
 		}
 	}
 
@@ -66,9 +64,7 @@ void ChunkedScene3D::update(float deltaTime)
 		if (neighborsIt != m_chunks.end()) {
 			const auto& neighborEntities = neighborsIt->second;
 			for (const auto& entity : neighborEntities) {
-				if (entity->hasState(EntityState::ENTITY_STATE_ACTIVE)) {
-					entity->update(this, deltaTime);
-				}
+				entity->update(this, deltaTime);
 			}
 		}
 	}
@@ -76,10 +72,7 @@ void ChunkedScene3D::update(float deltaTime)
 	// Update global entities
 	for (const auto& entity : m_globalEntities)
 	{
-		if (entity->hasState(EntityState::ENTITY_STATE_ACTIVE))
-		{
-			entity->update(this, deltaTime);
-		}
+		entity->update(this, deltaTime);
 	}
 }
 
@@ -102,9 +95,7 @@ void ChunkedScene3D::render(Renderer* renderer, VkCommandBuffer commandBuffer, u
 	if (it != m_chunks.end()) {
 		const auto& currentChunkEntities = it->second;
 		for (const auto& entity : currentChunkEntities) {
-			if (entity->hasState(EntityState::ENTITY_STATE_VISIBLE)) {
-				entity->render(this, renderer, commandBuffer, currentFrame);
-			}
+			entity->render(this, renderer, commandBuffer, currentFrame);
 		}
 	}
 
@@ -114,18 +105,14 @@ void ChunkedScene3D::render(Renderer* renderer, VkCommandBuffer commandBuffer, u
 		if (neighborsIt != m_chunks.end()) {
 			const auto& neighborEntities = neighborsIt->second;
 			for (const auto& entity : neighborEntities) {
-				if (entity->hasState(EntityState::ENTITY_STATE_VISIBLE)) {
-					entity->render(this, renderer, commandBuffer, currentFrame);
-				}
+				entity->render(this, renderer, commandBuffer, currentFrame);
 			}
 		}
 	}
 
 	// Render global entities
 	for (const auto& entity : m_globalEntities) {
-		if (entity->hasState(EntityState::ENTITY_STATE_VISIBLE)) {
-			entity->render(this, renderer, commandBuffer, currentFrame);
-		}
+		entity->render(this, renderer, commandBuffer, currentFrame);
 	}
 
 	// Render the skybox if it exists
