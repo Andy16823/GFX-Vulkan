@@ -202,7 +202,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\andy1\source\externals\glfw\include;C:\Users\andy1\source\externals\glm;C:\VulkanSDK\1.4.328.0\Include;C:\Program Files\Assimp\include;C:\Users\andy1\source\externals\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\andy1\source\externals\glfw\include;C:\Users\andy1\source\externals\glm;C:\VulkanSDK\1.4.328.1\Include;C:\Program Files\Assimp\include;C:\Users\andy1\source\externals\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

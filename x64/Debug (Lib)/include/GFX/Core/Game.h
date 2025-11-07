@@ -100,4 +100,3 @@ public:
 	/// <param name="renderer"></param>
 	virtual void dispose(Renderer* renderer) = 0;
 };
-	

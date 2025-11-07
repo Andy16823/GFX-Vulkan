@@ -594,3 +594,8 @@ static std::string generateUUID()
 
 	return result;
 }
+
+static uint64_t currentTimeMillis() {
+		return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::high_resolution_clock::now().time_since_epoch()).count());
+}
