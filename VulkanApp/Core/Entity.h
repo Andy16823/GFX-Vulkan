@@ -109,7 +109,7 @@ private:
 	/// <summary>
 	/// The state of the entity
 	/// </summary>
-	EntityState m_state = EntityState::ENTITY_STATE_ACTIVE | EntityState::ENTITY_STATE_VISIBLE;
+	EntityState m_state = EntityState::ENTITY_STATE_ACTIVE | EntityState::ENTITY_STATE_VISIBLE | EntityState::ENTITY_STATE_RAYCASTABLE;
 public:
 	/// <summary>
 	/// The transform of the entity
