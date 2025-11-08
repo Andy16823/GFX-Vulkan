@@ -13,12 +13,12 @@ PrimitiveEntity::PrimitiveEntity(const std::string& name, PrimitiveType primitiv
 
 void PrimitiveEntity::init(Scene* scene, Renderer* renderer)
 {
-	Entity::init(scene, renderer);
+
 }
 
 void PrimitiveEntity::destroy(Scene* scene, Renderer* renderer)
 {
-	Entity::destroy(scene, renderer);
+
 }
 
 void PrimitiveEntity::createAABB()

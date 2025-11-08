@@ -221,5 +221,40 @@ struct AABB
 	{
 		return min.x > max.x || min.y > max.y || min.z > max.z;
 	}
+
+	/// <summary>
+	/// Checks if the AABB contains the given point
+	/// </summary>
+	/// <param name="point"></param>
+	/// <returns></returns>
+	bool contains(const glm::vec3& point) const
+	{
+		return point.x >= min.x && point.x <= max.x &&
+			point.y >= min.y && point.y <= max.y &&
+			point.z >= min.z && point.z <= max.z;
+	}
+
+	/// <summary>
+	/// Checks if the AABB fully contains another AABB
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns></returns>
+	bool contains(const AABB& other) const {
+		return other.min.x >= min.x && other.max.x <= max.x &&
+			other.min.y >= min.y && other.max.y <= max.y &&
+			other.min.z >= min.z && other.max.z <= max.z;
+	}
+
+	/// <summary>
+	/// Checks if the AABB intersects with another AABB
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns></returns>
+	bool intersects(const AABB& other) const
+	{
+		return (min.x <= other.max.x && max.x >= other.min.x) &&
+			(min.y <= other.max.y && max.y >= other.min.y) &&
+			(min.z <= other.max.z && max.z >= other.min.z);
+	}
 };
 
