@@ -319,6 +319,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Assets\StaticMeshesRsc.cpp" />
     <ClCompile Include="Graphics\UnlitMaterial.cpp" />
     <ClCompile Include="Graphics\Primitive.cpp" />
+    <ClCompile Include="Core\PrimitiveEntity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\AABB.h" />
@@ -366,6 +367,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Assets\StaticMeshesRsc.h" />
     <ClInclude Include="Graphics\Primitive.h" />
     <ClInclude Include="Core\SceneBehavior.h" />
+    <ClInclude Include="Core\PrimitiveEntity.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
     <ClInclude Include="Graphics\PBRMaterial.h" />

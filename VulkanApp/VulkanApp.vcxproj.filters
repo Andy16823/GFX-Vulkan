@@ -156,6 +156,9 @@
     <ClCompile Include="Graphics\Primitive.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Core\PrimitiveEntity.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -318,6 +321,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Core\SceneBehavior.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\PrimitiveEntity.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

@@ -373,6 +373,7 @@ public:
 	void drawText(const std::string& text, const int fontIndex, const int vertexBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, float lineSpacing = 1.2, int textalignment = TextAlignment::ALIGNMENT_CENTER | TextAlignment::ALIGNMENT_MIDDLE);
 	void drawCube(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
 	void drawAabb(const AABB& aabb, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
+	void drawPrimitive(PrimitiveType primitiveType, const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
 
 	~Renderer();
 };

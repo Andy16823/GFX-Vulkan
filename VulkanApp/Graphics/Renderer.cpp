@@ -2524,6 +2524,32 @@ void Renderer::drawAabb(const AABB& aabb, const glm::vec4& color, VkCommandBuffe
 	this->drawCube(aabb.toMatrix(), color, commandBuffer, frame);
 }
 
+void Renderer::drawPrimitive(PrimitiveType primitiveType, const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame)
+{
+	if(m_activeCamera < 0)
+	{
+		throw std::runtime_error("No camera bound for primitive rendering!");
+	}
+
+	auto buffers = m_rendererPrimitives[primitiveType];
+	auto cameraDescriptorSet = this->getCameraDescriptorSet(m_activeCamera, frame);
+
+	std::array<VkDescriptorSet, 1> descriptorSets = {
+		cameraDescriptorSet
+	};
+	
+	UboModelColor uboModelColor = {};
+	uboModelColor.model = modelMatrix;
+	uboModelColor.color = color;
+	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_SOLID_SHADING));
+	auto pipelineLayout = m_currentPipeline->getPipelineLayout();
+
+	this->bindPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModelColor), &uboModelColor);
+	this->bindDescriptorSets(descriptorSets, 0, frame);
+
+	this->drawBuffers(buffers.vertexBufferIndex, buffers.indexBufferIndex, commandBuffer, 1);
+}
+
 /// <summary>
 /// Dispose the renderer and free resources
 /// </summary>
