@@ -2,6 +2,9 @@
 
 GFX‑Vulkan is a hobby game engine built on top of Vulkan. It's a focused, actively developed personal engine intended for making small to mid-sized games and prototypes — not a commercial AAA engine, but a practical and capable foundation that I plan to use for real game projects. The codebase demonstrates engine architecture, rendering pipelines, model loading, text rendering, asset handling, and shader management — suitable for contributors, hobbyists, and indie developers who want a compact, modern Vulkan-based engine.
 
+Community
+Join our discord community https://discord.com/invite/qZRgRKedBs if you need any help to work with the engine!
+
 Status
 - Maturity: Hobby engine — feature-complete for many common tasks and actively developed
 - Language: C++ (MSVC Visual Studio project included)
