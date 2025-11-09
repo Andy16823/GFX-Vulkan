@@ -272,6 +272,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Math\Frustum.cpp" />
     <ClCompile Include="Math\AABB.cpp" />
     <ClCompile Include="Assets\AssetManager.cpp" />
     <ClCompile Include="Core\ChunkedScene3D.cpp" />
@@ -322,6 +323,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Core\PrimitiveEntity.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Math\Frustum.h" />
     <ClInclude Include="Math\AABB.h" />
     <ClInclude Include="Assets\AssetRessource.h" />
     <ClInclude Include="Assets\AssetManager.h" />

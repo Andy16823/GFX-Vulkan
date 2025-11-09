@@ -99,3 +99,36 @@ glm::vec3 Camera2D::unprojectPosition(const glm::vec3& screenpos, const glm::vec
 	glm::vec4 worldPos = invVP * ndc;
 	return glm::vec3(worldPos) / worldPos.w;
 }
+
+Frustum Camera2D::getFrustum() const
+{
+	// Direction Vectors
+	glm::vec3 forward = transform.getForward();
+	glm::vec3 right = transform.getRight();
+	glm::vec3 up = transform.getUp();
+
+	// Near and Far plane distances
+	float neardist = m_near;
+	float fardist = m_far;
+
+	// Half dimensions of the view
+	float halfWidth = m_viewSize.x / 2.0f;
+	float halfHeight = m_viewSize.y / 2.0f;
+
+	// Frustum corners
+	Frustum frustum;
+
+	// Near plane corners
+	frustum.nearTopLeft = transform.position + glm::vec3(-halfWidth, halfHeight, -neardist);
+	frustum.nearTopRight = transform.position + glm::vec3(halfWidth, halfHeight, -neardist);
+	frustum.nearBottomLeft = transform.position + glm::vec3(-halfWidth, -halfHeight, -neardist);
+	frustum.nearBottomRight = transform.position + glm::vec3(halfWidth, -halfHeight, -neardist);
+
+	// Far plane corners
+	frustum.farTopLeft = transform.position + glm::vec3(-halfWidth, halfHeight, -fardist);
+	frustum.farTopRight = transform.position + glm::vec3(halfWidth, halfHeight, -fardist);
+	frustum.farBottomLeft = transform.position + glm::vec3(-halfWidth, -halfHeight, -fardist);
+	frustum.farBottomRight = transform.position + glm::vec3(halfWidth, -halfHeight, -fardist);
+
+	return frustum;
+}

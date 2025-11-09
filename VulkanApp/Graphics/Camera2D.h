@@ -105,5 +105,10 @@ public:
 	/// <param name="viewport"></param>
 	/// <returns></returns>
 	glm::vec3 unprojectPosition(const glm::vec3& screenpos, const glm::vec2 viewport) override;
+
+
+
+	Frustum getFrustum() const override;
+
 };
 

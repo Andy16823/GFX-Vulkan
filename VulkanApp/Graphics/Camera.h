@@ -5,6 +5,7 @@
 #include <glm/mat4x4.hpp>
 #include "../Utils.h"
 #include "../Math/Transform.h"
+#include "../Math/Frustum.h"
 
 class Camera
 {
@@ -19,5 +20,6 @@ public:
 	virtual void turn(float pitch, float yaw, float roll) = 0;
 	virtual glm::vec3 projectPosition(const glm::vec3& worldpos, const glm::vec2 viewport) = 0;
 	virtual glm::vec3 unprojectPosition(const glm::vec3& screenpos, const glm::vec2 viewport) = 0;
+	virtual Frustum getFrustum() const = 0;
 };
 

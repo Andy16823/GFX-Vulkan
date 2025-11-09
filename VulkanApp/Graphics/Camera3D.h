@@ -21,8 +21,12 @@ public:
 	void moveRight(float distance) override;
 	void turn(float pitch, float yaw, float roll) override;
 
+	void setFarPlane(float farPlane) { m_farPlane = farPlane; }
+	void setNearPlane(float nearPlane) { m_nearPlane = nearPlane; }
+
 	glm::vec3 projectPosition(const glm::vec3& worldpos, const glm::vec2 viewport) override;
 	glm::vec3 unprojectPosition(const glm::vec3& screenpos, const glm::vec2 viewport) override;
 
+	Frustum getFrustum() const override;
 };
 
