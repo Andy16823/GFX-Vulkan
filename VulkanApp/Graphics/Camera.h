@@ -21,5 +21,6 @@ public:
 	virtual glm::vec3 projectPosition(const glm::vec3& worldpos, const glm::vec2 viewport) = 0;
 	virtual glm::vec3 unprojectPosition(const glm::vec3& screenpos, const glm::vec2 viewport) = 0;
 	virtual Frustum getFrustum() const = 0;
+	virtual void dumpCameraInfo() const = 0;
 };
 

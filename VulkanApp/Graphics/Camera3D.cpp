@@ -127,6 +127,26 @@ Frustum Camera3D::getFrustum() const
 	return frustum;
 }
 
+void Camera3D::dumpCameraInfo() const
+{
+	glm::vec3 forward = transform.getForward();
+	glm::vec3 right = transform.getRight();
+	glm::vec3 up = transform.getUp();
+
+	glm::vec3 worldUp(0.0f, 1.0f, 0.0f);
+	glm::vec3 right_test = glm::normalize(glm::cross(forward, worldUp));
+	glm::vec3 up_test = glm::normalize(glm::cross(right_test, forward));
+
+	printf("forward: %.3f %.3f %.3f\n", forward.x, forward.y, forward.z);
+	printf("right:   %.3f %.3f %.3f\n", right.x, right.y, right.z);
+	printf("up:      %.3f %.3f %.3f\n", up.x, up.y, up.z);
+	printf("right_test (f x worldUp): %.3f %.3f %.3f\n", right_test.x, right_test.y, right_test.z);
+	printf("up_test    (r_test x f):  %.3f %.3f %.3f\n", up_test.x, up_test.y, up_test.z);
+
+	printf("dot(forward,right)=%.3f dot(forward,up)=%.3f dot(right,up)=%.3f\n",
+		glm::dot(forward, right), glm::dot(forward, up), glm::dot(right, up));
+}
+
 Camera3D::~Camera3D()
 {
 

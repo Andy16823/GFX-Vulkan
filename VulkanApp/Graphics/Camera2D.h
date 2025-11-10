@@ -110,5 +110,8 @@ public:
 
 	Frustum getFrustum() const override;
 
+
+	void dumpCameraInfo() const override;
+
 };
 

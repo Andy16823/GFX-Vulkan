@@ -321,6 +321,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Graphics\UnlitMaterial.cpp" />
     <ClCompile Include="Graphics\Primitive.cpp" />
     <ClCompile Include="Core\PrimitiveEntity.cpp" />
+    <ClCompile Include="Math\Plane.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Frustum.h" />
@@ -370,6 +371,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Graphics\Primitive.h" />
     <ClInclude Include="Core\SceneBehavior.h" />
     <ClInclude Include="Core\PrimitiveEntity.h" />
+    <ClInclude Include="Math\Plane.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Graphics\UniformBuffer.h" />
     <ClInclude Include="Graphics\PBRMaterial.h" />
