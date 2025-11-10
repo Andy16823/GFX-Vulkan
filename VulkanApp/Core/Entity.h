@@ -20,7 +20,7 @@ enum class EntityState : uint8_t {
 	ENTITY_STATE_NONE = 0,
 	ENTITY_STATE_ACTIVE = 1 << 0,
 	ENTITY_STATE_VISIBLE = 1 << 1,
-	ENTITY_STATE_RAYCASTABLE = 1 << 2
+	ENTITY_STATE_RAYCASTABLE = 1 << 2,
 };
 
 /// <summary>
@@ -299,6 +299,22 @@ public:
 	/// <param name="state"></param>
 	void setState(EntityState state) {
 		m_state = state;
+	}
+
+	/// <summary>
+	/// Adds the given state to the entity
+	/// </summary>
+	/// <param name="state"></param>
+	void addState(EntityState state) {
+		m_state = m_state | state;
+	}
+
+	/// <summary>
+	/// Removes the given state from the entity
+	/// </summary>
+	/// <param name="state"></param>
+	void removeState(EntityState state) {
+		m_state = m_state & ~state;
 	}
 
 	/// <summary>

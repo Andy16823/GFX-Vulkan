@@ -165,6 +165,9 @@
     <ClCompile Include="Math\Plane.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Components\FrustumCullingBhv.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -336,6 +339,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Math\Plane.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\FrustumCullingBhv.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

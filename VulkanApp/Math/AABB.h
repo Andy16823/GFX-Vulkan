@@ -30,6 +30,23 @@ struct AABB
 	AABB(const glm::vec3& min, const glm::vec3& max) : min(min), max(max) {}
 
 	/// <summary>
+	/// The center point of the AABB
+	/// </summary>
+	/// <returns></returns>
+	glm::vec3 center() const
+	{
+		return (min + max) * 0.5f;
+	}
+
+	/// <summary>
+	/// The half extents of the AABB
+	/// </summary>
+	/// <returns></returns>
+	glm::vec3 halfExtents() const {
+		return (max - min) * 0.5f;
+	}
+
+	/// <summary>
 	/// Adds an offset to the AABB and returns a new AABB
 	/// </summary>
 	/// <param name="offset"></param>
@@ -134,29 +151,62 @@ struct AABB
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	AABB operator *(const glm::mat4& value) {
+	//AABB operator *(const glm::mat4& value) {
+	//	if (isEmpty()) {
+	//		return *this;
+	//	}
+	//	glm::vec3 corners[8] = {
+	//		glm::vec3(min.x, min.y, min.z),
+	//		glm::vec3(min.x, min.y, max.z),
+	//		glm::vec3(min.x, max.y, min.z),
+	//		glm::vec3(min.x, max.y, max.z),
+	//		glm::vec3(max.x, min.y, min.z),
+	//		glm::vec3(max.x, min.y, max.z),
+	//		glm::vec3(max.x, max.y, min.z),
+	//		glm::vec3(max.x, max.y, max.z)
+	//	};
+
+	//	AABB result;
+	//	for (int i = 0; i < 8; i++) {
+	//		glm::vec3 transformedCorner = glm::vec3(value * glm::vec4(corners[i], 1.0f));
+	//		result.expand(transformedCorner);
+	//	}
+
+	//	return result;
+	//}
+
+	/// <summary>
+	/// Applies a transformation matrix to the AABB and returns a new AABB.
+	/// Faster method: transform center + apply absolute linear part to half-extents.
+	/// This is much faster than transforming 8 corners.
+	/// </summary>
+	AABB operator *(const glm::mat4& value) const
+	{
 		if (isEmpty()) {
 			return *this;
 		}
-		glm::vec3 corners[8] = {
-			glm::vec3(min.x, min.y, min.z),
-			glm::vec3(min.x, min.y, max.z),
-			glm::vec3(min.x, max.y, min.z),
-			glm::vec3(min.x, max.y, max.z),
-			glm::vec3(max.x, min.y, min.z),
-			glm::vec3(max.x, min.y, max.z),
-			glm::vec3(max.x, max.y, min.z),
-			glm::vec3(max.x, max.y, max.z)
-		};
 
-		AABB result;
-		for (int i = 0; i < 8; i++) {
-			glm::vec3 transformedCorner = glm::vec3(value * glm::vec4(corners[i], 1.0f));
-			result.expand(transformedCorner);
-		}
+		// center + half-extents approach
+		const glm::vec3 c = center();
+		const glm::vec3 he = halfExtents();
 
-		return result;
+		// transformed center (includes translation)
+		const glm::vec3 newC = glm::vec3(value * glm::vec4(c, 1.0f));
+
+		// linear 3x3 part (rotation + scale/shear)
+		const glm::mat3 R = glm::mat3(value);
+
+		// absolute matrix of R
+		glm::mat3 absR;
+		absR[0][0] = std::fabs(R[0][0]); absR[0][1] = std::fabs(R[0][1]); absR[0][2] = std::fabs(R[0][2]);
+		absR[1][0] = std::fabs(R[1][0]); absR[1][1] = std::fabs(R[1][1]); absR[1][2] = std::fabs(R[1][2]);
+		absR[2][0] = std::fabs(R[2][0]); absR[2][1] = std::fabs(R[2][1]); absR[2][2] = std::fabs(R[2][2]);
+
+		const glm::vec3 newHe = absR * he;
+
+		return AABB(newC - newHe, newC + newHe);
 	}
+
 
 	/// <summary>
 	/// Compares two AABBs for equality
