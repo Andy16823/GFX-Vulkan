@@ -18,6 +18,7 @@ Camera2D::Camera2D(glm::vec3 position, glm::vec2 viewSize, const float near, con
 	m_far = far;
 	this->transform.position = position;
 	this->m_viewSize = viewSize;
+	this->createFrustum();
 }
 
 glm::mat4 Camera2D::getViewMatrix()
@@ -100,7 +101,7 @@ glm::vec3 Camera2D::unprojectPosition(const glm::vec3& screenpos, const glm::vec
 	return glm::vec3(worldPos) / worldPos.w;
 }
 
-Frustum Camera2D::getFrustum() const
+FrustumPoints& Camera2D::getFrustumPoints() const
 {
 	// Direction Vectors
 	glm::vec3 forward = transform.getForward();
@@ -116,21 +117,21 @@ Frustum Camera2D::getFrustum() const
 	float halfHeight = m_viewSize.y / 2.0f;
 
 	// Frustum corners
-	Frustum frustum;
+	FrustumPoints frustumPoints;
 
 	// Near plane corners
-	frustum.nearTopLeft = transform.position + glm::vec3(-halfWidth, halfHeight, -neardist);
-	frustum.nearTopRight = transform.position + glm::vec3(halfWidth, halfHeight, -neardist);
-	frustum.nearBottomLeft = transform.position + glm::vec3(-halfWidth, -halfHeight, -neardist);
-	frustum.nearBottomRight = transform.position + glm::vec3(halfWidth, -halfHeight, -neardist);
+	frustumPoints.nearTopLeft = transform.position + glm::vec3(-halfWidth, halfHeight, -neardist);
+	frustumPoints.nearTopRight = transform.position + glm::vec3(halfWidth, halfHeight, -neardist);
+	frustumPoints.nearBottomLeft = transform.position + glm::vec3(-halfWidth, -halfHeight, -neardist);
+	frustumPoints.nearBottomRight = transform.position + glm::vec3(halfWidth, -halfHeight, -neardist);
 
 	// Far plane corners
-	frustum.farTopLeft = transform.position + glm::vec3(-halfWidth, halfHeight, -fardist);
-	frustum.farTopRight = transform.position + glm::vec3(halfWidth, halfHeight, -fardist);
-	frustum.farBottomLeft = transform.position + glm::vec3(-halfWidth, -halfHeight, -fardist);
-	frustum.farBottomRight = transform.position + glm::vec3(halfWidth, -halfHeight, -fardist);
+	frustumPoints.farTopLeft = transform.position + glm::vec3(-halfWidth, halfHeight, -fardist);
+	frustumPoints.farTopRight = transform.position + glm::vec3(halfWidth, halfHeight, -fardist);
+	frustumPoints.farBottomLeft = transform.position + glm::vec3(-halfWidth, -halfHeight, -fardist);
+	frustumPoints.farBottomRight = transform.position + glm::vec3(halfWidth, -halfHeight, -fardist);
 
-	return frustum;
+	return frustumPoints;
 }
 
 void Camera2D::dumpCameraInfo() const

@@ -1,22 +1,43 @@
 #include "FrustumCullingBhv.h"
 #include "../Core/Entity.h"
 
-FrustumCullingBhv::FrustumCullingBhv(Camera* camera)
+bool FrustumCullingBhv::isDirty(Transform& transform)
+{
+	if(transform.position != m_lastParentPosition ||
+		transform.rotation != m_lastParentRotation ||
+		transform.scale != m_lastParentScale)
+	{
+		m_lastParentPosition = transform.position;
+		m_lastParentRotation = transform.rotation;
+		m_lastParentScale = transform.scale;
+		return true;
+	}
+	return false;
+}
+
+FrustumCullingBhv::FrustumCullingBhv(Camera* camera, CullingMode mode)
 {
 	m_camera = camera;
+	m_cullingMode = mode;
 }
 
 void FrustumCullingBhv::init(Scene* scene, Renderer* renderer)
 {
-	
+
 }
 
 void FrustumCullingBhv::update(Scene* scene, float dt)
 {
-	Frustum frustum = m_camera->getFrustum();
-	AABB aabb = this->parent->getAABB(true);
-	if (aabb.isValid()) {
-		if (frustum.intersectsAABB(aabb)) {
+	// Get the AABB if the transform is dirty
+	if (isDirty(this->parent->transform))
+	{
+		m_aabb = this->parent->getAABB(true);
+		std::cout << "Entity " << this->parent->name << " was dirty. Update AABB" << std::endl;
+	}
+
+	auto frustum = m_camera->getFrustum();
+	if (m_aabb.isValid()) {
+		if (frustum.intersectsAABB(m_aabb)) {
 			this->parent->addState(EntityState::ENTITY_STATE_VISIBLE);
 		}
 		else {

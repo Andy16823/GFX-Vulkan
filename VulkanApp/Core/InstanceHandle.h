@@ -15,6 +15,9 @@ private:
 	/// </summary>
 	Instancer* m_instancer;
 
+	EntityState m_previousState = EntityState::ENTITY_STATE_NONE;
+
+	bool isDirty();
 public:
 	/// <summary>
 	/// The ID of this instance within the instancer

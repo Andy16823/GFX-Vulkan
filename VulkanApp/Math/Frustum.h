@@ -4,8 +4,12 @@
 #include "Plane.h"
 #include "AABB.h"
 #include <vector>
+#include <array>
 
-struct Frustum
+/// <summary>
+/// Frustum corner points structure
+/// </summary>
+struct FrustumPoints
 {
 	glm::vec3 nearTopLeft;
 	glm::vec3 nearTopRight;
@@ -15,20 +19,73 @@ struct Frustum
 	glm::vec3 farTopRight;
 	glm::vec3 farBottomLeft;
 	glm::vec3 farBottomRight;
+};
 
-	std::vector<Plane> getPlanes() const {
-		std::vector<Plane> planes;
-		// Erzeuge Ebenen mit konsistenter Winding-Order (Cross-Reihenfolge p2-p1, p3-p1)
-		planes.push_back(Plane::fromPoints(nearTopLeft, nearTopRight, nearBottomRight));      // Near
-		planes.push_back(Plane::fromPoints(farTopRight, farTopLeft, farBottomLeft));          // Far
-		planes.push_back(Plane::fromPoints(nearTopLeft, farTopLeft, farBottomLeft));          // Left
-		planes.push_back(Plane::fromPoints(nearTopRight, farTopRight, farBottomRight));       // Right
-		planes.push_back(Plane::fromPoints(nearTopLeft, farTopLeft, farTopRight));            // Top
-		planes.push_back(Plane::fromPoints(nearBottomLeft, farBottomLeft, farBottomRight));   // Bottom
+/// <summary>
+/// Frustum class representing a view frustum defined by six planes
+/// </summary>
+class Frustum
+{
+public:
+	/// <summary>
+	/// Standard constructor
+	/// </summary>
+	Frustum() = default;
+
+	/// <summary>
+	/// Frustum constructor with corner points
+	/// </summary>
+	/// <param name="pts"></param>
+	Frustum(const FrustumPoints& pts) : points(pts) {
+		this->computePlanes();
+	}
+	~Frustum() = default;
+	
+	/// <summary>
+	/// The corner points of the frustum
+	/// </summary>
+	FrustumPoints points;
+
+	/// <summary>
+	/// The six planes of the frustum
+	/// </summary>
+	std::array<Plane, 6> planes;
+
+
+
+	/// <summary>
+	/// Updates the frustum with new corner points
+	/// </summary>
+	/// <param name="pts"></param>
+	void update(const FrustumPoints& pts) {
+		this->points = pts;
+		this->computePlanes();
+	}
+
+	/// <summary>
+	/// Gets the center point of the frustum
+	/// </summary>
+	/// <returns></returns>
+	glm::vec3 center() const {
+		glm::vec3 center = (points.nearTopLeft + points.nearTopRight + points.nearBottomLeft + points.nearBottomRight +
+			points.farTopLeft + points.farTopRight + points.farBottomLeft + points.farBottomRight) * (1.0f / 8.0f);
+		return center;
+	}
+
+	/// <summary>
+	/// Computes the six planes of the frustum from the corner points
+	/// </summary>
+	void computePlanes() {
+		std::array<Plane, 6> planes;
+		planes[0] = Plane::fromPoints(points.nearTopLeft, points.nearTopRight, points.nearBottomRight);      // Near
+		planes[1] = Plane::fromPoints(points.farTopRight, points.farTopLeft, points.farBottomLeft);          // Far
+		planes[2] = Plane::fromPoints(points.nearTopLeft, points.farTopLeft, points.farBottomLeft);          // Left
+		planes[3] = Plane::fromPoints(points.nearTopRight, points.farTopRight, points.farBottomRight);       // Right
+		planes[4] = Plane::fromPoints(points.nearTopLeft, points.farTopLeft, points.farTopRight);            // Top
+		planes[5] = Plane::fromPoints(points.nearBottomLeft, points.farBottomLeft, points.farBottomRight);   // Bottom
 
 		// Inneren Bezugspunkt (Mittelpunkt der 8 Ecken)
-		glm::vec3 center = (nearTopLeft + nearTopRight + nearBottomLeft + nearBottomRight +
-			farTopLeft + farTopRight + farBottomLeft + farBottomRight) * (1.0f / 8.0f);
+		glm::vec3 center = this->center();
 
 		// Drehe jede Ebene, falls center auf negativer Seite liegt -> dann ist center dist < 0
 		for (auto& pl : planes) {
@@ -38,12 +95,20 @@ struct Frustum
 			}
 		}
 
-		return planes;
+		this->planes = planes;
 	}
 
-	bool intersectsAABB(const AABB& aabb) const {
-		auto planes = getPlanes();
 
+	/// <summary>
+	/// Checks if the frustum intersects with the given Axis-Aligned Bounding Box (AABB)
+	/// </summary>
+	/// <param name="aabb"></param>
+	/// <returns></returns>
+	bool intersectsAABB(const AABB& aabb) const {
+		return intersectsAABB(aabb, this->planes);
+	}
+
+	static bool intersectsAABB(const AABB& aabb, const std::array<Plane, 6>& planes) {
 		for (const auto& plane : planes) {
 			// wähle Eckpunkt des AABB, der in Richtung der Ebenen-Normalen am weitesten liegt (p-vertex)
 			glm::vec3 p;
@@ -59,5 +124,54 @@ struct Frustum
 		}
 		return true;
 	}
-};
 
+	/// <summary>
+	/// Checks if the frustum contains the given point
+	/// </summary>
+	/// <param name="point"></param>
+	/// <returns></returns>
+	bool containsPoint(const glm::vec3& point) const {
+		return containsPoint(point, this->planes);
+	}
+
+	/// <summary>
+	/// Checks if the frustum contains the given point against the provided planes
+	/// </summary>
+	/// <param name="point"></param>
+	/// <param name="planes"></param>
+	/// <returns></returns>
+	static bool containsPoint(const glm::vec3& point, const std::array<Plane, 6>& planes) {
+		for (const auto& plane : planes) {
+			if (plane.distance(point) < 0.0f) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/// <summary>
+	/// Checks if the frustum contains the given sphere
+	/// </summary>
+	/// <param name="center"></param>
+	/// <param name="radius"></param>
+	/// <returns></returns>
+	bool containsSphere(const glm::vec3& center, float radius) const {
+		return containsSphere(center, radius, this->planes);
+	}
+
+	/// <summary>
+	/// Checks if the frustum contains the given sphere against the provided planes
+	/// </summary>
+	/// <param name="center"></param>
+	/// <param name="radius"></param>
+	/// <param name="planes"></param>
+	/// <returns></returns>
+	static bool containsSphere(const glm::vec3& center, float radius, const std::array<Plane, 6>& planes) {
+		for (const auto& plane : planes) {
+			if (plane.distance(center) < -radius) {
+				return false;
+			}
+		}
+		return true;
+	}
+};

@@ -106,12 +106,15 @@ public:
 	/// <returns></returns>
 	glm::vec3 unprojectPosition(const glm::vec3& screenpos, const glm::vec2 viewport) override;
 
+	/// <summary>
+	/// Gets the frustum points of the camera.
+	/// </summary>
+	/// <returns></returns>
+	FrustumPoints& getFrustumPoints() const override;
 
-
-	Frustum getFrustum() const override;
-
-
+	/// <summary>
+	/// Dumps camera information for debugging.
+	/// </summary>
 	void dumpCameraInfo() const override;
-
 };
 

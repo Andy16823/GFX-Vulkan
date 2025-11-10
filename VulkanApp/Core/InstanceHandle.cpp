@@ -1,6 +1,16 @@
 #include "InstanceHandle.h"
 #include "Instancer.h"
 
+bool InstanceHandle::isDirty()
+{
+	if (m_previousState != this->getState()) 
+	{
+		m_previousState = this->getState();
+		return true;
+	}
+	return false;
+}
+
 InstanceHandle::InstanceHandle(const std::string& name, Instancer* model, int instanceId) 
 	: Entity(name)
 {
@@ -10,13 +20,18 @@ InstanceHandle::InstanceHandle(const std::string& name, Instancer* model, int in
 
 void InstanceHandle::init(Scene* scene, Renderer* renderer)
 {
-	
+
 }
 
 void InstanceHandle::render(Scene* scene, Renderer* renderer, VkCommandBuffer commandBuffer, int32_t currentFrame)
 {
 	Entity::render(scene, renderer, commandBuffer, currentFrame);
 
+	if(this->isDirty() == false)
+	{
+		return;
+	}
+	// Only update instance data if something changed
 	InstanceData data = {};
 	data.model = this->transform.getMatrix();
 	if (this->hasState(EntityState::ENTITY_STATE_VISIBLE))

@@ -8,6 +8,7 @@ Camera3D::Camera3D(glm::vec3 position, glm::vec2 aspectRatio, float fov, float n
 	m_aspectRatio = aspectRatio.x / aspectRatio.y;
 	m_nearPlane = nearPlane;
 	m_farPlane = farPlane;
+	this->createFrustum();
 }
 
 glm::mat4 Camera3D::getViewMatrix()
@@ -80,7 +81,8 @@ glm::vec3 Camera3D::unprojectPosition(const glm::vec3& screenpos, const glm::vec
 	return glm::unProject(screenpos, view, proj, viewportVec);
 }
 
-Frustum Camera3D::getFrustum() const
+
+FrustumPoints& Camera3D::getFrustumPoints() const
 {
 	// Direction Vectors
 	glm::vec3 forward = transform.getForward();
@@ -110,21 +112,21 @@ Frustum Camera3D::getFrustum() const
 	float halfFarHeigth = farHeigth / 2.0f;
 
 	// Frustum corners
-	Frustum frustum;
+	FrustumPoints frustumPoints;
 
 	// Near plane corners
-	frustum.nearTopLeft = nearCenter + (up * halfNearHeigth) - (right * halfNearWidth);
-	frustum.nearTopRight = nearCenter + (up * halfNearHeigth) + (right * halfNearWidth);
-	frustum.nearBottomLeft = nearCenter - (up * halfNearHeigth) - (right * halfNearWidth);
-	frustum.nearBottomRight = nearCenter - (up * halfNearHeigth) + (right * halfNearWidth);
+	frustumPoints.nearTopLeft = nearCenter + (up * halfNearHeigth) - (right * halfNearWidth);
+	frustumPoints.nearTopRight = nearCenter + (up * halfNearHeigth) + (right * halfNearWidth);
+	frustumPoints.nearBottomLeft = nearCenter - (up * halfNearHeigth) - (right * halfNearWidth);
+	frustumPoints.nearBottomRight = nearCenter - (up * halfNearHeigth) + (right * halfNearWidth);
 
 	// Far plane corners
-	frustum.farTopLeft = farCenter + (up * halfFarHeigth) - (right * halfFarWidth);
-	frustum.farTopRight = farCenter + (up * halfFarHeigth) + (right * halfFarWidth);
-	frustum.farBottomLeft = farCenter - (up * halfFarHeigth) - (right * halfFarWidth);
-	frustum.farBottomRight = farCenter - (up * halfFarHeigth) + (right * halfFarWidth);
+	frustumPoints.farTopLeft = farCenter + (up * halfFarHeigth) - (right * halfFarWidth);
+	frustumPoints.farTopRight = farCenter + (up * halfFarHeigth) + (right * halfFarWidth);
+	frustumPoints.farBottomLeft = farCenter - (up * halfFarHeigth) - (right * halfFarWidth);
+	frustumPoints.farBottomRight = farCenter - (up * halfFarHeigth) + (right * halfFarWidth);
 
-	return frustum;
+	return frustumPoints;
 }
 
 void Camera3D::dumpCameraInfo() const
