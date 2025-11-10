@@ -155,8 +155,8 @@ public:
 	/// <param name="center"></param>
 	/// <param name="radius"></param>
 	/// <returns></returns>
-	bool containsSphere(const glm::vec3& center, float radius) const {
-		return containsSphere(center, radius, this->planes);
+	bool intersectsSphere(const glm::vec3& center, float radius) const {
+		return intersectsSphere(center, radius, this->planes);
 	}
 
 	/// <summary>
@@ -166,7 +166,7 @@ public:
 	/// <param name="radius"></param>
 	/// <param name="planes"></param>
 	/// <returns></returns>
-	static bool containsSphere(const glm::vec3& center, float radius, const std::array<Plane, 6>& planes) {
+	static bool intersectsSphere(const glm::vec3& center, float radius, const std::array<Plane, 6>& planes) {
 		for (const auto& plane : planes) {
 			if (plane.distance(center) < -radius) {
 				return false;

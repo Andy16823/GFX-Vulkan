@@ -32,18 +32,58 @@ void FrustumCullingBhv::update(Scene* scene, float dt)
 	if (isDirty(this->parent->transform))
 	{
 		m_aabb = this->parent->getAABB(true);
-		std::cout << "Entity " << this->parent->name << " was dirty. Update AABB" << std::endl;
 	}
 
+	// Perform frustum culling
 	auto frustum = m_camera->getFrustum();
-	if (m_aabb.isValid()) {
-		if (frustum.intersectsAABB(m_aabb)) {
+	float radius;
+
+	switch (m_cullingMode)
+	{
+	case CullingMode::AABB_CULLING:
+		if (m_aabb.isValid()) {
+			if (frustum.intersectsAABB(m_aabb)) {
+				this->parent->addState(EntityState::ENTITY_STATE_VISIBLE);
+			}
+			else {
+				this->parent->removeState(EntityState::ENTITY_STATE_VISIBLE);
+			}
+		}
+		break;
+	case CullingMode::SPHERE_CULLING:
+		radius = glm::length(m_aabb.halfExtents());
+		if (frustum.intersectsSphere(m_aabb.center(), radius)) {
 			this->parent->addState(EntityState::ENTITY_STATE_VISIBLE);
 		}
 		else {
 			this->parent->removeState(EntityState::ENTITY_STATE_VISIBLE);
 		}
-	}
+		break;
+	case CullingMode::SPHERE_THEN_AABB_CULLING:
+		radius = glm::length(m_aabb.halfExtents());
+		if (frustum.intersectsSphere(m_aabb.center(), radius)) {
+			if(frustum.intersectsAABB(m_aabb)) {
+				this->parent->addState(EntityState::ENTITY_STATE_VISIBLE);
+			}
+			else {
+				this->parent->removeState(EntityState::ENTITY_STATE_VISIBLE);
+			}
+		}
+		else {
+			this->parent->removeState(EntityState::ENTITY_STATE_VISIBLE);
+		}
+		break;
+	case CullingMode::ORIGIN_CULLING:
+		if (frustum.containsPoint(m_aabb.center())) {
+			this->parent->addState(EntityState::ENTITY_STATE_VISIBLE);
+		}
+		else {
+			this->parent->removeState(EntityState::ENTITY_STATE_VISIBLE);
+		}
+		break;
+	default:
+		break;
+	}	
 }
 
 void FrustumCullingBhv::destroy(Scene* scene, Renderer* renderer)
