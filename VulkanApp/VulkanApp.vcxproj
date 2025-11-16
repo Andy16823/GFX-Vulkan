@@ -272,6 +272,8 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="UI\Label.cpp" />
+    <ClCompile Include="UI\Canvas.cpp" />
     <ClCompile Include="Components\FrustumCullingBhv.cpp" />
     <ClCompile Include="Math\Frustum.cpp" />
     <ClCompile Include="Math\AABB.cpp" />
@@ -325,6 +327,9 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Math\Plane.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="UI\Label.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="UI\Canvas.h" />
     <ClInclude Include="Components\FrustumCullingBhv.h" />
     <ClInclude Include="Math\Frustum.h" />
     <ClInclude Include="Math\AABB.h" />
@@ -383,6 +388,10 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClInclude Include="Graphics\StorageBuffer.h" />
     <ClInclude Include="Graphics\UnlitMaterial.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="UI\Widget.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VulkanApp.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

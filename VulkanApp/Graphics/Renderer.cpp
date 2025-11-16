@@ -868,7 +868,9 @@ void Renderer::recordCommands(uint32_t currentImage)
 	this->beginnRenderPass(commandBuffer, this->getSwapchainFramebuffer(currentImage), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), this->getMainRenderPass());
 	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT));
 	for (auto& renderTarget : m_renderTargets) {
-		this->drawRenderTargetQuad(renderTarget.get(), commandBuffer, currentImage);
+		if (renderTarget->isPresentOnScreen()) {
+			this->drawRenderTargetQuad(renderTarget.get(), commandBuffer, currentImage);
+		}
 	}
 
 	this->endRenderPass(commandBuffer);
@@ -2382,6 +2384,29 @@ void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer
 	};
 	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
 	this->bindPushConstants(commandBuffer, this->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &fontModel);
+	this->bindDescriptorSets(descriptorSets, frame);
+	this->drawBuffers(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
+}
+
+void Renderer::drawRenderTarget(const glm::mat4& matrix, int renderTargetIndex, VkCommandBuffer commandBuffer, int frame)
+{
+	if(m_activeCamera < 0)
+	{
+		throw std::runtime_error("No camera bound for render target rendering!");
+	}
+
+	auto cameraDescriptorSet = this->getCameraDescriptorSet(m_activeCamera, frame);
+	auto renderTarget = this->getRenderTarget(renderTargetIndex);
+	auto imageDescriptorSet = this->getSamplerDescriptorSet(renderTarget->getOffscreenDescriptorIndex());
+	auto primitveBuffer = m_rendererPrimitives[PrimitiveType::PRIMITIVE_TYPE_QUAD];
+
+	UboModel modelUbo = { matrix };
+	std::vector<VkDescriptorSet> descriptorSets = {
+		cameraDescriptorSet,
+		imageDescriptorSet
+	};
+	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
+	this->bindPushConstants(commandBuffer, this->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &modelUbo);
 	this->bindDescriptorSets(descriptorSets, frame);
 	this->drawBuffers(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
 }
