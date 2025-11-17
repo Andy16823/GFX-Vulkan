@@ -2150,7 +2150,7 @@ void Renderer::setActiveCamera(int cameraIndex)
 	m_activeCamera = cameraIndex;
 }
 
-void Renderer::beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, glm::vec4 clearColor, int renderPassIndex)
+void Renderer::beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, const glm::vec4& clearColor, int renderPassIndex)
 {
 	auto renderPass = m_renderPassManager.getRenderPass(renderPassIndex);
 	VkRenderPassBeginInfo beginInfo = {};
@@ -2168,6 +2168,12 @@ void Renderer::beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer fra
 	beginInfo.framebuffer = framebuffer;
 
 	vkCmdBeginRenderPass(commandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
+
+void Renderer::beginnRenderPass(VkCommandBuffer commandBuffer, int renderTargetIndex, const glm::vec4& clearColor, int renderPassIndex)
+{
+	auto framebuffer = this->getRenderTarget(renderTargetIndex)->getFramebuffer();
+	this->beginnRenderPass(commandBuffer, framebuffer, clearColor, renderPassIndex);
 }
 
 void Renderer::endRenderPass(VkCommandBuffer commandBuffer)

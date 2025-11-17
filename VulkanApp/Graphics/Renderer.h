@@ -350,7 +350,8 @@ public:
 	// Beginn / End functions
 	int getMainRenderPass() { return m_mainRenderPassIndex; }
 	int getOffscreenRenderPass() { return m_offscreenRenderPassIndex; }
-	void beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, glm::vec4 clearColor, int renderPassIndex);
+	void beginnRenderPass(VkCommandBuffer commandBuffer, int renderTargetIndex, const glm::vec4& clearColor, int renderPassIndex);
+	void beginnRenderPass(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, const glm::vec4& clearColor, int renderPassIndex);
 	void endRenderPass(VkCommandBuffer commandBuffer);
 
 	// Update functions
