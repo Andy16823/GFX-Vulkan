@@ -370,7 +370,7 @@ public:
 	void drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer, int instances = 1);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
 	void drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame);
-	void drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size);
+	void drawTexture(const glm::mat4& matrix, int textureBufferIndex, VkCommandBuffer commandBuffer, int frame);
 	void drawRenderTarget(const glm::mat4& matrix, int renderTargetIndex, VkCommandBuffer commandBuffer, int frame);
 	void drawText(const std::string& text, const int fontIndex, const int vertexBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, float lineSpacing = 1.2, int textalignment = TextAlignment::ALIGNMENT_CENTER | TextAlignment::ALIGNMENT_MIDDLE);
 	void drawCube(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);

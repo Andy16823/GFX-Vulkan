@@ -2361,7 +2361,7 @@ void Renderer::drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer 
 	);
 }
 
-void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, glm::vec2 size)
+void Renderer::drawTexture(const glm::mat4& matrix, int textureBufferIndex, VkCommandBuffer commandBuffer, int frame)
 {
 	if (m_activeCamera < 0)
 	{
@@ -2377,11 +2377,7 @@ void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer
 	auto primitveBuffer = m_rendererPrimitives[PrimitiveType::PRIMITIVE_TYPE_QUAD];
 
 	// Create the model matrix for the font quad
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(position, 0.0f));
-	model = glm::scale(model, glm::vec3(size, 1.0f));
-	UboModel fontModel = {};
-	fontModel.model = model;
+	UboModel ubo = { matrix };
 
 	// Bind the pipeline, descriptor sets and draw the font quad
 	std::vector<VkDescriptorSet> descriptorSets = {
@@ -2389,7 +2385,7 @@ void Renderer::drawTexture(int textureBufferIndex, VkCommandBuffer commandBuffer
 		imageDescriptorSet
 	};
 	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
-	this->bindPushConstants(commandBuffer, this->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &fontModel);
+	this->bindPushConstants(commandBuffer, this->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &ubo);
 	this->bindDescriptorSets(descriptorSets, frame);
 	this->drawBuffers(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
 }
