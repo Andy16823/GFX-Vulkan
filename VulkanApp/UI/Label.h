@@ -11,10 +11,10 @@ class Label : public Widget
 private:
 	std::string m_text;
 	int m_fontIndex = -1;
-	int m_vertexBufferIndex = -1;
 	float m_scale = 1.0f;
 	float m_lineSpacing = 1.2f;
 	glm::vec2 m_position = glm::vec2(0.0f);
+	std::vector<int> m_vertexBuffers;
 	int m_alignment = TextAlignment::ALIGNMENT_CENTER | TextAlignment::ALIGNMENT_MIDDLE;
 public:
 

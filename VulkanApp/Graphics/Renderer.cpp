@@ -1808,12 +1808,14 @@ int Renderer::createCamera()
 		throw std::runtime_error("failed to create camera: maximum number of cameras reached!");
 	}
 
+	size_t numSwapChainImages = this->numSwapChainImages();
+
 	CameraResources camera;
-	camera.uniformBuffers.resize(m_commandBuffers.size());
-	camera.descriptorSets.resize(m_commandBuffers.size());
+	camera.uniformBuffers.resize(numSwapChainImages);
+	camera.descriptorSets.resize(numSwapChainImages);
 
 	VkDeviceSize bufferSize = sizeof(UboViewProjection);
-	for (size_t i = 0; i < m_commandBuffers.size(); i++) {
+	for (size_t i = 0; i < numSwapChainImages; i++) {
 		camera.uniformBuffers[i] = std::make_unique<UniformBuffer>(
 			m_renderDevice.physicalDevice,
 			m_renderDevice.logicalDevice,
@@ -1850,7 +1852,7 @@ int Renderer::createCamera()
 	int cameraIndex = m_cameraResources.size() - 1;
 
 	std::cout << "[RENDERER] Camera registered at index " << cameraIndex
-		<< " with " << m_swapChainImages.size() << " uniform buffers" << std::endl;
+		<< " with " << numSwapChainImages << " uniform buffers" << std::endl;
 
 	return cameraIndex;
 }

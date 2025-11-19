@@ -10,12 +10,17 @@ void Label::prepare(const std::string& text, int fontIndex, float scale /*= 1.0f
 
 void Label::init(Canvas* canvas, Renderer* renderer)
 {
-	m_vertexBufferIndex = renderer->createVertexBuffer(2400, VertexBufferType::VERTEX_BUFFER_TYPE_DYNAMIC);
+	m_vertexBuffers.resize(renderer->numSwapChainImages());
+	for(size_t i = 0; i < m_vertexBuffers.size(); i++)
+	{
+		m_vertexBuffers[i] = renderer->createVertexBuffer(2400, VertexBufferType::VERTEX_BUFFER_TYPE_DYNAMIC);
+	}
 }
 
 void Label::draw(Canvas* canvas, Renderer* renderer, VkCommandBuffer commandBuffer, int frame)
 {
-	renderer->drawText(m_text, m_fontIndex, m_vertexBufferIndex, commandBuffer, frame, m_position, m_scale, m_lineSpacing, m_alignment);
+	int vertexBufferIndex = m_vertexBuffers[frame];
+	renderer->drawText(m_text, m_fontIndex, vertexBufferIndex, commandBuffer, frame, m_position, m_scale, m_lineSpacing, m_alignment);
 }
 
 void Label::update(Canvas* canvas, GLFWwindow* window, float deltaTime)
