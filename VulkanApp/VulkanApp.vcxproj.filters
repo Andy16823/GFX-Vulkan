@@ -174,6 +174,9 @@
     <ClCompile Include="UI\Label.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="StringUtils.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Renderer.h">
@@ -360,6 +363,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="UI\Label.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtils.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

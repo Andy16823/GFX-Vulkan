@@ -28,6 +28,8 @@
 #include "Font.h"
 #include "Primitive.h"
 #include "../Math/AABB.h"
+#include "../StringUtils.h"
+
 
 /// <summary>
 /// Renderer configuration structure

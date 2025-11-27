@@ -4,7 +4,7 @@ void Label::prepare(Renderer* renderer, const std::string& text, int fontIndex, 
 {
 	// Measure the text to get the bounds
 	auto font = renderer->getFont(fontIndex);
-	auto fontMetrics = measureText(text, font, scale, lineSpacing);
+	auto fontMetrics = StringUtils::measureText(text, font, scale, lineSpacing);
 	m_boundsSize = glm::vec2(fontMetrics.width, fontMetrics.height);
 
 	// Set the properties

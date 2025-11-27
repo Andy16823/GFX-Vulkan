@@ -2,7 +2,7 @@
 #include "Widget.h"
 #include "Canvas.h"
 #include "../Graphics/Renderer.h"
-#include "../Utils.h"
+#include "../StringUtils.h"
 
 /// <summary>
 /// Label UI Widget

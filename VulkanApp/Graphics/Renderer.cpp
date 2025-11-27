@@ -2435,8 +2435,8 @@ void Renderer::drawText(const std::string& text, const int fontIndex, const int 
 	std::vector<Vertex> vertices;
 	vertices.reserve(text.length() * 6);
 
-	auto textmessure = measureText(text, font, scale, lineSpacing);
-	auto offset = getTextOffset(textmessure, textalignment);
+	auto textmessure = StringUtils::measureText(text, font, scale, lineSpacing);
+	auto offset = StringUtils::getTextOffset(textmessure, textalignment);
 	float currentX = position.x + offset.x;
 	float currentY = position.y + offset.y;
 

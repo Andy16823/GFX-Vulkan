@@ -272,6 +272,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="StringUtils.cpp" />
     <ClCompile Include="UI\Label.cpp" />
     <ClCompile Include="UI\Canvas.cpp" />
     <ClCompile Include="Components\FrustumCullingBhv.cpp" />
@@ -327,6 +328,7 @@ xcopy /S /Y /I "$(ProjectDir)*.hpp" "$(OutDir)include\GFX"</Command>
     <ClCompile Include="Math\Plane.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="StringUtils.h" />
     <ClInclude Include="UI\Label.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="UI\Canvas.h" />
