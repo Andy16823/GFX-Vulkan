@@ -98,18 +98,6 @@ inline const char* ToString(PipelineType type) {
 	}
 }
 
-/// <summary>
-/// Text alignment options
-/// </summary>
-enum TextAlignment {
-	ALIGNMENT_LEFT = 1,
-	ALIGNMENT_CENTER = 2,
-	ALIGNMENT_RIGHT = 4,
-	ALIGNMENT_TOP = 8,
-	ALIGNMENT_MIDDLE = 16,
-	ALIGNMENT_BOTTOM = 32
-};
-
 class Renderer
 {
 private:
@@ -319,6 +307,7 @@ public:
 	int loadFont(const std::string& fontPath, int fontSize);
 
 	// Get buffer functions
+	glm::vec2 getViewportSize();
 	VertexBuffer* getVertexBuffer(int index);
 	IndexBuffer* getIndexBuffer(int index);
 	UniformBuffer* getUniformBuffer(int index);

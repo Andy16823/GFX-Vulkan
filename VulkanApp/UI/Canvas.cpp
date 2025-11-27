@@ -1,5 +1,6 @@
 #include "Canvas.h"
 #include "Widget.h"
+#include "../Core/Input.h"
 
 void Canvas::init(Renderer* renderer)
 {
@@ -22,9 +23,19 @@ void Canvas::render(Renderer* renderer, VkCommandBuffer commandBuffer, uint32_t 
 	renderer->endRenderPass(commandBuffer);
 }
 
-void Canvas::update(GLFWwindow* window, float deltaTime)
+void Canvas::update(GLFWwindow* window, float deltaTime, const glm::vec2& viewportSize)
 {
+	auto mousePos = Input::getMousePosition(window);
+	mousePos = mousePos - (viewportSize / 2.0f);
+	mousePos.y = -mousePos.y;
+	if (this->containsPoint(mousePos)) {
+		// Canvas is being interacted with
+	}
+
 	for (const auto& widget : m_widgets) {
+		if (widget->containsPoint(mousePos)) {
+			widget->mouseOver(this, window, mousePos);
+		}
 		widget->update(this, window, deltaTime);
 	}
 }
@@ -50,4 +61,12 @@ void Canvas::afterSwapchainRecreation(Renderer* renderer, const glm::ivec2& newS
 	for (const auto& widget : m_widgets) {
 		widget->afterSwapchainRecreation(this, renderer, newSize);
 	}
+}
+
+bool Canvas::containsPoint(const glm::vec2& point)
+{
+	glm::vec3 canvasPos = m_transform.position;
+	glm::vec3 canvasScale = m_transform.scale;
+	return (point.x >= canvasPos.x && point.x <= canvasPos.x + canvasScale.x &&
+		point.y >= canvasPos.y && point.y <= canvasPos.y + canvasScale.y);
 }

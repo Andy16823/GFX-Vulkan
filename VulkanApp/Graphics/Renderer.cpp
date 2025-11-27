@@ -1002,6 +1002,11 @@ bool Renderer::checkDeviceSuitable(VkPhysicalDevice device)
  	return indices.isValid() && extensionsSupported && swapchainValid && deviceFeatures.samplerAnisotropy;
 }
 
+glm::vec2 Renderer::getViewportSize()
+{
+	return glm::vec2(static_cast<float>(m_swapChainExtent.width), static_cast<float>(m_swapChainExtent.height));
+}
+
 /// <summary>
 /// Get the queue family indices for a given physical device
 /// </summary>
@@ -2430,26 +2435,10 @@ void Renderer::drawText(const std::string& text, const int fontIndex, const int 
 	std::vector<Vertex> vertices;
 	vertices.reserve(text.length() * 6);
 
-	float currentX = position.x;
-	float currentY = position.y;
-
 	auto textmessure = measureText(text, font, scale, lineSpacing);
-	if (TextAlignment::ALIGNMENT_TOP & textalignment) {
-		currentY -= textmessure.lineHeight;
-	}
-	else if (TextAlignment::ALIGNMENT_MIDDLE & textalignment) {
-		currentY += (textmessure.height - textmessure.lineHeight) / 2.0f;
-	}
-	else if (TextAlignment::ALIGNMENT_BOTTOM & textalignment) {
-		currentY += textmessure.height - textmessure.lineHeight;
-	}
-
-	if (TextAlignment::ALIGNMENT_CENTER & textalignment) {
-		currentX -= textmessure.width / 2.0f;
-	}
-	if (TextAlignment::ALIGNMENT_RIGHT & textalignment) {
-		currentX -= textmessure.width;
-	}
+	auto offset = getTextOffset(textmessure, textalignment);
+	float currentX = position.x + offset.x;
+	float currentY = position.y + offset.y;
 
 	float startX = currentX;
 	float lineHeight = textmessure.lineHeight;

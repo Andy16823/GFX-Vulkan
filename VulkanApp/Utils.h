@@ -13,6 +13,18 @@
 #include "Graphics/Font.h"
 
 /// <summary>
+/// Text alignment options
+/// </summary>
+enum TextAlignment {
+	ALIGNMENT_LEFT = 1,
+	ALIGNMENT_CENTER = 2,
+	ALIGNMENT_RIGHT = 4,
+	ALIGNMENT_TOP = 8,
+	ALIGNMENT_MIDDLE = 16,
+	ALIGNMENT_BOTTOM = 32
+};
+
+/// <summary>
 /// Required device extensions
 /// </summary>
 const std::vector<const char*> deviceExtensions = {
@@ -163,6 +175,28 @@ static TextMeasurement measureText(const std::string& text, Font* font, float sc
 		result.height += result.lineHeight * (lineSpacing - 1.0f) * (result.lines - 1);
 	}
 	return result;
+}
+
+static glm::vec2 getTextOffset(const TextMeasurement& measurement, int alignment) {
+	float currentX = 0;
+	float currentY = 0;
+	if (TextAlignment::ALIGNMENT_TOP & alignment) {
+		currentY -= measurement.lineHeight;
+	}
+	else if (TextAlignment::ALIGNMENT_MIDDLE & alignment) {
+		currentY += (measurement.height - measurement.lineHeight) / 2.0f;
+	}
+	else if (TextAlignment::ALIGNMENT_BOTTOM & alignment) {
+		currentY += measurement.height - measurement.lineHeight;
+	}
+
+	if (TextAlignment::ALIGNMENT_CENTER & alignment) {
+		currentX -= measurement.width / 2.0f;
+	}
+	if (TextAlignment::ALIGNMENT_RIGHT & alignment) {
+		currentX -= measurement.width;
+	}
+	return glm::vec2(currentX, currentY);
 }
 
 static std::vector<char> readFile(const std::string& filename) 
@@ -598,4 +632,9 @@ static std::string generateUUID()
 static uint64_t currentTimeMillis() {
 		return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::high_resolution_clock::now().time_since_epoch()).count());
+}
+
+static bool containsPoint2(const glm::vec2& point, const glm::vec2& rectPost, const glm::vec2& rectSize) {
+		return (point.x >= rectPost.x && point.x <= rectPost.x + rectSize.x &&
+			point.y >= rectPost.y && point.y <= rectPost.y + rectSize.y);
 }

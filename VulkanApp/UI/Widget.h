@@ -67,5 +67,27 @@ public:
 	/// <param name="renderer"></param>
 	/// <param name="newSize"></param>
 	virtual void afterSwapchainRecreation(Canvas* canvas, Renderer* renderer, const glm::ivec2& newSize) = 0;
+
+	/// <summary>
+	/// Gets the bounds of the widget
+	/// X, Y, Width, Height
+	/// </summary>
+	/// <returns></returns>
+	virtual glm::vec4 getBounds() = 0;
+
+	/// <summary>
+	/// Checks if the widget contains the specified point
+	/// </summary>
+	/// <param name="point"></param>
+	/// <returns></returns>
+	virtual bool containsPoint(const glm::vec2& point) = 0;
+
+	/// <summary>
+	/// Mouse over event
+	/// </summary>
+	/// <param name="canvas"></param>
+	/// <param name="window"></param>
+	/// <param name="mousePos"></param>
+	virtual void mouseOver(Canvas* canvas, GLFWwindow* window, const glm::vec2& mousePos) = 0;
 };
 

@@ -30,11 +30,10 @@ public:
 	/// <param name="scale"></param>
 	/// <param name="viewsize"></param>
 	/// <param name="clearColor"></param>
-	Canvas(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, const glm::vec2& viewsize, const glm::vec4& clearColor = glm::vec4(0.0f)) {
+	Canvas(const glm::vec2& position, const glm::vec2& scale, const glm::vec2& viewsize, const glm::vec4& clearColor = glm::vec4(0.0f)) {
 		// Initialize transform
-		m_transform.setPosition(position);
-		m_transform.setRotation(glm::quat(glm::radians(rotation)));
-		m_transform.setScale(scale);
+		m_transform.setPosition(glm::vec3(position, 0.0f));
+		m_transform.setScale(glm::vec3(scale, 0.0));
 
 		// Create 2D camera
 		m_camera = std::make_unique<Camera2D>(glm::vec3(0.0f), viewsize, 1.0f, -1.0f);
@@ -127,7 +126,7 @@ public:
 	/// </summary>
 	/// <param name="window"></param>
 	/// <param name="deltaTime"></param>
-	virtual void update(GLFWwindow* window, float deltaTime);
+	virtual void update(GLFWwindow* window, float deltaTime, const glm::vec2& viewportSize);
 
 	/// <summary>
 	/// Destroys the canvas
@@ -149,5 +148,7 @@ public:
 	/// <param name="renderer"></param>
 	/// <param name="newSize"></param>
 	virtual void afterSwapchainRecreation(Renderer* renderer, const glm::ivec2& newSize);
+
+	bool containsPoint(const glm::vec2& point);
 };
 

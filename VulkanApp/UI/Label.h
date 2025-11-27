@@ -2,6 +2,7 @@
 #include "Widget.h"
 #include "Canvas.h"
 #include "../Graphics/Renderer.h"
+#include "../Utils.h"
 
 /// <summary>
 /// Label UI Widget
@@ -15,6 +16,9 @@ private:
 	float m_lineSpacing = 1.2f;
 	glm::vec2 m_position = glm::vec2(0.0f);
 	std::vector<int> m_vertexBuffers;
+
+	glm::vec2 m_boundsSize = glm::vec2(0.0f);
+
 	int m_alignment = TextAlignment::ALIGNMENT_CENTER | TextAlignment::ALIGNMENT_MIDDLE;
 public:
 
@@ -81,7 +85,7 @@ public:
 	/// <param name="fontIndex"></param>
 	/// <param name="scale"></param>
 	/// <param name="lineSpacing"></param>
-	void prepare(const std::string& text, int fontIndex, float scale = 1.0f, float lineSpacing = 1.2f);
+	void prepare(Renderer* renderer, const std::string& text, int fontIndex, float scale = 1.0f, float lineSpacing = 1.2f);
 
 	/// <summary>
 	/// Initialize the label
@@ -128,5 +132,26 @@ public:
 	/// <param name="renderer"></param>
 	/// <param name="newSize"></param>
 	void afterSwapchainRecreation(Canvas* canvas, Renderer* renderer, const glm::ivec2& newSize) override;
+
+	/// <summary>
+	/// Checks if the label contains the specified point
+	/// </summary>
+	/// <param name="point"></param>
+	/// <returns></returns>
+	bool containsPoint(const glm::vec2& point) override;
+
+	/// <summary>
+	/// Get the bounds of the label
+	/// </summary>
+	/// <returns></returns>
+	glm::vec4 getBounds() override;
+
+	/// <summary>
+	/// Mouse over event
+	/// </summary>
+	/// <param name="canvas"></param>
+	/// <param name="window"></param>
+	/// <param name="mousePos"></param>
+	void mouseOver(Canvas* canvas, GLFWwindow* window, const glm::vec2& mousePos) override;
 };
 
