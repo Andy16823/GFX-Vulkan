@@ -367,8 +367,9 @@ public:
 	void drawCube(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
 	void drawAabb(const AABB& aabb, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
 	void drawPrimitive(PrimitiveType primitiveType, const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
+	void fillRect(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
 	void fillRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
-
+	void fillRect(const glm::vec4& rect, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
 	~Renderer();
 };
 

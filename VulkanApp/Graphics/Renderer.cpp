@@ -2568,7 +2568,7 @@ void Renderer::drawPrimitive(PrimitiveType primitiveType, const glm::mat4& model
 	this->drawBuffers(buffers.vertexBufferIndex, buffers.indexBufferIndex, commandBuffer, 1);
 }
 
-void Renderer::fillRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame)
+void Renderer::fillRect(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame)
 {
 	if (m_activeCamera < 0) {
 		throw std::runtime_error("No camera bound for rectangle rendering!");
@@ -2577,8 +2577,7 @@ void Renderer::fillRect(const glm::vec2& position, const glm::vec2& size, const 
 
 	auto primitiveBuffer = m_rendererPrimitives[PrimitiveType::PRIMITIVE_TYPE_QUAD];
 	UboModelColor pushconstant = {};
-	pushconstant.model = glm::translate(glm::mat4(1.0f), glm::vec3(position, 0.0f));
-	pushconstant.model = glm::scale(pushconstant.model, glm::vec3(size, 1.0f));
+	pushconstant.model = modelMatrix;
 	pushconstant.color = color;
 
 	std::array<VkDescriptorSet, 1> descriptorSets = {
@@ -2590,6 +2589,22 @@ void Renderer::fillRect(const glm::vec2& position, const glm::vec2& size, const 
 	this->bindPushConstants(commandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModelColor), &pushconstant);
 	this->bindDescriptorSets(descriptorSets, 0, frame);
 	this->drawBuffers(primitiveBuffer.vertexBufferIndex, primitiveBuffer.indexBufferIndex, commandBuffer);
+}
+
+void Renderer::fillRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame)
+{
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(position, 0.0f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(size, 1.0f));
+	this->fillRect(modelMatrix, color, commandBuffer, frame);
+}
+
+void Renderer::fillRect(const glm::vec4& rect, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame)
+{
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(rect.x, rect.y, 0.0f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(rect.z, rect.w, 1.0f));
+	this->fillRect(modelMatrix, color, commandBuffer, frame);
 }
 
 /// <summary>
