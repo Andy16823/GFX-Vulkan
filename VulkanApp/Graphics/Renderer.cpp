@@ -2423,7 +2423,7 @@ void Renderer::drawTexture(const glm::mat4& matrix, int textureBufferIndex, VkCo
 	this->drawBuffers(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
 }
 
-void Renderer::drawRenderTarget(const glm::mat4& matrix, int renderTargetIndex, VkCommandBuffer commandBuffer, int frame)
+void Renderer::drawRenderTarget(const glm::mat4& matrix, int renderTargetIndex, VkCommandBuffer commandBuffer, int frame, bool depthTest)
 {
 	if(m_activeCamera < 0)
 	{
@@ -2440,7 +2440,12 @@ void Renderer::drawRenderTarget(const glm::mat4& matrix, int renderTargetIndex, 
 		cameraDescriptorSet,
 		imageDescriptorSet
 	};
-	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
+
+	if(depthTest) {
+		this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
+	} else {
+		this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D_NO_DEPTH));
+	}
 	this->bindPushConstants(commandBuffer, this->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &modelUbo);
 	this->bindDescriptorSets(descriptorSets, frame);
 	this->drawBuffers(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);

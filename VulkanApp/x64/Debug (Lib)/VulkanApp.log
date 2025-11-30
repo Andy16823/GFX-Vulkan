@@ -1,18 +1,28 @@
-﻿  Label.cpp
+﻿  AssetManager.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „UI/Label.cpp“ wird kompiliert)
+  (Quelldatei „Assets/AssetManager.cpp“ wird kompiliert)
   
-  Canvas.cpp
+  ModelLoader.cpp
+  pbrmaterial.h is deprecated. Please update to PBR materials in materials.h and glTF-specific items in GltfMaterial.h
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „UI/Canvas.cpp“ wird kompiliert)
+  (Quelldatei „Assets/ModelLoader.cpp“ wird kompiliert)
+  
+  StaticMeshesRsc.cpp
+  pbrmaterial.h is deprecated. Please update to PBR materials in materials.h and glTF-specific items in GltfMaterial.h
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
+  (Quelldatei „Assets/StaticMeshesRsc.cpp“ wird kompiliert)
   
   FrustumCullingBhv.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
@@ -22,13 +32,13 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
   (Quelldatei „Components/FrustumCullingBhv.cpp“ wird kompiliert)
   
-  AssetManager.cpp
+  RotationBehavior.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Assets/AssetManager.cpp“ wird kompiliert)
+  (Quelldatei „Components/RotationBehavior.cpp“ wird kompiliert)
   
   ChunkedScene3D.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
@@ -38,23 +48,6 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
   (Quelldatei „Core/ChunkedScene3D.cpp“ wird kompiliert)
   
-  DirectionalLight.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Graphics/DirectionalLight.cpp“ wird kompiliert)
-  
-  Game.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Core/Game.cpp“ wird kompiliert)
-  
-  pbrmaterial.h is deprecated. Please update to PBR materials in materials.h and glTF-specific items in GltfMaterial.h
   Entity.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
@@ -72,21 +65,13 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4
   (Quelldatei „Core/GFX.cpp“ wird kompiliert)
   
   pbrmaterial.h is deprecated. Please update to PBR materials in materials.h and glTF-specific items in GltfMaterial.h
-  ImageBuffer.cpp
+  Game.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Graphics/ImageBuffer.cpp“ wird kompiliert)
-  
-  InstancedModel.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Core/InstancedModel.cpp“ wird kompiliert)
+  (Quelldatei „Core/Game.cpp“ wird kompiliert)
   
   pbrmaterial.h is deprecated. Please update to PBR materials in materials.h and glTF-specific items in GltfMaterial.h
   InstanceHandle.cpp
@@ -97,6 +82,15 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
   (Quelldatei „Core/InstanceHandle.cpp“ wird kompiliert)
   
+  InstancedModel.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
+  (Quelldatei „Core/InstancedModel.cpp“ wird kompiliert)
+  
+  pbrmaterial.h is deprecated. Please update to PBR materials in materials.h and glTF-specific items in GltfMaterial.h
   Instancer.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
@@ -104,14 +98,6 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
   (Quelldatei „Core/Instancer.cpp“ wird kompiliert)
-  
-  Mesh.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Graphics/Mesh.cpp“ wird kompiliert)
   
   Model.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
@@ -122,13 +108,13 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4
   (Quelldatei „Core/Model.cpp“ wird kompiliert)
   
   pbrmaterial.h is deprecated. Please update to PBR materials in materials.h and glTF-specific items in GltfMaterial.h
-  RotationBehavior.cpp
+  PrimitiveEntity.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Components/RotationBehavior.cpp“ wird kompiliert)
+  (Quelldatei „Core/PrimitiveEntity.cpp“ wird kompiliert)
   
   Scene.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
@@ -138,6 +124,22 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
   (Quelldatei „Core/Scene.cpp“ wird kompiliert)
   
+  Scene3D.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
+  (Quelldatei „Core/Scene3D.cpp“ wird kompiliert)
+  
+  Skybox.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
+  (Quelldatei „Core/Skybox.cpp“ wird kompiliert)
+  
   Sprite.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
@@ -145,6 +147,33 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
   (Quelldatei „Core/Sprite.cpp“ wird kompiliert)
+  
+  DirectionalLight.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
+  (Quelldatei „Graphics/DirectionalLight.cpp“ wird kompiliert)
+  
+  ImageBuffer.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
+  (Quelldatei „Graphics/ImageBuffer.cpp“ wird kompiliert)
+  
+  Code wird generiert...
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(143,1): warning C4715: "findMemoryType": Nicht alle Codepfade geben einen Wert zurück.
+  Kompilieren...
+  Mesh.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
+  (Quelldatei „Graphics/Mesh.cpp“ wird kompiliert)
   
   PBRMaterial.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
@@ -154,24 +183,14 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
   (Quelldatei „Graphics/PBRMaterial.cpp“ wird kompiliert)
   
-  VertexBuffer.cpp
+  RenderTarget.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Graphics/VertexBuffer.cpp“ wird kompiliert)
+  (Quelldatei „Graphics/RenderTarget.cpp“ wird kompiliert)
   
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(17,29): warning C4267: "=": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(108,29): warning C4267: "=": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(122,29): warning C4267: "=": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(151,33): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(164,32): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(215,32): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
-  Code wird generiert...
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(143,1): warning C4715: "findMemoryType": Nicht alle Codepfade geben einen Wert zurück.
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(143,1): warning C4715: "findMemoryType": Nicht alle Codepfade geben einen Wert zurück.
-  Kompilieren...
   Renderer.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
@@ -200,48 +219,6 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1809,
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1826,33): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1876,18): warning C4267: "Initialisierung": Konvertierung von "size_t" nach "int", Datenverlust möglich
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1898,30): warning C4267: "return": Konvertierung von "size_t" nach "int", Datenverlust möglich
-  Skybox.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Core/Skybox.cpp“ wird kompiliert)
-  
-  RenderTarget.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Graphics/RenderTarget.cpp“ wird kompiliert)
-  
-  ModelLoader.cpp
-  pbrmaterial.h is deprecated. Please update to PBR materials in materials.h and glTF-specific items in GltfMaterial.h
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Assets/ModelLoader.cpp“ wird kompiliert)
-  
-  Scene3D.cpp
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Core/Scene3D.cpp“ wird kompiliert)
-  
-  StaticMeshesRsc.cpp
-  pbrmaterial.h is deprecated. Please update to PBR materials in materials.h and glTF-specific items in GltfMaterial.h
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
-C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Assets/StaticMeshesRsc.cpp“ wird kompiliert)
-  
   UnlitMaterial.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
@@ -250,13 +227,35 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
   (Quelldatei „Graphics/UnlitMaterial.cpp“ wird kompiliert)
   
-  PrimitiveEntity.cpp
+  VertexBuffer.cpp
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
-  (Quelldatei „Core/PrimitiveEntity.cpp“ wird kompiliert)
+  (Quelldatei „Graphics/VertexBuffer.cpp“ wird kompiliert)
+  
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(17,29): warning C4267: "=": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(108,29): warning C4267: "=": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(122,29): warning C4267: "=": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(151,33): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(164,32): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\VertexBuffer.cpp(215,32): warning C4267: "=": Konvertierung von "size_t" nach "int", Datenverlust möglich
+  Canvas.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
+  (Quelldatei „UI/Canvas.cpp“ wird kompiliert)
+  
+  Label.cpp
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244: "Initialisierung": Konvertierung von "_Rep" in "int", möglicher Datenverlust
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         with
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         [
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:             _Rep=__int64
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(525,11): warning C4244:         ]
+  (Quelldatei „UI/Label.cpp“ wird kompiliert)
   
   Code wird generiert...
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(143,1): warning C4715: "findMemoryType": Nicht alle Codepfade geben einen Wert zurück.
@@ -267,6 +266,7 @@ C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1638,
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1646,1): warning C4715: "Renderer::getImageBuffer": Nicht alle Codepfade geben einen Wert zurück.
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1731,1): warning C4715: "Renderer::getCommandBuffer": Nicht alle Codepfade geben einen Wert zurück.
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Graphics\Renderer.cpp(1753,1): warning C4715: "Renderer::getSwapchainFramebuffer": Nicht alle Codepfade geben einen Wert zurück.
+C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(143,1): warning C4715: "findMemoryType": Nicht alle Codepfade geben einen Wert zurück.
 C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\Utils.h(143,1): warning C4715: "findMemoryType": Nicht alle Codepfade geben einen Wert zurück.
   VulkanApp.vcxproj -> C:\Users\andy1\Documents\GitHub\GFX-Vulkan\x64\Debug (Lib)\VulkanApp.lib
   C:\Users\andy1\Documents\GitHub\GFX-Vulkan\VulkanApp\shaders\compile.bat
