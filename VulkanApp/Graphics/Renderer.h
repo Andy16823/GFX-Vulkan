@@ -74,9 +74,11 @@ enum class PipelineType {
 	PIPELINE_TYPE_GRAPHICS_3D_UNLIT,
 	PIPELINE_TYPE_GRAPHICS_3D_UNLIT_INSTANCED,
 	PIPELINE_TYPE_GRAPHICS_2D,
+	PIPELINE_TYPE_GRAPHICS_2D_NO_DEPTH,
 	PIPELINE_TYPE_SKYBOX,
 	PIPELINE_TYPE_FONT_RENDERING,
 	PIPELINE_TYPE_SOLID_SHADING,
+	PIPELINE_TYPE_SOLID_SHADING_NO_DEPTH,
 	PIPELINE_TYPE_RENDER_TARGET_PRESENT
 };
 
@@ -92,9 +94,11 @@ inline const char* ToString(PipelineType type) {
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D_UNLIT: return "pipeline_3D_unlit";
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_3D_UNLIT_INSTANCED: return "pipeline_3D_unlit_instanced";
 	case PipelineType::PIPELINE_TYPE_GRAPHICS_2D: return "pipeline_2D";
+	case PipelineType::PIPELINE_TYPE_GRAPHICS_2D_NO_DEPTH: return "pipeline_2D_no_depth";
 	case PipelineType::PIPELINE_TYPE_SKYBOX: return "pipeline_skybox";
 	case PipelineType::PIPELINE_TYPE_FONT_RENDERING: return "pipeline_font_rendering";
 	case PipelineType::PIPELINE_TYPE_SOLID_SHADING: return "pipeline_solid_shading";
+	case PipelineType::PIPELINE_TYPE_SOLID_SHADING_NO_DEPTH: return "pipeline_solid_shading_no_depth";
 	case PipelineType::PIPELINE_TYPE_RENDER_TARGET_PRESENT: return "pipeline_render_target_present";
 	default: return "unknown";
 	}
@@ -361,15 +365,15 @@ public:
 	void drawBuffers(int vertexBufferIndex, int indexBufferIndex, VkCommandBuffer commandBuffer, int instances = 1);
 	void drawSkybox(uint32_t vertexBufferIndex, uint32_t indexBufferIndex, uint32_t cubemapBufferIndex, int frame);
 	void drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer commandBuffer, int frame);
-	void drawTexture(const glm::mat4& matrix, int textureBufferIndex, VkCommandBuffer commandBuffer, int frame);
+	void drawTexture(const glm::mat4& matrix, int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, bool depthTest = true);
 	void drawRenderTarget(const glm::mat4& matrix, int renderTargetIndex, VkCommandBuffer commandBuffer, int frame);
 	void drawText(const std::string& text, const int fontIndex, const int vertexBufferIndex, VkCommandBuffer commandBuffer, int frame, glm::vec2 position, float scale, float lineSpacing = 1.2, int textalignment = TextAlignment::ALIGNMENT_CENTER | TextAlignment::ALIGNMENT_MIDDLE);
 	void drawCube(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
 	void drawAabb(const AABB& aabb, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
 	void drawPrimitive(PrimitiveType primitiveType, const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
-	void fillRect(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
-	void fillRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
-	void fillRect(const glm::vec4& rect, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame);
+	void fillRect(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame, bool depthTest = true);
+	void fillRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame, bool depthTest = true);
+	void fillRect(const glm::vec4& rect, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame, bool depthTest = true);
 	~Renderer();
 };
 

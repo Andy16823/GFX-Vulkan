@@ -512,6 +512,16 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipline2DLayouts.data(), static_cast<uint32_t>(pipline2DLayouts.size()), &pushConstantRange, 1);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
+	// PIPELINE 2D NO DEPTH
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D_NO_DEPTH), shaders2D, bindingInfo);
+	pipelinePtr->depthTestEnable = VK_FALSE;
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
+	pipelinePtr->addVertexAttribute(texCoordAttr);
+	std::array<VkDescriptorSetLayout, 2> pipeline2DNoDepthLayouts = { m_cameraDescriptorSetLayout, m_samplerSetLayout };
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, pipeline2DNoDepthLayouts.data(), static_cast<uint32_t>(pipeline2DNoDepthLayouts.size()), &pushConstantRange, 1);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
+
 	// PIPELINE ENVIRONMENT MAP
 	ShaderSourceCollection shadersEnvMap = { "Shaders/skybox_vert.spv", "Shaders/skybox_frag.spv" };
 	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_SKYBOX), shadersEnvMap, bindingInfo);
@@ -546,6 +556,15 @@ void Renderer::createGraphicsPipelines()
 	pipelinePtr->addVertexAttribute(colorAttr);
 	std::array<VkDescriptorSetLayout, 1> solidColorPipelineLayouts = { m_cameraDescriptorSetLayout };
 	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, solidColorPipelineLayouts.data(), static_cast<uint32_t>(solidColorPipelineLayouts.size()), &pushConstantRangeSolid, 1);
+	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
+
+	// SOLID COLOR PIPELINE NO DEPTH
+	pipelinePtr = m_pipelineManager->createPipeline(ToString(PipelineType::PIPELINE_TYPE_SOLID_SHADING_NO_DEPTH), solidColorShaders, bindingInfo);
+	pipelinePtr->depthTestEnable = VK_FALSE;
+	pipelinePtr->addVertexAttribute(positionAttr);
+	pipelinePtr->addVertexAttribute(colorAttr);
+	std::array<VkDescriptorSetLayout, 1> solidColorNoDepthPipelineLayouts = { m_cameraDescriptorSetLayout };
+	pipelinePtr->createPipelineLayout(m_renderDevice.logicalDevice, solidColorNoDepthPipelineLayouts.data(), static_cast<uint32_t>(solidColorNoDepthPipelineLayouts.size()), &pushConstantRangeSolid, 1);
 	pipelinePtr->createPipeline(m_renderDevice.logicalDevice, offscreenRenderPass->getRenderPass(), viewport, scissor);
 
 	// PRESENT PIPELINE FOR RENDER TARGETS
@@ -2368,7 +2387,7 @@ void Renderer::drawRenderTargetQuad(RenderTarget* rendertarget, VkCommandBuffer 
 	);
 }
 
-void Renderer::drawTexture(const glm::mat4& matrix, int textureBufferIndex, VkCommandBuffer commandBuffer, int frame)
+void Renderer::drawTexture(const glm::mat4& matrix, int textureBufferIndex, VkCommandBuffer commandBuffer, int frame, bool depthTest)
 {
 	if (m_activeCamera < 0)
 	{
@@ -2391,7 +2410,14 @@ void Renderer::drawTexture(const glm::mat4& matrix, int textureBufferIndex, VkCo
 		this->getCameraDescriptorSet(m_activeCamera, frame),
 		imageDescriptorSet
 	};
-	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
+
+	if (depthTest) {
+		this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D));
+	}
+	else {
+		this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_GRAPHICS_2D_NO_DEPTH));
+	}
+
 	this->bindPushConstants(commandBuffer, this->getCurrentPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel), &ubo);
 	this->bindDescriptorSets(descriptorSets, frame);
 	this->drawBuffers(primitveBuffer.vertexBufferIndex, primitveBuffer.indexBufferIndex, commandBuffer);
@@ -2568,7 +2594,7 @@ void Renderer::drawPrimitive(PrimitiveType primitiveType, const glm::mat4& model
 	this->drawBuffers(buffers.vertexBufferIndex, buffers.indexBufferIndex, commandBuffer, 1);
 }
 
-void Renderer::fillRect(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame)
+void Renderer::fillRect(const glm::mat4& modelMatrix, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame, bool depthTest)
 {
 	if (m_activeCamera < 0) {
 		throw std::runtime_error("No camera bound for rectangle rendering!");
@@ -2584,27 +2610,32 @@ void Renderer::fillRect(const glm::mat4& modelMatrix, const glm::vec4& color, Vk
 		cameraDescriptorSet
 	};
 
-	this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_SOLID_SHADING));
+	if (depthTest) {
+		this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_SOLID_SHADING));
+	}
+	else {
+		this->bindPipeline(commandBuffer, ToString(PipelineType::PIPELINE_TYPE_SOLID_SHADING_NO_DEPTH));
+	}
 	auto layout = m_currentPipeline->getPipelineLayout();
 	this->bindPushConstants(commandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModelColor), &pushconstant);
 	this->bindDescriptorSets(descriptorSets, 0, frame);
 	this->drawBuffers(primitiveBuffer.vertexBufferIndex, primitiveBuffer.indexBufferIndex, commandBuffer);
 }
 
-void Renderer::fillRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame)
+void Renderer::fillRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame, bool depthTest)
 {
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(position, 0.0f));
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(size, 1.0f));
-	this->fillRect(modelMatrix, color, commandBuffer, frame);
+	this->fillRect(modelMatrix, color, commandBuffer, frame, depthTest);
 }
 
-void Renderer::fillRect(const glm::vec4& rect, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame)
+void Renderer::fillRect(const glm::vec4& rect, const glm::vec4& color, VkCommandBuffer commandBuffer, int frame, bool depthTest)
 {
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(rect.x, rect.y, 0.0f));
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(rect.z, rect.w, 1.0f));
-	this->fillRect(modelMatrix, color, commandBuffer, frame);
+	this->fillRect(modelMatrix, color, commandBuffer, frame, depthTest);
 }
 
 /// <summary>
