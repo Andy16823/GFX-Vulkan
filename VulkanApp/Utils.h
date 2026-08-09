@@ -551,3 +551,10 @@ static bool containsPoint2(const glm::vec2& point, const glm::vec2& rectPost, co
 		return (point.x >= rectPost.x && point.x <= rectPost.x + rectSize.x &&
 			point.y >= rectPost.y && point.y <= rectPost.y + rectSize.y);
 }
+
+static float randomizeFloat(float min, float max, int seedOffset = 0) {
+		int seed = static_cast<int>(std::chrono::steady_clock::now().time_since_epoch().count()) + seedOffset;
+		static std::mt19937 rng(seed);
+		std::uniform_real_distribution<float> dist(min, max);
+		return dist(rng);
+}
